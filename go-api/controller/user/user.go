@@ -124,6 +124,8 @@ func UploadImageProfile(c *gin.Context) {
 }
 
 func Search(c *gin.Context) {
+	device_host := os.Getenv("DEVICE_HOST")
+	var imageHost = "http://" + device_host + ":8080/get_image/"
 	keyword := c.DefaultQuery("keyword", "")
 
 	var users []orm.User
@@ -132,8 +134,13 @@ func Search(c *gin.Context) {
 		return
 	}
 
+	for i := range users {
+		users[i].Img_profile = imageHost + users[i].Img_profile
+		// fmt.Println("%s", users[i].Img_profile)
+	}
+
 	c.JSON(200, gin.H{
-		"message": "Search received",
-		"users":   users,
+		"status": "OK",
+		"users":  users,
 	})
 }
