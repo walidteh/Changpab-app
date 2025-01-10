@@ -86,7 +86,6 @@ const PhotoSearch = () => {
       const data = await response.json();
       if (data.status === "ok") {
         setUserAll(data.userId);
-        // console.log(data.userId[0].Img_profile);
       } else {
         alert("Failed to fetch user data");
       }
@@ -104,6 +103,7 @@ const PhotoSearch = () => {
   }, []);
 
   const searchUser = async (keyword) => {
+    setUserAll([])
     try {
       const token = await AsyncStorage.getItem("@token");
       if (!token) {
@@ -121,22 +121,13 @@ const PhotoSearch = () => {
           },
         }
       );
-  
-      const responseText = await response.text(); // อ่าน response ดิบ
-      console.log("API Response Text:", responseText);
-  
-      if (response.ok) {
-        if (responseText && responseText !== "No results found") {
-          const result = JSON.parse(responseText);
-          console.log("Search Results:", result.keyword); // แสดงผล keyword ที่ API ส่งกลับ
-          // แสดงผลลัพธ์การค้นหา
-        } else {
-          console.log("No results found");
-          // alert("No users found"); 
-        }
+
+      const data = await response.json();
+      if (data.status === "OK") {
+        setUserAll(data.users);
+
       } else {
-        console.error("HTTP Error:", response.status, response.statusText);
-        alert(`Error: ${response.statusText}`);
+        alert("Failed to fetch user data");
       }
     } catch (error) {
       console.error("Error:", error);
@@ -145,11 +136,10 @@ const PhotoSearch = () => {
   };
   
   
-  
 
-  // ฟังก์ชั่นลบข้อความเมื่อกดปุ่ม
 
   const clearText = () => {
+    fetchAllUser();
     setText("");
   };
 
@@ -376,12 +366,15 @@ const styles = StyleSheet.create({
   },
 
   body: {
+    backgroundColor: "#000",
     flex: 1,
     padding: 16,
     backgroundColor: "#fff",
     flexDirection: "row",
-    flexWrap: "wrap", // จัดเรียงหลายคอลัมน์
+    flexWrap: "wrap",
     justifyContent: "space-between",
+    height: "100%"
+    // alignItems: "flex-start"
   },
   item: {
     width: "48%", // ขนาดกล่อง 48% เพื่อให้มีระยะห่างระหว่างกล่อง
