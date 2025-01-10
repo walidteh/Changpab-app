@@ -13,7 +13,6 @@ import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import app_var from "./public";
 
-
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
   faBars,
@@ -104,7 +103,52 @@ const PhotoSearch = () => {
     fetchAllUser();
   }, []);
 
+  const searchUser = async (keyword) => {
+    try {
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        alert("Token not found. Please log in again.");
+        return;
+      }
+  
+      // กำหนด URL ที่ส่ง parameter keyword ไปกับ GET request
+      const response = await fetch(
+        "http://" + app_var.api_host + "/users/search?keyword=" + encodeURIComponent(keyword),
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      const responseText = await response.text(); // อ่าน response ดิบ
+      console.log("API Response Text:", responseText);
+  
+      if (response.ok) {
+        if (responseText && responseText !== "No results found") {
+          const result = JSON.parse(responseText);
+          console.log("Search Results:", result.keyword); // แสดงผล keyword ที่ API ส่งกลับ
+          // แสดงผลลัพธ์การค้นหา
+        } else {
+          console.log("No results found");
+          // alert("No users found"); 
+        }
+      } else {
+        console.error("HTTP Error:", response.status, response.statusText);
+        alert(`Error: ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("An error occurred while searching.");
+    }
+  };
+  
+  
+  
+
   // ฟังก์ชั่นลบข้อความเมื่อกดปุ่ม
+
   const clearText = () => {
     setText("");
   };
@@ -162,8 +206,9 @@ const PhotoSearch = () => {
       <View style={styles.search}>
         <TextInput
           placeholder="Search"
-          value={text} // ค่าของ TextInput
-          onChangeText={setText} // ฟังก์ชันในการเปลี่ยนข้อความ
+          value={text}
+          onChangeText={setText}
+          onSubmitEditing={() => searchUser(text)}
           style={styles.bttsearch}
         />
         {text.length === 0 && (
@@ -205,7 +250,6 @@ const PhotoSearch = () => {
 
       <ScrollView>
         <View style={styles.body}>
-
           {userAll.map((user, i) => (
             <TouchableOpacity key={i} style={styles.item} onPress={DetailPost}>
               <Image
