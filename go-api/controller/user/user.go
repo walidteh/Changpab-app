@@ -122,3 +122,18 @@ func UploadImageProfile(c *gin.Context) {
 		"file":    fileName,
 	})
 }
+
+func Search(c *gin.Context) {
+	keyword := c.DefaultQuery("keyword", "")
+
+	var users []orm.User
+	if err := orm.Db.Where("fullname LIKE ?", keyword+"%").Find(&users).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to update user profile"})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"message": "Search received",
+		"users":   users,
+	})
+}

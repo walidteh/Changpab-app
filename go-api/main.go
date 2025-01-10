@@ -35,6 +35,7 @@ func main() {
 	authorized := r.Group("/users", middleware.JWTAuthen())
 	authorized.GET("/get_all_user", UserController.GetAllUser)
 	authorized.GET("/get_user_info", UserController.GetUserInfo)
+	authorized.GET("/search", UserController.Search)
 	authorized.POST("/upload_image_post", UserController.UploadImagePost)
 	authorized.POST("/upload_image_profile", UserController.UploadImageProfile)
 
