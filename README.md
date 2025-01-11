@@ -21,6 +21,13 @@ app> npm audit --force
 <b>successfully
 
 
+## Error expo
+```
+npx expo-doctor
+npx expo install --check
+```
+
+
 
 ## API
 |Description|Api Path|Method|
