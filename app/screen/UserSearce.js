@@ -1,49 +1,167 @@
-import { View, Text, SafeAreaView, StyleSheet, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
-import React, { useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import {
+  View,
+  Text,
+  SafeAreaView,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+} from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import app_var from "./public";
 
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faBars, faTimes, faMagnifyingGlass, faArrowLeft, faHouse, faBell, faUser } from '@fortawesome/free-solid-svg-icons';
-
-const photographers = [
-  { id: 1, name: 'fauzan studio', image: require('../assets/photographer/fauzan studio.jpg') },
-  { id: 2, name: 'fullframe', image: require('../assets/photographer/fullframe.jpg') },
-  { id: 3, name: 'hilmee photographer', image: require('../assets/photographer/hilmee photographer.jpg') },
-  { id: 4, name: 'kasut buruk', image: require('../assets/photographer/kasut buruk.png') },
-  { id: 5, name: 'pl-photographer', image: require('../assets/photographer/pl-photographer.jpg') },
-  { id: 6, name: 'Supang', image: require('../assets/photographer/supang.jpg') },
-  { id: 7, name: 'fauzan studio', image: require('../assets/photographer/fauzan studio.jpg') },
-  { id: 8, name: 'fullframe', image: require('../assets/photographer/fullframe.jpg') },
-  { id: 9, name: 'hilmee photographer', image: require('../assets/photographer/hilmee photographer.jpg') },
-  { id: 10, name: 'kasut buruk', image: require('../assets/photographer/kasut buruk.png') },
-  { id: 11, name: 'pl-photographer', image: require('../assets/photographer/pl-photographer.jpg') },
-  { id: 12, name: 'Supang', image: require('../assets/photographer/supang.jpg') },
-];
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import {
+  faBars,
+  faTimes,
+  faMagnifyingGlass,
+  faArrowLeft,
+  faHouse,
+  faBell,
+  faUser,
+  faSquarePlus,
+} from "@fortawesome/free-solid-svg-icons";
 
 const UserSearch = () => {
-  const [text, setText] = useState('');
+  const [text, setText] = useState("");
+  const [user, setUser] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [userAll, setUserAll] = useState([]);
 
-  // ฟังก์ชั่นลบข้อความเมื่อกดปุ่ม
+  const fetchUser = async () => {
+    try {
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        alert("Token not found. Please log in again.");
+        return;
+      }
+
+      const response = await fetch(
+        "http://" + app_var.api_host + "/users/get_user_info",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+      if (data.status === "ok") {
+        setUser(data.userId);
+      } else {
+        alert("Failed to fetch user data");
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      alert("Error fetching user data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchAllUser = async () => {
+    try {
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        alert("Token not found. Please log in again.");
+        return;
+      }
+
+      const response = await fetch(
+        "http://" + app_var.api_host + "/users/get_all_user",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+      if (data.status === "ok") {
+        setUserAll(data.userId);
+      } else {
+        alert("Failed to fetch user data");
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      alert("Error fetching user data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUser();
+    fetchAllUser();
+  }, []);
+
+  const searchUser = async (keyword) => {
+    setUserAll([]);
+    try {
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        alert("Token not found. Please log in again.");
+        return;
+      }
+
+      // กำหนด URL ที่ส่ง parameter keyword ไปกับ GET request
+      const response = await fetch(
+        "http://" +
+          app_var.api_host +
+          "/users/search?keyword=" +
+          encodeURIComponent(keyword),
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+      if (data.status === "OK") {
+        setUserAll(data.users);
+      } else {
+        alert("Failed to fetch user data");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("An error occurred while searching.");
+    }
+  };
+
   const clearText = () => {
-    setText('');
+    fetchAllUser();
+    setText("");
   };
 
   const navigation = useNavigation();
 
+  const DetailPost = () => {
+    navigation.navigate("DetailPost");
+  };
+
   const UserIdex = () => {
-    navigation.navigate('Userindex');
+    navigation.navigate("Userindex");
   };
 
   const UserSearce = () => {
-    navigation.navigate('UserSearch');
+    navigation.navigate("UserSearch");
   };
 
   const UserNotify = () => {
-    navigation.navigate('UserNotify');
+    navigation.navigate("UserNotify");
   };
 
   const UserProfile = () => {
-    navigation.navigate('UserProfile');
+    navigation.navigate("UserProfile");
   };
 
   return (
@@ -64,27 +182,27 @@ const UserSearch = () => {
           style={styles.exitIcon}
           onPress={() => navigation.goBack()}
         >
-          <FontAwesomeIcon
-            icon={faArrowLeft}
-            size={18}
-            color="#000"
-          />
+          <FontAwesomeIcon icon={faArrowLeft} size={18} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.exitText}>
-          ค้นหาช่างภาพ
-        </Text>
+        <Text style={styles.exitText}>ค้นหาช่างภาพ</Text>
       </View>
 
       {/* Search Bar */}
       <View style={styles.search}>
         <TextInput
           placeholder="Search"
-          value={text} // ค่าของ TextInput
-          onChangeText={setText} // ฟังก์ชันในการเปลี่ยนข้อความ
+          value={text}
+          onChangeText={setText}
+          onSubmitEditing={() => searchUser(text)}
           style={styles.bttsearch}
         />
         {text.length === 0 && (
-          <FontAwesomeIcon icon={faMagnifyingGlass} size={20} color="#B7B7B7" style={styles.searchIcon} />
+          <FontAwesomeIcon
+            icon={faMagnifyingGlass}
+            size={20}
+            color="#B7B7B7"
+            style={styles.searchIcon}
+          />
         )}
         {text.length > 0 && (
           <TouchableOpacity style={styles.clearButton} onPress={clearText}>
@@ -92,35 +210,38 @@ const UserSearch = () => {
           </TouchableOpacity>
         )}
       </View>
-
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingLeft: 15 }}>
-        <TouchableOpacity style={styles.boxfillter}>
-          <Text>แต่งงาน</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.boxfillter}>
-          <Text>แต่งงาน</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.boxfillter}>
-          <Text>แต่งงาน</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.boxfillter}>
-          <Text>แต่งงาน</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.boxfillter}>
-          <Text>แต่งงาน</Text>
-        </TouchableOpacity>
-      </ScrollView>
-
       <ScrollView>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={{ paddingLeft: 15 }}
+        >
+          <TouchableOpacity style={styles.boxfillter}>
+            <Text>แต่งงาน</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.boxfillter}>
+            <Text>พรีเวดดิ้ง</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.boxfillter}>
+            <Text>แต่งงาน</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.boxfillter}>
+            <Text>ถ่ายแบบ</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.boxfillter}>
+            <Text>ถ่ายรูป</Text>
+          </TouchableOpacity>
+        </ScrollView>
         <View style={styles.body}>
-          {photographers.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={styles.item}
-              onPress={() => Profile(item.id)}
-            >
-              <Image source={item.image} style={styles.image_body} />
-              <Text style={styles.name}>{item.name}</Text>
+          {userAll.map((user, i) => (
+            <TouchableOpacity key={i} style={styles.item} onPress={DetailPost}>
+              <Image
+                source={{ uri: user.Img_profile }}
+                style={styles.image_body}
+              />
+              <Text style={styles.name}>
+                {user.Fullname || "No Fullname Available"}
+              </Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -129,28 +250,16 @@ const UserSearch = () => {
       {/* เมนูด้านล่าง */}
       <View style={styles.menu}>
         <TouchableOpacity style={styles.menuItem} onPress={UserIdex}>
-          <FontAwesomeIcon
-            icon={faHouse}
-            size={24}
-            color="#000" />
+          <FontAwesomeIcon icon={faHouse} size={24} color="#000" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem} onPress={UserSearce}>
-          <FontAwesomeIcon
-            icon={faMagnifyingGlass}
-            size={24}
-            color="#000" />
+          <FontAwesomeIcon icon={faMagnifyingGlass} size={24} color="#000" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem} onPress={UserNotify}>
-          <FontAwesomeIcon
-            icon={faBell}
-            size={24}
-            color="#000" />
+          <FontAwesomeIcon icon={faBell} size={24} color="#000" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem} onPress={UserProfile}>
-          <FontAwesomeIcon
-            icon={faUser}
-            size={24}
-            color="#000" />
+          <FontAwesomeIcon icon={faUser} size={24} color="#000" />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -160,19 +269,19 @@ const UserSearch = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     paddingTop: 80, // ชดเชยความสูงของ Navbar
   },
   navbar: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     height: 90, // ความสูงของ Navbar
-    backgroundColor: '#fff',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    backgroundColor: "#fff",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingTop: 30, // เพิ่มระยะด้านบนสำหรับ SafeArea
     paddingBottom: 10,
@@ -183,54 +292,54 @@ const styles = StyleSheet.create({
   },
   rightBox: {
     flex: 1,
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
   },
   titleTop: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 
   exit: {
-    flexDirection: 'row', // จัดเรียงไอเท็มในแนวนอน
-    alignItems: 'center', // จัดให้อยู่ตรงกลางในแนวตั้ง
-    justifyContent: 'center', // ข้อความอยู่ตรงกลาง
+    flexDirection: "row", // จัดเรียงไอเท็มในแนวนอน
+    alignItems: "center", // จัดให้อยู่ตรงกลางในแนวตั้ง
+    justifyContent: "center", // ข้อความอยู่ตรงกลาง
     paddingVertical: 10,
-    position: 'relative', // เพื่อจัดไอคอนให้อยู่ซ้ายสุด
+    position: "relative", // เพื่อจัดไอคอนให้อยู่ซ้ายสุด
   },
   exitIcon: {
-    position: 'absolute', // ทำให้ไอคอนย้ายไปด้านซ้ายสุด
+    position: "absolute", // ทำให้ไอคอนย้ายไปด้านซ้ายสุด
     left: 20, // ระยะห่างจากขอบซ้าย
   },
   exitText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 
   search: {
     marginTop: 10,
-    width: '90%',
-    alignSelf: 'center',
-    position: 'relative', // เพื่อให้ไอคอนอยู่ในตำแหน่งที่เหมาะสม
+    width: "90%",
+    alignSelf: "center",
+    position: "relative", // เพื่อให้ไอคอนอยู่ในตำแหน่งที่เหมาะสม
   },
   searchIcon: {
-    position: 'absolute',
+    position: "absolute",
     right: 15, // ตำแหน่งไอคอนค้นหาที่ด้านซ้าย
-    top: '50%',
+    top: "50%",
     transform: [{ translateY: -10 }], // ไอคอนอยู่กลางแนวตั้ง
   },
   bttsearch: {
-    width: '100%',
+    width: "100%",
     height: 45,
-    backgroundColor: '#EEECEC',
+    backgroundColor: "#EEECEC",
     borderRadius: 10,
     paddingLeft: 15, // เพิ่มช่องว่างให้ข้อความไม่ทับไอคอนค้นหา
     fontSize: 16,
-    color: '#333',
+    color: "#333",
   },
   clearButton: {
-    position: 'absolute',
+    position: "absolute",
     right: 10, // ตำแหน่งไอคอนลบที่ด้านขวา
-    top: '50%',
+    top: "50%",
     transform: [{ translateY: -10 }], // ไอคอนอยู่กลางแนวตั้ง
   },
 
@@ -238,70 +347,65 @@ const styles = StyleSheet.create({
     width: 100,
     height: 35,
     borderRadius: 100,
-    backgroundColor: '#D9D9D9',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#D9D9D9",
+    alignItems: "center",
+    justifyContent: "center",
     marginLeft: 10,
     marginTop: 15,
-    marginBottom: 18,
+    // marginBottom: 18,
   },
 
   body: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#fff',
-    flexDirection: 'row',
-    flexWrap: 'wrap', // จัดเรียงหลายคอลัมน์
-    justifyContent: 'space-between',
+    backgroundColor: "#fff",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    height: "100%",
+    // alignItems: "flex-start"
   },
   item: {
-    width: '48%', // ขนาดกล่อง 48% เพื่อให้มีระยะห่างระหว่างกล่อง
+    width: "48%", // ขนาดกล่อง 48% เพื่อให้มีระยะห่างระหว่างกล่อง
     aspectRatio: 1, // ทำให้กล่องเป็นสี่เหลี่ยมจัตุรัส
     marginBottom: 16,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
     borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
     elevation: 3, // สำหรับ Android
   },
   image_body: {
-    width: '70%',
-    height: '70%',
+    width: "70%",
+    height: "70%",
     borderRadius: 8,
     marginBottom: 8,
   },
   name: {
     fontSize: 14,
-    fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center',
-  },
-
-  name: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center',
+    fontWeight: "bold",
+    color: "#333",
+    textAlign: "center",
   },
 
   menu: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
     transform: [{ translateY: -10 }], // ดันขึ้นครึ่งหนึ่งของความสูงเมนู
     height: 60,
-    backgroundColor: '#fff',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
+    backgroundColor: "#fff",
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
     borderRadius: 100,
     marginHorizontal: 16, // เพิ่มขอบซ้ายขวา
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
@@ -309,8 +413,8 @@ const styles = StyleSheet.create({
   },
   menuItem: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
 

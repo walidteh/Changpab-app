@@ -13,7 +13,6 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import Checkbox from "expo-checkbox";
-import { useFonts } from "expo-font";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import app_var from "./public";
@@ -25,9 +24,7 @@ export default function LoginForm({ navigation }) {
   const [email, setEmail] = useState(""); // ตั้งชื่อ state ให้เป็น email
   const [password, setPassword] = useState(""); // ตั้งชื่อ state ให้เป็น password
   const [loading, setLoading] = useState(false);
-  const [fontsLoaded] = useFonts({
-    "Kanit-ExtraLight": require("../assets/fonts/Kanit-ExtraLight.ttf"),
-  });
+
 
   const scaleValue = useRef(new Animated.Value(1)).current;
 
@@ -100,9 +97,6 @@ export default function LoginForm({ navigation }) {
     }
   };
 
-  if (!fontsLoaded) {
-    return <ActivityIndicator size="large" color="#0000ff" />;
-  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -229,7 +223,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 26,
-    fontFamily: "Kanit-ExtraLight",
+    fontFamily: 'Kanit-ExtraLight', 
     fontWeight: "bold",
     textAlign: "center",
     color: "white",

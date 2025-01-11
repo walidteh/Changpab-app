@@ -8,7 +8,7 @@ import {
   ScrollView,
   Image,
 } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import app_var from "./public";
@@ -103,17 +103,20 @@ const PhotoSearch = () => {
   }, []);
 
   const searchUser = async (keyword) => {
-    setUserAll([])
+    setUserAll([]);
     try {
       const token = await AsyncStorage.getItem("@token");
       if (!token) {
         alert("Token not found. Please log in again.");
         return;
       }
-  
+
       // กำหนด URL ที่ส่ง parameter keyword ไปกับ GET request
       const response = await fetch(
-        "http://" + app_var.api_host + "/users/search?keyword=" + encodeURIComponent(keyword),
+        "http://" +
+          app_var.api_host +
+          "/users/search?keyword=" +
+          encodeURIComponent(keyword),
         {
           method: "GET",
           headers: {
@@ -125,7 +128,6 @@ const PhotoSearch = () => {
       const data = await response.json();
       if (data.status === "OK") {
         setUserAll(data.users);
-
       } else {
         alert("Failed to fetch user data");
       }
@@ -134,9 +136,6 @@ const PhotoSearch = () => {
       alert("An error occurred while searching.");
     }
   };
-  
-  
-
 
   const clearText = () => {
     fetchAllUser();
@@ -215,30 +214,28 @@ const PhotoSearch = () => {
           </TouchableOpacity>
         )}
       </View>
-
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={{ paddingLeft: 15 }}
-      >
-        <TouchableOpacity style={styles.boxfillter}>
-          <Text>แต่งงาน</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.boxfillter}>
-          <Text>แต่งงาน</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.boxfillter}>
-          <Text>แต่งงาน</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.boxfillter}>
-          <Text>แต่งงาน</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.boxfillter}>
-          <Text>แต่งงาน</Text>
-        </TouchableOpacity>
-      </ScrollView>
-
       <ScrollView>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={{ paddingLeft: 15 }}
+        >
+          <TouchableOpacity style={styles.boxfillter}>
+            <Text>แต่งงาน</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.boxfillter}>
+            <Text>พรีเวดดิ้ง</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.boxfillter}>
+            <Text>แต่งงาน</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.boxfillter}>
+            <Text>ถ่ายแบบ</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.boxfillter}>
+            <Text>ถ่ายรูป</Text>
+          </TouchableOpacity>
+        </ScrollView>
         <View style={styles.body}>
           {userAll.map((user, i) => (
             <TouchableOpacity key={i} style={styles.item} onPress={DetailPost}>
@@ -362,18 +359,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginLeft: 10,
     marginTop: 15,
-    marginBottom: 18,
+    // marginBottom: 18,
   },
 
   body: {
-    backgroundColor: "#000",
     flex: 1,
     padding: 16,
     backgroundColor: "#fff",
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    height: "100%"
+    height: "100%",
     // alignItems: "flex-start"
   },
   item: {
