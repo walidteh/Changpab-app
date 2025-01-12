@@ -146,15 +146,12 @@ func Search(c *gin.Context) {
 
 func CreatePost(c *gin.Context) {
 	userId := c.MustGet("userId").(float64)
-
-	// รับข้อมูลไฟล์ทั้งหมดจาก form-data
 	form, err := c.MultipartForm()
 	if err != nil {
 		c.JSON(400, gin.H{"error": "Failed to parse form-data"})
 		return
 	}
 
-	// ดึงไฟล์จาก key 'files'
 	files := form.File["files"]
 	PostDetail := c.DefaultPostForm("postdetail", "")
 
@@ -162,18 +159,32 @@ func CreatePost(c *gin.Context) {
 		User_ID: uint(userId),
 		Detail:  PostDetail,
 	}
-	orm.Db.Create(&post)
-	// fmt.Println(post.ID)
-	ImagePost := orm.Image{
-		Img_url: files.Filename,
+	if err := orm.Db.Create(&post).Error; err != nil {
+		c.JSON(500, gin.H{"error": "Failed to create post"})
+		return
 	}
 
-	// Log ข้อมูลของไฟล์ทั้งหมด
+	var img_post []orm.Image
+
 	for _, file := range files {
-		fmt.Println("Filename:", file.Filename)
+		fileName := fmt.Sprintf("%d_%s", int(post.ID), file.Filename)
+		filePath := "./uploads/image_post/" + fileName
+		if err := c.SaveUploadedFile(file, filePath); err != nil {
+			c.JSON(500, gin.H{"error": "Failed to save file"})
+			return
+		}
+
+		image := orm.Image{
+			Img_url: fileName,
+			Post_ID: int(post.ID),
+		}
+		img_post = append(img_post, image)
 	}
 
-	fmt.Println("Post Detail:", post.Detail)
+	if err := orm.Db.Create(&img_post).Error; err != nil {
+		c.JSON(500, gin.H{"error": "Failed to create images"})
+		return
+	}
 
-	c.JSON(200, gin.H{"message": "Files logged successfully!"})
+	c.JSON(200, gin.H{"status": "OK"})
 }
