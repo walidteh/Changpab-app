@@ -31,6 +31,7 @@ const PhotoPost = ({ navigation }) => {
   const [text, setText] = useState(""); // เพิ่ม state สำหรับ TextInput
   const [user, setUser] = useState({});
   const [images, setImages] = useState([]); // จัดเก็บ URI ของรูปหลายรูป
+  const [imageSave, setImageSave] = useState([]); 
   const maxChars = 200; // จำนวนตัวอักษรสูงสุด
 
   const fetchUser = async () => {
@@ -122,61 +123,11 @@ const PhotoPost = ({ navigation }) => {
       setImages(combinedImages); // อัปเดต state
 
       // ถ้าต้องการอัปโหลดรูปพร้อมกัน
-      await uploadImages([...images, ...newImages]); // รวมภาพเดิมและใหม่เพื่อนำไปอัปโหลด
+      setImageSave([...images, ...newImages])
     }
   };
 
-  const CreatePost = async () => {
-    // สร้าง FormData
-    const formData = new FormData();
-    formData.append("postdetail", text);
-
-    images.forEach((file) => {
-      formData.append('files[]', file)
-    });
-
-    // ดึง Token จาก AsyncStorage
-    const token = await AsyncStorage.getItem("@token");
-
-    if (!token) {
-      Alert.alert("Error", "Authentication token is missing.", [
-        { text: "OK" },
-      ]);
-      return;
-    }
-
-    // สร้าง Request Options
-    // const requestOptions = {
-    //   method: "POST", // ใช้ POST
-    //   headers: {
-    //     Authorization: `Bearer ${token}`,
-    //     "Content-Type": "multipart/form-data", // ระบุว่าใช้ FormData
-    //   },
-    //   body: formData, // ส่ง FormData ที่ประกอบด้วยไฟล์
-    // };
-    try {
-      const response = await fetch("http://" + app_var.api_host + "/users/create_post", {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-        body: formData,
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        Alert.alert('Success', 'Files uploaded successfully.');
-        console.log('Response:', data);
-      } else {
-        Alert.alert('Error', `Upload failed: ${data.message}`);
-        console.error('Error response:', data);
-      }
-    } catch (err) {
-      Alert.alert('Error', 'Something went wrong while uploading files.');
-      console.error('Upload failed:', err);
-    }
-  };
+ 
 
   // ฟังก์ชันสำหรับลบรูป
   const handleDeleteImage = (uri) => {
@@ -184,23 +135,24 @@ const PhotoPost = ({ navigation }) => {
   };
 
   // ฟังก์ชันสำหรับอัปโหลดภาพไปยังเซิร์ฟเวอร์
-  const uploadImages = async (images) => {
+  const uploadImages = async () => {
     const token = await AsyncStorage.getItem("@token");
     if (!token) {
       alert("Token not found. Please log in again.");
       return;
     }
-
+    
     const formData = new FormData();
-    images.forEach((uri, index) => {
-      formData.append("images", {
+    formData.append("postdetail", text);
+    imageSave.forEach((uri, index) => {
+      formData.append("files", {
         uri,
         type: "image/jpeg", // หรือประเภทไฟล์ที่เหมาะสมกับไฟล์ภาพ
         name: `image_${index}.jpg`,
       });
     });
 
-    const response = await fetch("http://your-api-url/upload", {
+    const response = await fetch("http://" + app_var.api_host + "/users/create_post", {
       method: "POST",
       headers: {
         "Content-Type": "multipart/form-data",
@@ -291,7 +243,7 @@ const PhotoPost = ({ navigation }) => {
               {images.length > 0 && (
                 <TouchableOpacity
                   style={styles.button}
-                  onPress={CreatePost}
+                  onPress={uploadImages}
                 >
                   <Text style={styles.buttonText}>โพสต์</Text>
                 </TouchableOpacity>
