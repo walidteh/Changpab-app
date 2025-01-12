@@ -12,7 +12,7 @@ import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import app_var from "./public";
 
-import * as ImagePicker from 'expo-image-picker';
+import * as ImagePicker from "expo-image-picker";
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
@@ -30,6 +30,7 @@ const PhotoPost = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [text, setText] = useState(""); // เพิ่ม state สำหรับ TextInput
   const [user, setUser] = useState({});
+  const [images, setImages] = useState([]); // จัดเก็บ URI ของรูปหลายรูป
   const maxChars = 200; // จำนวนตัวอักษรสูงสุด
 
   const fetchUser = async () => {
@@ -95,31 +96,85 @@ const PhotoPost = ({ navigation }) => {
     navigation.navigate("PhotoPost");
   };
 
-  const [images, setImages] = useState([]); // จัดเก็บ URI ของรูปหลายรูป
-
   const handleImagePicker = async () => {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (!permissionResult.granted) {
-      Alert.alert("Permission Denied", "You need to allow access to your gallery to upload images.");
+      Alert.alert(
+        "Permission Denied",
+        "You need to allow access to your gallery to upload images."
+      );
       return;
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsMultipleSelection: true,  // เปิดให้เลือกหลายรูป
+      allowsMultipleSelection: true, // เปิดให้เลือกหลายรูป
       quality: 1,
     });
 
     if (!result.canceled && result.assets) {
       // เอาภาพที่เลือกใหม่มาเพิ่มใน images
-      const newImages = result.assets.slice(0, 10).map(asset => asset.uri); // จำกัดที่ 10 รูป
-      setImages(prevImages => [...prevImages, ...newImages]);  // เพิ่มภาพใหม่ไปยังภาพที่มีอยู่แล้ว
+      const newImages = result.assets.slice(0, 10).map((asset) => asset.uri); // จำกัดที่ 10 รูป
+      setImages((prevImages) => [...prevImages, ...newImages]); // เพิ่มภาพใหม่ไปยังภาพที่มีอยู่แล้ว
       const combinedImages = [...images, ...newImages].slice(0, 10); // จำกัดจำนวนภาพที่ 10
       setImages(combinedImages); // อัปเดต state
 
       // ถ้าต้องการอัปโหลดรูปพร้อมกัน
       await uploadImages([...images, ...newImages]); // รวมภาพเดิมและใหม่เพื่อนำไปอัปโหลด
+    }
+  };
+
+  const CreatePost = async () => {
+    // สร้าง FormData
+    const formData = new FormData();
+    formData.append("postdetail", text);
+
+    images.forEach((file) => {
+      formData.append('files[]', file)
+    });
+
+    // ดึง Token จาก AsyncStorage
+    const token = await AsyncStorage.getItem("@token");
+
+    if (!token) {
+      Alert.alert("Error", "Authentication token is missing.", [
+        { text: "OK" },
+      ]);
+      return;
+    }
+
+    // สร้าง Request Options
+    // const requestOptions = {
+    //   method: "POST", // ใช้ POST
+    //   headers: {
+    //     Authorization: `Bearer ${token}`,
+    //     "Content-Type": "multipart/form-data", // ระบุว่าใช้ FormData
+    //   },
+    //   body: formData, // ส่ง FormData ที่ประกอบด้วยไฟล์
+    // };
+    try {
+      const response = await fetch("http://" + app_var.api_host + "/users/create_post", {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        Alert.alert('Success', 'Files uploaded successfully.');
+        console.log('Response:', data);
+      } else {
+        Alert.alert('Error', `Upload failed: ${data.message}`);
+        console.error('Error response:', data);
+      }
+    } catch (err) {
+      Alert.alert('Error', 'Something went wrong while uploading files.');
+      console.error('Upload failed:', err);
     }
   };
 
@@ -156,7 +211,7 @@ const PhotoPost = ({ navigation }) => {
   };
 
   const postImage = () => {
-    navigation.navigate('PhotoPost');
+    navigation.navigate("PhotoPost");
   };
 
   return (
@@ -211,23 +266,33 @@ const PhotoPost = ({ navigation }) => {
               {images.map((uri, index) => (
                 <View key={index} style={styles.imageWrapper}>
                   <Image source={{ uri }} style={styles.imagePreview} />
-                  <TouchableOpacity onPress={() => handleDeleteImage(uri)} style={styles.deleteButton}>
+                  <TouchableOpacity
+                    onPress={() => handleDeleteImage(uri)}
+                    style={styles.deleteButton}
+                  >
                     <Text style={styles.deleteText}>X</Text>
                   </TouchableOpacity>
                 </View>
               ))}
             </View>
 
-
             {/* ปุ่มสำหรับแนบภาพ */}
             <View style={styles.buttonContainer}>
               {images.length < 10 && ( // แสดงปุ่มเฉพาะเมื่อมีรูปน้อยกว่า 10
-                <TouchableOpacity style={styles.button} onPress={handleImagePicker}>
-                  <Text style={styles.buttonText}>เลือกภาพ (สูงสุด 10 รูป)</Text>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={handleImagePicker}
+                >
+                  <Text style={styles.buttonText}>
+                    เลือกภาพ (สูงสุด 10 รูป)
+                  </Text>
                 </TouchableOpacity>
               )}
               {images.length > 0 && (
-                <TouchableOpacity style={styles.button} onPress={postImage}>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={CreatePost}
+                >
                   <Text style={styles.buttonText}>โพสต์</Text>
                 </TouchableOpacity>
               )}
@@ -340,8 +405,8 @@ const styles = StyleSheet.create({
   },
 
   imageContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap', // จัดให้รูปแสดงหลายแถว
+    flexDirection: "row",
+    flexWrap: "wrap", // จัดให้รูปแสดงหลายแถว
     marginVertical: 10,
   },
   imagePreview: {
@@ -352,38 +417,38 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     paddingBottom: 100,
-    alignItems: 'center',
+    alignItems: "center",
   },
   button: {
     flex: 1,
-    width: '80%',
-    backgroundColor: '#007BFF',
+    width: "80%",
+    backgroundColor: "#007BFF",
     padding: 10,
     borderRadius: 8,
     marginHorizontal: 5,
     marginBottom: 20,
   },
   buttonText: {
-    color: '#fff',
-    textAlign: 'center',
+    color: "#fff",
+    textAlign: "center",
   },
   imageWrapper: {
-    position: 'relative',
+    position: "relative",
     margin: 5,
   },
   deleteButton: {
     width: 28,
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     right: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
     borderRadius: 15,
     padding: 5,
   },
   deleteText: {
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
   },
 
   menu: {
