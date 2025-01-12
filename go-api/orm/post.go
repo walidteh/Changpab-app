@@ -6,7 +6,7 @@ import (
 
 type Post struct {
 	gorm.Model
-	User_ID string
+	User_ID uint
 	Detail  string
 	Image   Image `gorm:"foreignKey:Post_ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
