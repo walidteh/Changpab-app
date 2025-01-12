@@ -129,18 +129,51 @@ func Search(c *gin.Context) {
 	keyword := c.DefaultQuery("keyword", "")
 
 	var users []orm.User
-	if err := orm.Db.Where("fullname LIKE ?", keyword+"%").Find(&users).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to update user profile"})
+	if err := orm.Db.Where("fullname LIKE ? AND role = ?", keyword+"%", "PG").Find(&users).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to retrieve users"})
 		return
 	}
 
 	for i := range users {
 		users[i].Img_profile = imageHost + users[i].Img_profile
-		// fmt.Println("%s", users[i].Img_profile)
 	}
 
 	c.JSON(200, gin.H{
 		"status": "OK",
 		"users":  users,
 	})
+}
+
+func CreatePost(c *gin.Context) {
+	userId := c.MustGet("userId").(float64)
+
+	// รับข้อมูลไฟล์ทั้งหมดจาก form-data
+	form, err := c.MultipartForm()
+	if err != nil {
+		c.JSON(400, gin.H{"error": "Failed to parse form-data"})
+		return
+	}
+
+	// ดึงไฟล์จาก key 'files'
+	files := form.File["files"]
+	PostDetail := c.DefaultPostForm("postdetail", "")
+
+	post := orm.Post{
+		User_ID: uint(userId),
+		Detail:  PostDetail,
+	}
+	orm.Db.Create(&post)
+	// fmt.Println(post.ID)
+	ImagePost := orm.Image{
+		Img_url: files.Filename,
+	}
+
+	// Log ข้อมูลของไฟล์ทั้งหมด
+	for _, file := range files {
+		fmt.Println("Filename:", file.Filename)
+	}
+
+	fmt.Println("Post Detail:", post.Detail)
+
+	c.JSON(200, gin.H{"message": "Files logged successfully!"})
 }
