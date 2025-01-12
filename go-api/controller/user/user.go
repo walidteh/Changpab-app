@@ -168,7 +168,7 @@ func CreatePost(c *gin.Context) {
 		fmt.Println(file.Filename)
 	}
 
-	// var img_post []orm.Image
+	var img_post []orm.Image
 
 	for _, file := range files {
 		fileName := fmt.Sprintf("%d_%s", int(post.ID), file.Filename)
@@ -177,19 +177,18 @@ func CreatePost(c *gin.Context) {
 			c.JSON(500, gin.H{"error": "Failed to save file"})
 			return
 		}
+
+		image := orm.Image{
+			Img_url: fileName,
+			Post_ID: int(post.ID),
+		}
+		img_post = append(img_post, image)
 	}
 
-	// 	image := orm.Image{
-	// 		Img_url: fileName,
-	// 		Post_ID: int(post.ID),
-	// 	}
-	// 	img_post = append(img_post, image)
-	// }
-
-	// if err := orm.Db.Create(&img_post).Error; err != nil {
-	// 	c.JSON(500, gin.H{"error": "Failed to create images"})
-	// 	return
-	// }
+	if err := orm.Db.Create(&img_post).Error; err != nil {
+		c.JSON(500, gin.H{"error": "Failed to create images"})
+		return
+	}
 
 	c.JSON(200, gin.H{"status": "OK"})
 }
