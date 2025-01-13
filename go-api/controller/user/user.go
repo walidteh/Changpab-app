@@ -6,13 +6,14 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 func GetAllUser(c *gin.Context) {
 	device_host := os.Getenv("DEVICE_HOST")
-	var imageHost = "http://" + device_host + ":8080/get_image/"
+	var imageHost = "http://" + device_host + ":8080/get_image/user_profile/"
 	var users []orm.User
 	// orm.Db.Where("Role = ?", "PG").Find(&users)
 	orm.Db.Find(&users, "Role = ?", "PG")
@@ -26,7 +27,7 @@ func GetAllUser(c *gin.Context) {
 func GetUserInfo(c *gin.Context) {
 	userId := c.MustGet("userId").(float64)
 	device_host := os.Getenv("DEVICE_HOST")
-	var imageHost = "http://" + device_host + ":8080/get_image/"
+	var imageHost = "http://" + device_host + ":8080/get_image/user_profile/"
 	var user orm.User
 	orm.Db.First(&user, userId)
 	user.Img_profile = fmt.Sprintf(imageHost+"%s", user.Img_profile)
@@ -125,7 +126,7 @@ func UploadImageProfile(c *gin.Context) {
 
 func Search(c *gin.Context) {
 	device_host := os.Getenv("DEVICE_HOST")
-	var imageHost = "http://" + device_host + ":8080/get_image/"
+	var imageHost = "http://" + device_host + ":8080/get_image/user_profile/"
 	keyword := c.DefaultQuery("keyword", "")
 
 	var users []orm.User
@@ -191,4 +192,79 @@ func CreatePost(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{"status": "OK"})
+}
+
+func GetPostsWithImages(c *gin.Context) {
+	var rows []struct {
+		PostID     uint      `json:"post_id"`
+		PostDetail string    `json:"post_detail"`
+		PostDate   time.Time `json:"post_date"`
+		ImageID    *uint     `json:"image_id"` // Pointer to handle NULL values
+		ImageURL   *string   `json:"image_url"`
+	}
+
+	userId, ok := c.MustGet("userId").(float64)
+	if !ok {
+		c.JSON(400, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	err := orm.Db.Raw(`
+		SELECT 
+			posts.id AS post_id,
+			posts.detail AS post_detail,
+			posts.created_at AS post_date,
+			images.id AS image_id,
+			images.img_url AS image_url
+		FROM 
+			posts
+		LEFT JOIN 
+			images 
+		ON 
+			posts.id = images.post_id
+		WHERE 
+			posts.user_id = ?;
+	`, int(userId)).Scan(&rows).Error
+
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	device_host := os.Getenv("DEVICE_HOST")
+	var imageHost = "http://" + device_host + ":8080/get_image/image_post/"
+	for i := range rows {
+		*rows[i].ImageURL = imageHost + *rows[i].ImageURL
+		// fmt.Println("%s", users[i].Img_profile)
+	}
+
+	// Group posts and their images
+	result := make([]map[string]interface{}, 0)
+	postMap := make(map[uint]map[string]interface{})
+
+	for _, row := range rows {
+		// If the post is not already in the result, add it
+		if _, exists := postMap[row.PostID]; !exists {
+			post := map[string]interface{}{
+				"post_id":     row.PostID,
+				"post_detail": row.PostDetail,
+				"post_date":   row.PostDate,
+				"images":      []map[string]interface{}{},
+			}
+			postMap[row.PostID] = post
+			result = append(result, post)
+		}
+
+		// If there is an image, append it to the post's images
+		if row.ImageID != nil && row.ImageURL != nil {
+			image := map[string]interface{}{
+				"image_id": *row.ImageID,
+				"url":      *row.ImageURL,
+			}
+			postMap[row.PostID]["images"] = append(postMap[row.PostID]["images"].([]map[string]interface{}), image)
+		}
+	}
+
+	// Send the final response
+	c.JSON(http.StatusOK, gin.H{"status": "OK", "post": result})
 }

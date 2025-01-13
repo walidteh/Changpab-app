@@ -25,8 +25,7 @@ func main() {
 	r := gin.Default()
 
 	// ให้เซิร์ฟเวอร์สามารถเข้าถึงไฟล์ในโฟลเดอร์ ./uploads ได้
-	// ให้เซิร์ฟเวอร์สามารถเข้าถึงไฟล์ในโฟลเดอร์ ./uploads ได้
-	r.Static("/get_image", "./uploads/user_profile") // เพิ่มบรรทัดนี้
+	r.Static("/get_image", "./uploads/") // เพิ่มบรรทัดนี้
 
 	r.Use(cors.Default())
 	r.POST("/register", AuthController.Register)
@@ -39,6 +38,7 @@ func main() {
 	authorized.POST("/upload_image_post", UserController.UploadImagePost)
 	authorized.POST("/upload_image_profile", UserController.UploadImageProfile)
 	authorized.POST("/create_post", UserController.CreatePost)
+	authorized.GET("/get_post_info", UserController.GetPostsWithImages)
 
 	device_host := os.Getenv("DEVICE_HOST")
 
