@@ -14,6 +14,7 @@ import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import app_var from "./public";
 import * as ImagePicker from "expo-image-picker";
+import Swiper from 'react-native-swiper';
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
@@ -114,6 +115,28 @@ const PhotoProfile = ({ navigation }) => {
 
   const [selectedMenu, setSelectedMenu] = useState("หน้าหลัก"); // เก็บสถานะของเมนูที่เลือก
 
+  // ตัวอย่างรูป
+  const EXuserAll = [
+    {
+      Fullname: "John Doe",
+      Img_profiles: [
+        "https://images.pexels.com/photos/13268478/pexels-photo-13268478.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+        "https://images.pexels.com/photos/1323550/pexels-photo-1323550.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
+        "https://images.pexels.com/photos/1323550/pexels-photo-1323550.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
+        "https://images.pexels.com/photos/1323550/pexels-photo-1323550.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
+      ],
+    },
+    {
+      Fullname: "Jane Smith",
+      Img_profiles: [
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR132TBAD0-GhGhN8_2Xr-3obkFd4NzFbk6Hg&s",
+        "https://cdn.pixabay.com/photo/2015/04/23/22/00/new-year-background-736885_640.jpg",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR132TBAD0-GhGhN8_2Xr-3obkFd4NzFbk6Hg&s",
+        "https://cdn.pixabay.com/photo/2015/04/23/22/00/new-year-background-736885_640.jpg",
+      ],
+    },
+  ];
+
   const renderContent = () => {
     if (selectedMenu === "หน้าหลัก") {
       return (
@@ -161,20 +184,29 @@ const PhotoProfile = ({ navigation }) => {
 
             <Text style={styles.titlecontent}>ผลงาน</Text>
             <View style={styles.body}>
-              {userAll.map((user, i) => (
-                <TouchableOpacity
+              {EXuserAll.map((user, i) => (
+                <View
                   key={i}
                   style={styles.item}
                   onPress={DetailPost}
                 >
-                  <Image
-                    source={{ uri: user.Img_profile }}
-                    style={styles.image_body}
-                  />
+                  <Swiper
+                    style={styles.swiper}
+                    showsPagination={true}
+                    loop={false}
+                  >
+                    {user.Img_profiles.map((img, index) => (
+                      <Image
+                        key={index}
+                        source={{ uri: img }}
+                        style={styles.image_body}
+                      />
+                    ))}
+                  </Swiper>
                   <Text style={styles.name_body}>
                     {user.Fullname || "No Fullname Available"}
                   </Text>
-                </TouchableOpacity>
+                </View>
               ))}
             </View>
           </View>
@@ -229,6 +261,10 @@ const PhotoProfile = ({ navigation }) => {
   const DetailPost = () => {
     navigation.navigate("DetailPost");
   };
+
+  const ProfileEdit = () => {
+    navigation.navigate("PhotoProfileEdit")
+  }
 
   const handleImagePicker = async () => {
     // ขออนุญาตเข้าถึง Media Library
@@ -367,10 +403,9 @@ const PhotoProfile = ({ navigation }) => {
           <View style={styles.info}>
             <View style={styles.info_top}>
               <Text style={styles.name}>
-                {user.Fullname || "No Fullname Available"}
-                {user.Lastname || "No Fullname Available"}
+                {`${user.Fullname || "No Fullname Available"} ${user.Lastname || ""}`.trim()}
               </Text>
-              <TouchableOpacity style={styles.btt_info}>
+              <TouchableOpacity style={styles.btt_info} onPress={ProfileEdit}>
                 <Text style={{ fontSize: 12 }}>แก้ไขข้อมูล</Text>
               </TouchableOpacity>
             </View>
@@ -458,6 +493,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
   },
+
   content: {
     width: "auto",
   },
@@ -562,14 +598,10 @@ const styles = StyleSheet.create({
 
   body: {
     flex: 1,
-    padding: 16,
-    flexDirection: "row",
-    flexWrap: "wrap", // จัดเรียงหลายคอลัมน์
-    justifyContent: "space-between",
+    padding: 10,
   },
   item: {
-    width: "48%", // ขนาดกล่อง 48% เพื่อให้มีระยะห่างระหว่างกล่อง
-    aspectRatio: 1, // ทำให้กล่องเป็นสี่เหลี่ยมจัตุรัส
+    width: "100%", // ใช้ 100% เพื่อให้เต็มความกว้างของ container
     marginBottom: 16,
     backgroundColor: "#fff",
     borderRadius: 8,
@@ -579,13 +611,18 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
-    elevation: 3, // สำหรับ Android
+    elevation: 3, // เฉพาะ Android
+    padding: 10,
+  },
+  swiper: {
+    height: 270,
   },
   image_body: {
-    width: "70%",
-    height: "70%",
+    width: "100%", // ปรับรูปให้เต็มความกว้างของกล่อง
+    aspectRatio: 1.5, // กำหนดอัตราส่วนภาพ เช่น 1.5 สำหรับภาพแนวนอน
     borderRadius: 8,
     marginBottom: 8,
+    resizeMode: "contain", // ปรับการแสดงผลของรูปภาพ
   },
   name_body: {
     fontSize: 14,

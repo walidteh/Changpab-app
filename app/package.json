@@ -39,6 +39,7 @@
     "react-native-screens": "~4.4.0",
     "react-native-svg": "15.8.0",
     "react-native-sweet-alert": "^3.5.0",
+    "react-native-swiper": "^1.6.0",
     "react-native-vector-icons": "^10.2.0",
     "sweetalert": "^2.1.2",
     "sweetalert2": "^11.6.13",
