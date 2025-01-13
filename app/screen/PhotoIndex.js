@@ -313,7 +313,7 @@ const PhotoIndex = ({ navigation }) => {
                 <Text style={styles.name}>{user.name}</Text>
               </TouchableOpacity>
             ))} */}
-            {userAll.map((user, i) => (
+            {userAll.slice(0, 8).map((user, i) => (
               <TouchableOpacity
                 key={i}
                 style={styles.item}
