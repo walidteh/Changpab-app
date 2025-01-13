@@ -160,6 +160,15 @@ const PhotoPost = ({ navigation }) => {
       },
       body: formData,
     });
+
+    if (response.ok) {
+      const result = await response.json();
+      console.log("Upload successful:", result);
+      navigation.navigate("PhotoIndex");
+    } else {
+      console.error("Upload failed:", response.statusText);
+      alert("Failed to upload images.");
+    }
   };
 
   const postImage = () => {
