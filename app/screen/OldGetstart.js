@@ -8,18 +8,24 @@ import {
   Animated,
 } from "react-native";
 import React, { useState, useEffect, useRef } from "react";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const GetStart = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const scaleValue = useRef(new Animated.Value(1)).current; // สำหรับแอนิเมชั่นการขยายของโลโก้
-  const translateY = useRef(new Animated.Value(0)).current; // สำหรับแอนิเมชั่นการเคลื่อนที่ในแนว Y
-  const logoScale = useRef(new Animated.Value(1)).current; // สำหรับแอนิเมชั่นการซูมโลโก้
-  
+  const scaleValue = useRef(new Animated.Value(1)).current;
+  const translateY = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    const checkLogin = async () => {
+      const token = await AsyncStorage.getItem("@token");
+      setIsLoggedIn(!!token);
+    };
+
+    checkLogin();
+
     const scaleAnimation = Animated.loop(
       Animated.sequence([
         Animated.timing(scaleValue, {
@@ -34,26 +40,11 @@ const GetStart = ({ navigation }) => {
         }),
       ])
     );
+
     scaleAnimation.start();
 
     const timer = setTimeout(() => {
       setCooldown(true);
-      // ซูมโลโก้เข้าออกหลังจาก cooldown เริ่ม
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(logoScale, {
-            toValue: 1.05, // ขยายโลโก้
-            duration: 800,
-            useNativeDriver: true,
-          }),
-          Animated.timing(logoScale, {
-            toValue: 1, // หดโลโก้กลับ
-            duration: 800,
-            useNativeDriver: true,
-          }),
-        ])
-      ).start();
-
       Animated.parallel([
         Animated.timing(scaleValue, {
           toValue: 0.8,
@@ -72,27 +63,24 @@ const GetStart = ({ navigation }) => {
       clearTimeout(timer);
       scaleAnimation.stop();
     };
-  }, [scaleValue, translateY, logoScale]);
+  }, [scaleValue, translateY]);
+
+  useEffect(() => {
+    if (isLoggedIn && cooldown) {
+      const navigateToIndex = async () => {
+        const role = await AsyncStorage.getItem("@userRole");
+        navigation.navigate(role === "PG" ? "PhotoIndex" : "Userindex");
+      };
+      navigateToIndex();
+    }
+  }, [isLoggedIn, cooldown, navigation]);
 
   const onPress = async () => {
     setLoading(true);
-    const token = await AsyncStorage.getItem("@token");
-    if (token) {
-      setTimeout( async () => {
-        const role = await AsyncStorage.getItem("@userRole");
-        console.log(role)
-        navigation.navigate(role === "PG" ? "PhotoIndex" : "Userindex");
-        setLoading(false);
-      }, 500);
-      
-      // console.log(token);
-    } else {
-      // console.log("Token is null or undefined");
-      setTimeout(() => {
-        navigation.navigate("login");
-        setLoading(false);
-      }, 500);
-    }
+    setTimeout(() => {
+      navigation.navigate("login");
+      setLoading(false);
+    }, 500);
   };
 
   return (
@@ -106,15 +94,11 @@ const GetStart = ({ navigation }) => {
             style={[
               styles.image,
               {
-                transform: [
-                  { scale: scaleValue },
-                  { translateY: translateY },
-                  { scale: logoScale }, // เพิ่มการซูมโลโก้เข้าออก
-                ],
+                transform: [{ scale: scaleValue }, { translateY: translateY }],
               },
             ]}
           />
-          {cooldown ? (
+          {cooldown && !isLoggedIn ? (
             <>
               <View style={styles.details}>
                 <Text style={styles.subText}>Find the right</Text>
@@ -126,7 +110,7 @@ const GetStart = ({ navigation }) => {
                 onPress={onPress}
                 disabled={loading}
               >
-                <Text style={styles.buttonText}>Get Started </Text>
+                <Text style={styles.buttonText}>Get Started</Text>
               </Pressable>
             </>
           ) : (
@@ -146,7 +130,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   image: {
-    width: 280, // ขนาดโลโก้
+    width: 280,
     height: 240,
     marginBottom: 60,
   },
@@ -162,11 +146,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   titleText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 28,
     marginTop: 10,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
   },
   details: {
     top: -150,
