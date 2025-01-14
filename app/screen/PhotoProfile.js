@@ -38,6 +38,7 @@ import {
 const PhotoProfile = ({ navigation }) => {
   const [user, setUser] = useState({});
   const [userAll, setUserAll] = useState([]);
+  const [post, setPost] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [profileImage, setProfileImage] = useState(null);
 
@@ -75,6 +76,41 @@ const PhotoProfile = ({ navigation }) => {
     }
   };
 
+  const fetchAllPost = async () => {
+    try {
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        alert("Token not found. Please log in again.");
+        return;
+      }
+  
+      const response = await fetch(
+        "http://" + app_var.api_host + "/users/get_post_info",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      const data = await response.json();
+      if (data.status === "OK") {
+        setPost(data.post);
+        console.log(post)
+      } else {
+        alert("Failed to fetch user data");
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      alert("Error fetching user data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+
   const [refreshing, setRefreshing] = useState(false); // Declare refreshing state
   const fetchUser = async () => {
     try {
@@ -111,12 +147,13 @@ const PhotoProfile = ({ navigation }) => {
   useEffect(() => {
     fetchUser();
     fetchAllUser();
+    fetchAllPost();
   }, []);
 
   const [selectedMenu, setSelectedMenu] = useState("หน้าหลัก"); // เก็บสถานะของเมนูที่เลือก
 
   // ตัวอย่างรูป
-  const EXuserAll = [
+  const PostUser = [
     {
       Fullname: "John Doe",
       Img_profiles: [
@@ -124,15 +161,6 @@ const PhotoProfile = ({ navigation }) => {
         "https://images.pexels.com/photos/1323550/pexels-photo-1323550.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
         "https://images.pexels.com/photos/1323550/pexels-photo-1323550.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
         "https://images.pexels.com/photos/1323550/pexels-photo-1323550.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-      ],
-    },
-    {
-      Fullname: "Jane Smith",
-      Img_profiles: [
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR132TBAD0-GhGhN8_2Xr-3obkFd4NzFbk6Hg&s",
-        "https://cdn.pixabay.com/photo/2015/04/23/22/00/new-year-background-736885_640.jpg",
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR132TBAD0-GhGhN8_2Xr-3obkFd4NzFbk6Hg&s",
-        "https://cdn.pixabay.com/photo/2015/04/23/22/00/new-year-background-736885_640.jpg",
       ],
     },
   ];
@@ -184,7 +212,7 @@ const PhotoProfile = ({ navigation }) => {
 
             <Text style={styles.titlecontent}>ผลงาน</Text>
             <View style={styles.body}>
-              {EXuserAll.map((user, i) => (
+              {PostUser.map((user, i) => (
                 <View
                   key={i}
                   style={styles.item}
