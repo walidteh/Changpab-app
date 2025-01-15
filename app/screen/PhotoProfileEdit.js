@@ -217,6 +217,11 @@ const PhotoProfileEdit = ({ navigation }) => {
     }
   };
 
+  const onSave = () => {
+    // ใส่ฟังก์ชันสำหรับการบันทึกข้อมูล
+    Alert.alert("บันทึกสำเร็จ", "ข้อมูลของคุณถูกบันทึกเรียบร้อยแล้ว");
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Navbar */}
@@ -257,25 +262,25 @@ const PhotoProfileEdit = ({ navigation }) => {
             </Text>
           </View>
           <View style={styles.inputView}>
-            <Text style={styles.intoinput}>First name</Text>
+            <Text style={styles.intoinput}>ชื่อ</Text>
             <TextInput
               style={styles.input}
-              placeholder="Enter your first name"
+              placeholder="กรุณาป้อนชื่อ"
               // value={firstname}
               // onChangeText={setFirstname}
               autoCorrect={false}
               autoCapitalize="none"
             />
-            <Text style={styles.intoinput}>First name</Text>
+            <Text style={styles.intoinput}>นามสกุล</Text>
             <TextInput
               style={styles.input}
-              placeholder="Enter your first name"
+              placeholder="กรุณาป้อนนามสกุล"
               // value={firstname}
               // onChangeText={setFirstname}
               autoCorrect={false}
               autoCapitalize="none"
             />
-            <Text style={styles.intoinput}>First name</Text>
+            <Text style={styles.intoinput}>ประวัติ</Text>
             <TextInput
               style={styles.inputBio}
               placeholder="เขียนอะไรสักหน่อย"
@@ -287,28 +292,149 @@ const PhotoProfileEdit = ({ navigation }) => {
               textAlignVertical="top"
             />
             <View style={styles.contact}>
-              <Text style={styles.intoinput}>First name</Text>
-              <View style={styles.contactname}>
-                <FontAwesomeIcon icon={faFacebook} size={24} color="#1877f2" />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Enter your first name"
-                  // value={firstname}
-                  // onChangeText={setFirstname}
-                  autoCorrect={false}
-                  autoCapitalize="none"
-                />
+              <Text style={styles.intoinput}>ช่องทางการติดต่อ</Text>
+              <View style={styles.Boxinput}>
+                <FontAwesomeIcon icon={faFacebook} size={34} color="#1877f2" />
+                <View style={styles.contactname}>
+                  <TextInput
+                    style={styles.input}
+                    marginBottom='10'
+                    placeholder="กรุณากรอกชื่อเฟซบุ๊ค"
+                    // value={firstname}
+                    // onChangeText={setFirstname}
+                    autoCorrect={false}
+                    autoCapitalize="none"
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="กรุณาวางลิ้งค์โปรไฟล์"
+                    // value={firstname}
+                    // onChangeText={setFirstname}
+                    autoCorrect={false}
+                    autoCapitalize="none"
+                  />
+                </View>
               </View>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter your first name"
-                // value={firstname}
-                // onChangeText={setFirstname}
-                autoCorrect={false}
-                autoCapitalize="none"
-              />
+
+              <View style={styles.Boxinput}>
+                <FontAwesomeIcon icon={faFontAwesome} size={34} color="#ffa500" />
+                <View style={styles.contactname}>
+                  <TextInput
+                    style={styles.input}
+                    marginBottom='10'
+                    placeholder="กรุณากรอกเพจเฟซบุ๊ค"
+                    // value={firstname}
+                    // onChangeText={setFirstname}
+                    autoCorrect={false}
+                    autoCapitalize="none"
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="กรุณาวางลิ้งค์โปรไฟล์"
+                    // value={firstname}
+                    // onChangeText={setFirstname}
+                    autoCorrect={false}
+                    autoCapitalize="none"
+                  />
+                </View>
+              </View>
+
+              <View style={styles.Boxinput}>
+                <FontAwesomeIcon icon={faInstagram} size={34} color="#f56949" />
+                <View style={styles.contactname}>
+                  <TextInput
+                    style={styles.input}
+                    marginBottom='10'
+                    placeholder="กรุณากรอกชื่ออินสตาแกรม"
+                    // value={firstname}
+                    // onChangeText={setFirstname}
+                    autoCorrect={false}
+                    autoCapitalize="none"
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="กรุณาวางลิ้งค์โปรไฟล์"
+                    // value={firstname}
+                    // onChangeText={setFirstname}
+                    autoCorrect={false}
+                    autoCapitalize="none"
+                  />
+                </View>
+              </View>
+
+              <View style={styles.Boxinput}>
+                <FontAwesomeIcon icon={faPhone} size={30} color="#34A853" />
+                <View style={styles.contactname}>
+                  <TextInput
+                    style={styles.input}
+                    marginBottom='10'
+                    placeholder="กรุณากรอกเบอร์โทรศัพท์"
+                    // value={firstname}
+                    // onChangeText={setFirstname}
+                    autoCorrect={false}
+                    autoCapitalize="none"
+                  />
+                  {/* <TextInput
+                    style={styles.input}
+                    placeholder="Enter your first name"
+                    // value={firstname}
+                    // onChangeText={setFirstname}
+                    autoCorrect={false}
+                    autoCapitalize="none"
+                  /> */}
+                </View>
+              </View>
+
+              <View style={styles.Boxinput}>
+                <FontAwesomeIcon icon={faEnvelope} size={30} color="#d44638" />
+                <View style={styles.contactname}>
+                  <TextInput
+                    style={styles.input}
+                    marginBottom='10'
+                    placeholder="กรุณากรอกอีเมล"
+                    // value={firstname}
+                    // onChangeText={setFirstname}
+                    autoCorrect={false}
+                    autoCapitalize="none"
+                  />
+                  {/* <TextInput
+                    style={styles.input}
+                    placeholder="Enter your first name"
+                    // value={firstname}
+                    // onChangeText={setFirstname}
+                    autoCorrect={false}
+                    autoCapitalize="none"
+                  /> */}
+                </View>
+              </View>
+
+              <Text style={styles.intoinput}>เรทราคา</Text>
+              <View style={styles.Boxinput}>
+                <View style={styles.contactname}>
+                  <TextInput
+                    style={styles.input}
+                    marginBottom='10'
+                    placeholder="กรุณากรอกประเภทงาน"
+                    // value={firstname}
+                    // onChangeText={setFirstname}
+                    autoCorrect={false}
+                    autoCapitalize="none"
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="กรุณากรอกเรทราคา"
+                    // value={firstname}
+                    // onChangeText={setFirstname}
+                    autoCorrect={false}
+                    autoCapitalize="none"
+                  />
+                </View>
+              </View>
             </View>
           </View>
+          <TouchableOpacity style={styles.bottom} onPress={onSave}>
+            <Text style={styles.buttonText}>บันทึก</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
 
@@ -385,14 +511,14 @@ const styles = StyleSheet.create({
 
   content: {
     width: "auto",
+    marginBottom: 150,
+    alignItems: 'center',
   },
 
   logoContainer: {
     position: "relative", // ทำให้ปุ่มสามารถวางซ้อนบนโลโก้ได้
     padding: 10,
     alignItems: 'center',
-    borderColor: 'red',
-    borderWidth: 1
   },
   logo: {
     width: 150, // ขนาดโลโก้
@@ -420,8 +546,10 @@ const styles = StyleSheet.create({
   inputView: {
     gap: 5,
     width: "100%",
-    paddingTop: 15,
     paddingHorizontal: 30,
+  },
+  intoinput: {
+    marginTop: 20,
   },
   input: {
     height: 40,
@@ -441,6 +569,31 @@ const styles = StyleSheet.create({
     maxHeight: 120, // ความสูงสูงสุดของ TextInput
     fontSize: 16, // ขนาดตัวอักษร
     color: "black", // สีข้อความ
+  },
+
+  Boxinput: {
+    flexDirection: 'row',
+    marginTop: 15,
+  },
+  contactname: {
+    width: '90%',
+    marginLeft: 10,
+  },
+
+  bottom: {
+    width: '70%',
+    height: 43,
+    backgroundColor: "#007BFF",
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    borderRadius: 5,
+    alignItems: "center",
+    marginTop: 40,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
   },
 
   menu: {
