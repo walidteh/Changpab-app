@@ -15,6 +15,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import app_var from "./public";
 import * as ImagePicker from "expo-image-picker";
 import Swiper from "react-native-swiper";
+import moment from "moment/moment";
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
@@ -157,7 +158,7 @@ const PhotoProfile = ({ navigation }) => {
         Fullname: user.Fullname,
         Img_profile: user.Img_profile,
         Detail: item.post_detail,
-        Date: item.post_date,
+        Date: moment(item.post_date).format("D-M-YYYY HH:mm"),
         Img_Post: item.images.map((image) => image.url),
       });
     });
@@ -668,7 +669,7 @@ const styles = StyleSheet.create({
     height: 270,
   },
   image_body: {
-    width: "100%", // ปรับรูปให้เต็มความกว้างของกล่อง
+    width: "100%", // ปรับรูปให้เต็มความกว้างของกล่องg
     aspectRatio: 1.5, // กำหนดอัตราส่วนภาพ เช่น 1.5 สำหรับภาพแนวนอน
     borderRadius: 8,
     marginBottom: 8,
@@ -678,7 +679,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "bold",
     color: "#333",
-    textAlign: "center",
+    paddingHorizontal: 10,
+    // textAlign: "center",
   },
 
   menu: {
