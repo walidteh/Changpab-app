@@ -8,13 +8,13 @@ import {
   ImageBackground,
   TouchableOpacity,
   Button,
-  Alert
+  Alert,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import app_var from "./public";
 import * as ImagePicker from "expo-image-picker";
-import Swiper from 'react-native-swiper';
+import Swiper from "react-native-swiper";
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
@@ -30,10 +30,7 @@ import {
   faPhone,
   faEnvelope,
 } from "@fortawesome/free-solid-svg-icons";
-import {
-  faFacebook,
-  faInstagram,
-} from "@fortawesome/free-brands-svg-icons";
+import { faFacebook, faInstagram } from "@fortawesome/free-brands-svg-icons";
 
 const PhotoProfile = ({ navigation }) => {
   const [user, setUser] = useState({});
@@ -83,7 +80,7 @@ const PhotoProfile = ({ navigation }) => {
         alert("Token not found. Please log in again.");
         return;
       }
-  
+
       const response = await fetch(
         "http://" + app_var.api_host + "/users/get_post_info",
         {
@@ -94,11 +91,11 @@ const PhotoProfile = ({ navigation }) => {
           },
         }
       );
-  
+
       const data = await response.json();
       if (data.status === "OK") {
         setPost(data.post);
-        console.log(post)
+        console.log(post);
       } else {
         alert("Failed to fetch user data");
       }
@@ -109,7 +106,6 @@ const PhotoProfile = ({ navigation }) => {
       setIsLoading(false);
     }
   };
-  
 
   const [refreshing, setRefreshing] = useState(false); // Declare refreshing state
   const fetchUser = async () => {
@@ -153,19 +149,18 @@ const PhotoProfile = ({ navigation }) => {
   const [selectedMenu, setSelectedMenu] = useState("หน้าหลัก"); // เก็บสถานะของเมนูที่เลือก
 
   // ตัวอย่างรูป
-  const PostUser = [
-    {
-      Fullname: "John Doe",
-      Img_profiles: [
-        "https://images.pexels.com/photos/13268478/pexels-photo-13268478.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-        "https://images.pexels.com/photos/1323550/pexels-photo-1323550.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-        "https://images.pexels.com/photos/1323550/pexels-photo-1323550.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-        "https://images.pexels.com/photos/1323550/pexels-photo-1323550.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-      ],
-    },
-  ];
+  const PostUser = [];
 
   const renderContent = () => {
+    post.forEach((item) => {
+      PostUser.push({
+        Fullname: user.Fullname,
+        Img_profile: user.Img_profile,
+        Detail: item.post_detail,
+        Date: item.post_date,
+        Img_Post: item.images.map((image) => image.url),
+      });
+    });
     if (selectedMenu === "หน้าหลัก") {
       return (
         <ScrollView>
@@ -183,7 +178,11 @@ const PhotoProfile = ({ navigation }) => {
                 <Text style={styles.textcontact}>Facebook</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.contact}>
-                <FontAwesomeIcon icon={faFontAwesome} size={24} color="#ffa500" />
+                <FontAwesomeIcon
+                  icon={faFontAwesome}
+                  size={24}
+                  color="#ffa500"
+                />
                 <Text style={styles.textcontact}>Page Facebook</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.contact}>
@@ -213,17 +212,23 @@ const PhotoProfile = ({ navigation }) => {
             <Text style={styles.titlecontent}>ผลงาน</Text>
             <View style={styles.body}>
               {PostUser.map((user, i) => (
-                <View
-                  key={i}
-                  style={styles.item}
-                  onPress={DetailPost}
-                >
+                <View key={i} style={styles.item} onPress={DetailPost}>
+                  <View style={styles.profile_header}>
+                    <Image
+                      source={{
+                        uri: user.Img_profile,
+                      }}
+                      style={styles.profile_post}
+                    />
+                    <Text>{user.Fullname}</Text>
+                  </View>
+                    <Text>{user.Date}</Text>
                   <Swiper
                     style={styles.swiper}
                     showsPagination={true}
                     loop={false}
                   >
-                    {user.Img_profiles.map((img, index) => (
+                    {user.Img_Post.map((img, index) => (
                       <Image
                         key={index}
                         source={{ uri: img }}
@@ -232,7 +237,9 @@ const PhotoProfile = ({ navigation }) => {
                     ))}
                   </Swiper>
                   <Text style={styles.name_body}>
-                    {user.Fullname || "No Fullname Available"}
+                    {/* {user.Fullname || "No Fullname Available"} */}
+                    {user.Detail || "No Fullname Available"}
+                    {/* {user.Date || "No Fullname Available"}  */}
                   </Text>
                 </View>
               ))}
@@ -291,12 +298,13 @@ const PhotoProfile = ({ navigation }) => {
   };
 
   const ProfileEdit = () => {
-    navigation.navigate("PhotoProfileEdit")
-  }
+    navigation.navigate("PhotoProfileEdit");
+  };
 
   const handleImagePicker = async () => {
     // ขออนุญาตเข้าถึง Media Library
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (!permissionResult.granted) {
       Alert.alert(
@@ -323,7 +331,9 @@ const PhotoProfile = ({ navigation }) => {
 
   const SaveImageProfile = async (imageUri) => {
     if (!imageUri) {
-      Alert.alert("Error", "Please select an image before uploading.", [{ text: "OK" }]);
+      Alert.alert("Error", "Please select an image before uploading.", [
+        { text: "OK" },
+      ]);
       return;
     }
 
@@ -347,7 +357,9 @@ const PhotoProfile = ({ navigation }) => {
 
       // ตรวจสอบว่ามี token หรือไม่
       if (!token) {
-        Alert.alert("Error", "Authentication token is missing.", [{ text: "OK" }]);
+        Alert.alert("Error", "Authentication token is missing.", [
+          { text: "OK" },
+        ]);
         return;
       }
 
@@ -382,7 +394,9 @@ const PhotoProfile = ({ navigation }) => {
           },
         ]);
       } else {
-        Alert.alert("Error", result.message || "Failed to upload the image.", [{ text: "OK" }]);
+        Alert.alert("Error", result.message || "Failed to upload the image.", [
+          { text: "OK" },
+        ]);
       }
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -420,7 +434,10 @@ const PhotoProfile = ({ navigation }) => {
                   }}
                   style={styles.logo}
                 />
-                <TouchableOpacity onPress={handleImagePicker} style={styles.uploadImage}>
+                <TouchableOpacity
+                  onPress={handleImagePicker}
+                  style={styles.uploadImage}
+                >
                   <FontAwesomeIcon icon={faCamera} size={20} color="#fff" />
                 </TouchableOpacity>
               </View>
@@ -431,7 +448,9 @@ const PhotoProfile = ({ navigation }) => {
           <View style={styles.info}>
             <View style={styles.info_top}>
               <Text style={styles.name}>
-                {`${user.Fullname || "No Fullname Available"} ${user.Lastname || ""}`.trim()}
+                {`${user.Fullname || "No Fullname Available"} ${
+                  user.Lastname || ""
+                }`.trim()}
               </Text>
               <TouchableOpacity style={styles.btt_info} onPress={ProfileEdit}>
                 <Text style={{ fontSize: 12 }}>แก้ไขข้อมูล</Text>
@@ -570,12 +589,12 @@ const styles = StyleSheet.create({
     paddingLeft: 5,
   },
   info_top: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 15,
   },
   btt_info: {
-    backgroundColor: '#d4d4d4',
+    backgroundColor: "#d4d4d4",
     padding: 8,
     borderRadius: 5,
   },
@@ -606,16 +625,16 @@ const styles = StyleSheet.create({
   },
   titlecontent: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   detials: {
     padding: 10,
   },
 
   contact: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 10,
-    paddingHorizontal: 10
+    paddingHorizontal: 10,
   },
   textcontact: {
     paddingHorizontal: 10,
@@ -633,7 +652,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     backgroundColor: "#fff",
     borderRadius: 8,
-    alignItems: "center",
+    // alignItems: "center",
     justifyContent: "center",
     shadowColor: "#000",
     shadowOpacity: 0.1,
@@ -682,6 +701,17 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+  },
+  profile_header: {
+    // borderWidth: 1,
+    borderColor: 'red',
+    flexDirection : 'row',
+    alignItems : 'center'
+  },
+  profile_post: {
+    width: 45, // ขนาดโลโก้
+    height: 45,
+    borderRadius: 50, // รูปทรงกลม
   },
 });
 
