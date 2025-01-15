@@ -220,9 +220,12 @@ const PhotoProfile = ({ navigation }) => {
                       }}
                       style={styles.profile_post}
                     />
-                    <Text>{user.Fullname}</Text>
+                    <Text styl={styles.name_profile}>
+                      {user.Fullname}
+                      {user.Date}
+
+                    </Text>
                   </View>
-                    <Text>{user.Date}</Text>
                   <Swiper
                     style={styles.swiper}
                     showsPagination={true}
