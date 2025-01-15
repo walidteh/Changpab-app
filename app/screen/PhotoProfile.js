@@ -706,12 +706,14 @@ const styles = StyleSheet.create({
     // borderWidth: 1,
     borderColor: 'red',
     flexDirection : 'row',
-    alignItems : 'center'
+    alignItems : 'center',
+    marginBottom: 5
   },
   profile_post: {
     width: 45, // ขนาดโลโก้
     height: 45,
     borderRadius: 50, // รูปทรงกลม
+    marginRight: 10
   },
 });
 
