@@ -162,6 +162,28 @@ const PhotoIndex = ({ navigation }) => {
     return () => clearInterval(interval); // ล้าง interval เมื่อ component ถูก unmount
   }, []);
 
+  const handleLogout = async () => {
+    try {
+      // ลบ token ออกจาก AsyncStorage
+      await AsyncStorage.removeItem("@token");
+
+      // ตรวจสอบว่า token ถูกลบออกจริง ๆ
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        console.log("Token removed successfully");
+      }
+
+      // รีเซ็ตการนำทางไปยังหน้า login
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "login" }], // เปลี่ยน 'Login' เป็นชื่อของหน้า Login ที่คุณใช้
+      });
+    } catch (error) {
+      console.error("Error clearing token:", error);
+    }
+  }
+
+
   return (
     <SafeAreaView style={styles.container}>
       {/* เนื้อหาที่สามารถเลื่อน */}
@@ -189,40 +211,31 @@ const PhotoIndex = ({ navigation }) => {
             {/* แสดง dropdown */}
             {isDropdownVisible && (
               <View style={styles.dropdown}>
-                <Text style={styles.infoText}>
-                  {user.Fullname || "No Fullname Available"}{" "}
-                  {user.Lastname || "No Lastname Available"}
-                </Text>
-                <Text style={styles.infoText}>
-                  {user.Email || "No Email Available"}
-                </Text>
-                <Text style={styles.infoText}>
-                  Username: {user.Username || "No Username Available"}
-                </Text>
-                <Button
-                  title="Logout"
-                  onPress={async () => {
-                    try {
-                      // ลบ token ออกจาก AsyncStorage
-                      await AsyncStorage.removeItem("@token");
-
-                      // ตรวจสอบว่า token ถูกลบออกจริง ๆ
-                      const token = await AsyncStorage.getItem("@token");
-                      if (!token) {
-                        console.log("Token removed successfully");
-                      }
-
-
-                      // รีเซ็ตการนำทางไปยังหน้า login
-                      navigation.reset({
-                        index: 0,
-                        routes: [{ name: "login" }], // เปลี่ยน 'Login' เป็นชื่อของหน้า Login ที่คุณใช้
-                      });
-                    } catch (error) {
-                      console.error("Error clearing token:", error);
-                    }
-                  }}
-                />
+                <View style={{ flexDirection: 'row' }}>
+                  <Image
+                    source={{
+                      uri: user.Img_profile,
+                    }}
+                    style={styles.profileImage}
+                  />
+                  <View style={{ marginLeft: 10 }}>
+                    <Text style={styles.infoText}>
+                      {user.Fullname || "No Fullname Available"}{" "}
+                      {user.Lastname || "No Lastname Available"}
+                    </Text>
+                    <Text style={styles.infoText}>
+                      {user.Email || "No Email Available"}
+                    </Text>
+                    <Text style={styles.infoText}>
+                      Username: {user.Username || "No Username Available"}
+                    </Text>
+                  </View>
+                </View>
+                <View style={{ alignItems: 'center', marginTop: 15 }}>
+                  <TouchableOpacity style={styles.button} onPress={handleLogout}>
+                    <Text style={styles.buttonText}>Logout</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             )}
           </View>
@@ -379,20 +392,36 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     borderWidth: 2,
   },
+
   dropdown: {
     position: "absolute",
-    borderColor: "red",
-    borderWidth: 1,
     top: 60,
     backgroundColor: "#ffffff",
     borderRadius: 8,
     elevation: 5,
     padding: 10,
-    alignItems: "center",
-    width: 220,
+    width: 200,
     right: 0,
     zIndex: 100,
   },
+  infoText: {
+    fontSize: 16,
+  },
+  button: {
+    width: '50%',
+    height: 35,
+    backgroundColor: "#FF4D4D",
+    paddingVertical: 5,
+    paddingHorizontal: 5,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+
   card_top: {
     width: "100%",
     backgroundColor: "#fff",
@@ -470,6 +499,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     marginTop: 10,
+    marginBottom: 50,
     alignItems: "center",
   },
   header: {

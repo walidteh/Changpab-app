@@ -413,7 +413,14 @@ const PhotoProfileEdit = ({ navigation }) => {
               <View style={styles.Boxinput}>
                 <View style={styles.contactname}>
                   <TextInput
-                    style={styles.input}
+                    style={{
+                      width: '100%',
+                      height: 40,
+                      backgroundColor: "white",
+                      paddingHorizontal: 20,
+                      borderRadius: 10,
+                      backgroundColor: "#f5f5f5",
+                    }}
                     marginBottom='10'
                     placeholder="กรุณากรอกประเภทงาน"
                     // value={firstname}
@@ -422,7 +429,14 @@ const PhotoProfileEdit = ({ navigation }) => {
                     autoCapitalize="none"
                   />
                   <TextInput
-                    style={styles.input}
+                    style={{
+                      width: '100%',
+                      height: 40,
+                      backgroundColor: "white",
+                      paddingHorizontal: 20,
+                      borderRadius: 10,
+                      backgroundColor: "#f5f5f5",
+                    }}
                     placeholder="กรุณากรอกเรทราคา"
                     // value={firstname}
                     // onChangeText={setFirstname}
@@ -553,6 +567,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   input: {
+    width: '95%',
     height: 40,
     backgroundColor: "white",
     paddingHorizontal: 20,

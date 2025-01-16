@@ -15,7 +15,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import app_var from "./public";
 import * as ImagePicker from "expo-image-picker";
 import Swiper from "react-native-swiper";
-import moment from "moment/moment";
+import moment from "moment";
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
@@ -221,11 +221,14 @@ const PhotoProfile = ({ navigation }) => {
                       }}
                       style={styles.profile_post}
                     />
-                    <Text styl={styles.name_profile}>
-                      {user.Fullname}
-                      {user.Date}
-
-                    </Text>
+                    <View>
+                      <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
+                        {user.Fullname}
+                      </Text>
+                      <Text style={{ fontSize: 10 ,color: "#888888"}}>
+                        {user.Date}
+                      </Text>
+                    </View>
                   </View>
                   <Swiper
                     style={styles.swiper}
@@ -452,9 +455,8 @@ const PhotoProfile = ({ navigation }) => {
           <View style={styles.info}>
             <View style={styles.info_top}>
               <Text style={styles.name}>
-                {`${user.Fullname || "No Fullname Available"} ${
-                  user.Lastname || ""
-                }`.trim()}
+                {`${user.Fullname || "No Fullname Available"} ${user.Lastname || ""
+                  }`.trim()}
               </Text>
               <TouchableOpacity style={styles.btt_info} onPress={ProfileEdit}>
                 <Text style={{ fontSize: 12 }}>แก้ไขข้อมูล</Text>
@@ -683,6 +685,18 @@ const styles = StyleSheet.create({
     // textAlign: "center",
   },
 
+  profile_header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 5
+  },
+  profile_post: {
+    width: 45, // ขนาดโลโก้
+    height: 45,
+    borderRadius: 50, // รูปทรงกลม
+    marginRight: 10
+  },
+
   menu: {
     position: "absolute",
     bottom: 0,
@@ -706,19 +720,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-  },
-  profile_header: {
-    // borderWidth: 1,
-    borderColor: 'red',
-    flexDirection : 'row',
-    alignItems : 'center',
-    marginBottom: 5
-  },
-  profile_post: {
-    width: 45, // ขนาดโลโก้
-    height: 45,
-    borderRadius: 50, // รูปทรงกลม
-    marginRight: 10
   },
 });
 
