@@ -1,8 +1,9 @@
-import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity, Image, TextInput, ScrollView } from 'react-native'
+import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity, Image, TextInput, ScrollView, Alert } from 'react-native'
 import React, { useState, useEffect } from 'react'
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import app_var from "./public";
+import * as ImagePicker from "expo-image-picker";
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
@@ -203,7 +204,7 @@ const PhotoProfileEdit = ({ navigation }) => {
             onPress: () => {
               navigation.reset({
                 index: 0,
-                routes: [{ name: "PhotoProfile" }],
+                routes: [{ name: "PhotoProfileEdit" }],
               });
             },
           },
@@ -238,7 +239,7 @@ const PhotoProfileEdit = ({ navigation }) => {
       <View style={styles.exit}>
         <TouchableOpacity
           style={styles.exitIcon}
-          onPress={() => navigation.goBack()}
+          onPress={() => navigation.navigate("PhotoProfile")}
         >
           <FontAwesomeIcon icon={faArrowLeft} size={18} color="#000" />
         </TouchableOpacity>
