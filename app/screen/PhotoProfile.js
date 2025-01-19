@@ -39,6 +39,11 @@ const PhotoProfile = ({ navigation }) => {
   const [post, setPost] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [profileImage, setProfileImage] = useState(null);
+  const [selectedDropdown, setSelectedDropdown] = useState(null);
+
+  const handleDropdownToggle = (index) => {
+    setSelectedDropdown(selectedDropdown === index ? null : index); // เปิด/ปิดเมนู
+  };
 
   const fetchAllUser = async () => {
     try {
@@ -222,14 +227,40 @@ const PhotoProfile = ({ navigation }) => {
                       style={styles.profile_post}
                     />
                     <View>
-                      <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
+                      <Text style={{ fontSize: 16, fontWeight: "bold" }}>
                         {user.Fullname}
                       </Text>
-                      <Text style={{ fontSize: 10 ,color: "#888888"}}>
+                      <Text style={{ fontSize: 10, color: "#888888" }}>
                         {user.Date}
                       </Text>
                     </View>
                   </View>
+
+                  <View style={styles.dropdownMenu}>
+                    <TouchableOpacity
+                      onPress={() => handleDropdownToggle(i)} 
+                    >
+                      <Text style={styles.dropdownIcon}>⋯</Text>
+                    </TouchableOpacity>
+                    {selectedDropdown === i && ( 
+                      <View style={styles.dropdown}>
+                        <TouchableOpacity onPress={() => (i)}>
+                          <Text style={styles.dropdownItem}>Edit</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => (i)}>
+                          <Text
+                            style={[
+                              styles.dropdownItem,
+                              styles.dropdownItemLast,
+                            ]}
+                          >
+                            Delete
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                  </View>
+
                   <Swiper
                     style={styles.swiper}
                     showsPagination={true}
@@ -455,8 +486,9 @@ const PhotoProfile = ({ navigation }) => {
           <View style={styles.info}>
             <View style={styles.info_top}>
               <Text style={styles.name}>
-                {`${user.Fullname || "No Fullname Available"} ${user.Lastname || ""
-                  }`.trim()}
+                {`${user.Fullname || "No Fullname Available"} ${
+                  user.Lastname || ""
+                }`.trim()}
               </Text>
               <TouchableOpacity style={styles.btt_info} onPress={ProfileEdit}>
                 <Text style={{ fontSize: 12 }}>แก้ไขข้อมูล</Text>
@@ -515,10 +547,36 @@ const PhotoProfile = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+
+  dropdownMenu: {
+    position: 'absolute',
+    right: 20, 
+    top: 10, 
+    zIndex: 1, 
+  },
+  dropdownIcon: {
+    fontSize: 24, 
+    color: '#888888', 
+  },
+  dropdown: {
+    backgroundColor: '#ffffff',
+    borderRadius: 5,
+    padding: 10,
+    position: 'absolute',
+    right: 0, 
+    top: 30, 
+    elevation: 5, 
+    width: 120,
+  },
+  dropdownItem: {
+    padding: 10,
+    fontSize: 14,
+    color: '#333333',
+  },
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    paddingTop: 80, // ชดเชยความสูงของ Navbar
+    paddingTop: 80, 
   },
   navbar: {
     position: "absolute",
@@ -686,15 +744,15 @@ const styles = StyleSheet.create({
   },
 
   profile_header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 5
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 5,
   },
   profile_post: {
     width: 45, // ขนาดโลโก้
     height: 45,
     borderRadius: 50, // รูปทรงกลม
-    marginRight: 10
+    marginRight: 10,
   },
 
   menu: {
