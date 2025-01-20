@@ -132,7 +132,7 @@ const PhotoIndex = ({ navigation }) => {
   };
 
   const DetailPost = () => {
-    navigation.navigate("DetailPost");
+    navigation.navigate("PhotoDetailPost");
   };
 
   const toggleDropdown = () => {

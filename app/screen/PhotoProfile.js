@@ -202,7 +202,6 @@ const PhotoProfile = ({ navigation }) => {
         },
       ]);
     console.log(post_id)
-   
   }
 
   const renderContent = () => {
@@ -596,32 +595,6 @@ const PhotoProfile = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-
-  dropdownMenu: {
-    position: 'absolute',
-    right: 20, 
-    top: 10, 
-    zIndex: 1, 
-  },
-  dropdownIcon: {
-    fontSize: 24, 
-    color: '#888888', 
-  },
-  dropdown: {
-    backgroundColor: '#ffffff',
-    borderRadius: 5,
-    padding: 10,
-    position: 'absolute',
-    right: 0, 
-    top: 30, 
-    elevation: 5, 
-    width: 120,
-  },
-  dropdownItem: {
-    padding: 10,
-    fontSize: 14,
-    color: '#333333',
-  },
   container: {
     flex: 1,
     backgroundColor: "#fff",
@@ -802,6 +775,32 @@ const styles = StyleSheet.create({
     height: 45,
     borderRadius: 50, // รูปทรงกลม
     marginRight: 10,
+  },
+
+  dropdownMenu: {
+    position: 'absolute',
+    right: 20, 
+    top: 10, 
+    zIndex: 1, 
+  },
+  dropdownIcon: {
+    fontSize: 24, 
+    color: '#888888', 
+  },
+  dropdown: {
+    backgroundColor: '#ffffff',
+    borderRadius: 5,
+    padding: 10,
+    position: 'absolute',
+    right: 0, 
+    top: 30, 
+    elevation: 5, 
+    width: 120,
+  },
+  dropdownItem: {
+    padding: 10,
+    fontSize: 14,
+    color: '#333333',
   },
 
   menu: {
