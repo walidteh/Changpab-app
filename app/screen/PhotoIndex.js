@@ -370,11 +370,11 @@ const PhotoIndex = ({ navigation }) => {
                 onPress={DetailPost}
               >
                 <Image
-                  source={{ uri: post.ImageURL }}
+                  source={{ uri: post.image_url }}
                   style={styles.image_body}
                 />
                 <Text style={styles.name}>
-                  {post.Fullname || "No Fullname Available"}
+                  {post.fullname || "No Fullname Available"}
                 </Text>
               </TouchableOpacity>
             ))}
