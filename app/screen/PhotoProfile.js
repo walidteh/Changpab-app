@@ -157,9 +157,58 @@ const PhotoProfile = ({ navigation }) => {
   // ตัวอย่างรูป
   const PostUser = [];
 
+  const DeletePost = async(post_id) => {
+      Alert.alert("ระบบ", "ต้องการลบโพสต์หรือไม่", [
+        {
+          text: "ยกเลิก",
+          onPress: () => { return
+          },
+        },
+        {
+          text: "ตกลง",
+          onPress: async() => { 
+            try {
+              const token = await AsyncStorage.getItem("@token");
+              if (!token) {
+                alert("Token not found. Please log in again.");
+                return;
+              }
+        
+              // กำหนด URL ที่ส่ง parameter keyword ไปกับ GET request
+              const response = await fetch(
+                "http://" +
+                  app_var.api_host +
+                  "/users/delete_post?postId=" +
+                  encodeURIComponent(post_id),
+                {
+                  method: "DELETE",
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                }
+              );
+        
+              const data = await response.json();
+              console.log(data.status)
+              navigation.reset({
+                index: 0,
+                routes: [{ name: "PhotoProfile" }],
+              });
+            } catch (error) {
+              console.error("Error:", error);
+              alert("An error occurred while searching.");
+            }
+          },
+        },
+      ]);
+    console.log(post_id)
+   
+  }
+
   const renderContent = () => {
     post.forEach((item) => {
       PostUser.push({
+        PostId: item.post_id,
         Fullname: user.Fullname,
         Img_profile: user.Img_profile,
         Detail: item.post_detail,
@@ -247,14 +296,14 @@ const PhotoProfile = ({ navigation }) => {
                         <TouchableOpacity onPress={() => (i)}>
                           <Text style={styles.dropdownItem}>Edit</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={() => (i)}>
+                        <TouchableOpacity onPress={() => DeletePost(user.PostId)}>
                           <Text
                             style={[
                               styles.dropdownItem,
                               styles.dropdownItemLast,
                             ]}
                           >
-                            Delete
+                            Deletea
                           </Text>
                         </TouchableOpacity>
                       </View>
@@ -423,7 +472,7 @@ const PhotoProfile = ({ navigation }) => {
         Alert.alert("สำเร็จ", "เปลี่ยนรูปโปรไฟล์สำเร็จ!", [
           {
             text: "OK",
-            onPress: () => {
+            onPress: () => { 
               navigation.reset({
                 index: 0,
                 routes: [{ name: "PhotoProfile" }],
