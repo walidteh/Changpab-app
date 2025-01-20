@@ -39,6 +39,7 @@ func main() {
 	authorized.POST("/upload_image_profile", UserController.UploadImageProfile)
 	authorized.POST("/create_post", UserController.CreatePost)
 	authorized.GET("/get_post_info", UserController.GetPostsWithImages)
+	authorized.DELETE("/delete_post", UserController.DeletePost)
 
 	device_host := os.Getenv("DEVICE_HOST")
 

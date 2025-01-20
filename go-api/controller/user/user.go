@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -223,7 +224,7 @@ func GetPostsWithImages(c *gin.Context) {
 		ON 
 			posts.id = images.post_id
 		WHERE 
-			posts.user_id = ?;
+			posts.user_id = ? ORDER BY post_id DESC;
 	`, int(userId)).Scan(&rows).Error
 
 	if err != nil {
@@ -264,7 +265,31 @@ func GetPostsWithImages(c *gin.Context) {
 			postMap[row.PostID]["images"] = append(postMap[row.PostID]["images"].([]map[string]interface{}), image)
 		}
 	}
-
-	// Send the final response
 	c.JSON(http.StatusOK, gin.H{"status": "OK", "post": result})
+}
+
+func DeletePost(c *gin.Context) {
+
+	postId := c.DefaultQuery("postId", "")
+	if _, err := strconv.Atoi(postId); err != nil {
+		c.JSON(400, gin.H{"error": "Invalid postId"})
+		return
+	}
+
+	var post orm.Post
+	if err := orm.Db.First(&post, postId).Error; err != nil {
+		c.JSON(404, gin.H{"error": "Post not found"})
+		return
+	}
+
+	if err := orm.Db.Unscoped().Delete(&post).Error; err != nil {
+		fmt.Println("Error deleting post:", err)
+		c.JSON(500, gin.H{"error": "Failed to delete post"})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"status": "Post deleted successfully",
+		"postId": postId,
+	})
 }
