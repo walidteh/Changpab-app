@@ -292,7 +292,7 @@ const PhotoProfile = ({ navigation }) => {
                     </TouchableOpacity>
                     {selectedDropdown === i && ( 
                       <View style={styles.dropdown}>
-                        <TouchableOpacity onPress={() => (i)}>
+                        <TouchableOpacity onPress={() => navigation.navigate("PhotoPostEdit")}>
                           <Text style={styles.dropdownItem}>Edit</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => DeletePost(user.PostId)}>

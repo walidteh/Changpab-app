@@ -17,6 +17,7 @@ import PhotoPost from './screen/PhotoPost.js';
 import PhotoDetailPost from './screen/PhotoDetailPost.js';
 import PhotoProfileEdit from './screen/PhotoProfileEdit.js';
 import PhotoDetailUser from './screen/PhotoDetailUser.js';
+import PhotoPostEdit from './screen/PhotoPostEdit.js'
 
 import Userindex from './screen/UserIndex.js'
 import UserProfile from './screen/UserProfile.js'
@@ -54,6 +55,7 @@ const App = () => {
         <Stack.Screen name="Allpicture" component={UserAllpicture} options={{ headerShown: false, animation: 'none' }} />
         <Stack.Screen name="UserSearch" component={UserSearch} options={{ headerShown: false, animation: 'none' }} />
         <Stack.Screen name="UserNotify" component={UserNotify} options={{ headerShown: false, animation: 'none' }} />
+        <Stack.Screen name="PhotoPostEdit" component={PhotoPostEdit} options={{ headerShown: false, animation: 'none' }} />
       </Stack.Navigator>
     </NavigationContainer>
   )

@@ -26,7 +26,7 @@ import {
   faSquarePlus,
 } from "@fortawesome/free-solid-svg-icons";
 
-const PhotoPost = ({ navigation }) => {
+const PhotoPostEdit = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [text, setText] = useState(""); // เพิ่ม state สำหรับ TextInput
   const [user, setUser] = useState({});
@@ -198,7 +198,7 @@ const PhotoPost = ({ navigation }) => {
         >
           <FontAwesomeIcon icon={faArrowLeft} size={18} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.exitText}>สร้างโพสต์</Text>
+        <Text style={styles.exitText}>แก้ไขโพสต์</Text>
       </View>
 
       <ScrollView>
@@ -441,4 +441,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PhotoPost;
+export default PhotoPostEdit;
