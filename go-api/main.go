@@ -35,11 +35,11 @@ func main() {
 	authorized.GET("/get_all_user", UserController.GetAllUser)
 	authorized.GET("/get_user_info", UserController.GetUserInfo)
 	authorized.GET("/search", UserController.Search)
-	authorized.POST("/upload_image_post", UserController.UploadImagePost)
 	authorized.POST("/upload_image_profile", UserController.UploadImageProfile)
 	authorized.POST("/create_post", UserController.CreatePost)
-	authorized.GET("/get_post_info", UserController.GetPostsWithImages)
+	authorized.GET("/get_post_info", UserController.GetUserPost)
 	authorized.DELETE("/delete_post", UserController.DeletePost)
+	authorized.GET("/get_post_random", UserController.GetPostRandom)
 
 	device_host := os.Getenv("DEVICE_HOST")
 

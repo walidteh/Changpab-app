@@ -101,7 +101,7 @@ const PhotoProfile = ({ navigation }) => {
       const data = await response.json();
       if (data.status === "OK") {
         setPost(data.post);
-        console.log(post);
+        // console.log(post);
       } else {
         alert("Failed to fetch user data");
       }
