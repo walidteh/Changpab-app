@@ -367,21 +367,27 @@ const PhotoIndex = ({ navigation }) => {
                 <Text style={styles.name}>{user.name}</Text>
               </TouchableOpacity>
             ))} */}
-            {post.map((post, i) => (
-              <TouchableOpacity
-                key={i}
-                style={styles.item}
-                onPress={DetailPost}
-              >
-                <Image
-                  source={{ uri: post.image_url }}
-                  style={styles.image_body}
-                />
-                <Text style={styles.name}>
-                  {post.fullname || "No Fullname Available"}
-                </Text>
-              </TouchableOpacity>
-            ))}
+            {post && post.length > 0 ? (
+              post.map((post, i) => (
+                <TouchableOpacity
+                  key={i}
+                  style={styles.item}
+                  onPress={DetailPost}
+                >
+                  <Image
+                    source={{ uri: post.image_url }}
+                    style={styles.image_body}
+                  />
+                  <Text style={styles.name}>
+                    {post.fullname || "No Fullname Available"}
+                  </Text>
+                </TouchableOpacity>
+              ))
+            ) : (
+              <Text style={{ textAlign: "center", marginTop: 20 }}>
+                                ไม่มีโพสต์
+                              </Text>
+            )}
           </View>
         </View>
       </ScrollView>
