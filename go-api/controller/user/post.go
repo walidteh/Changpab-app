@@ -153,6 +153,7 @@ func DeletePost(c *gin.Context) {
 }
 
 func GetPostRandom(c *gin.Context) {
+	rows_get_post_random = nil
 
 	limit := c.DefaultQuery("limit", "")
 
