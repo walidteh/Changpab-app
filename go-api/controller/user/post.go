@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -60,6 +61,7 @@ func CreatePost(c *gin.Context) {
 }
 
 func GetUserPost(c *gin.Context) {
+	rows_get_user_post = nil
 	userId, ok := c.MustGet("userId").(float64)
 	if !ok {
 		c.JSON(400, gin.H{"error": "Invalid user ID"})
@@ -92,15 +94,11 @@ func GetUserPost(c *gin.Context) {
 	var imageHost = "http://" + device_host + ":8080/get_image/image_post/"
 	for i := range rows_get_user_post {
 		*rows_get_user_post[i].ImageURL = imageHost + *rows_get_user_post[i].ImageURL
-		// fmt.Println("%s", users[i].Img_profile)
 	}
-
-	// Group posts and their images
 	result := make([]map[string]interface{}, 0)
 	postMap := make(map[uint]map[string]interface{})
 
 	for _, row := range rows_get_user_post {
-		// If the post is not already in the result, add it
 		if _, exists := postMap[row.PostID]; !exists {
 			post := map[string]interface{}{
 				"post_id":     row.PostID,
@@ -111,8 +109,6 @@ func GetUserPost(c *gin.Context) {
 			postMap[row.PostID] = post
 			result = append(result, post)
 		}
-
-		// If there is an image, append it to the post's images
 		if row.ImageID != nil && row.ImageURL != nil {
 			image := map[string]interface{}{
 				"image_id": *row.ImageID,
@@ -138,6 +134,12 @@ func DeletePost(c *gin.Context) {
 		return
 	}
 
+	imagePath := fmt.Sprintf("./uploads/image_post/%d_*", post.ID)
+	matches, _ := filepath.Glob(imagePath)
+	for _, match := range matches {
+		os.Remove(match)
+	}
+
 	if err := orm.Db.Unscoped().Delete(&post).Error; err != nil {
 		fmt.Println("Error deleting post:", err)
 		c.JSON(500, gin.H{"error": "Failed to delete post"})
@@ -151,12 +153,6 @@ func DeletePost(c *gin.Context) {
 }
 
 func GetPostRandom(c *gin.Context) {
-
-	// userId, ok := c.MustGet("userId").(float64)
-	// if !ok {
-	// 	c.JSON(400, gin.H{"error": "Invalid user ID"})
-	// 	return
-	// }
 
 	limit := c.DefaultQuery("limit", "")
 
@@ -193,34 +189,6 @@ func GetPostRandom(c *gin.Context) {
 	for i := range rows_get_post_random {
 		*rows_get_post_random[i].ImageURL = ImagePostHost + *rows_get_post_random[i].ImageURL
 		*rows_get_post_random[i].Profile = ProfileHost + *rows_get_post_random[i].Profile
-		// fmt.Println("%s", users[i].Img_profile)
 	}
-
-	// Group posts and their images
-	// result := make([]map[string]interface{}, 0)
-	// postMap := make(map[uint]map[string]interface{})
-
-	// for _, row := range rows_get_post_random {
-	// 	// If the post is not already in the result, add it
-	// 	if _, exists := postMap[row.PostID]; !exists {
-	// 		post := map[string]interface{}{
-	// 			"post_id":     row.PostID,
-	// 			"post_detail": row.PostDetail,
-	// 			"post_date":   row.PostDate,
-	// 			"images":      []map[string]interface{}{},
-	// 		}
-	// 		postMap[row.PostID] = post
-	// 		result = append(result, post)
-	// 	}
-
-	// 	// If there is an image, append it to the post's images
-	// 	if row.ImageID != nil && row.ImageURL != nil {
-	// 		image := map[string]interface{}{
-	// 			"image_id": *row.ImageID,
-	// 			"url":      *row.ImageURL,
-	// 		}
-	// 		postMap[row.PostID]["images"] = append(postMap[row.PostID]["images"].([]map[string]interface{}), image)
-	// 	}
-	// }
 	c.JSON(http.StatusOK, gin.H{"status": "OK", "post": rows_get_post_random})
 }
