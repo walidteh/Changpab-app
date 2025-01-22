@@ -157,50 +157,51 @@ const PhotoProfile = ({ navigation }) => {
   // ตัวอย่างรูป
   const PostUser = [];
 
-  const DeletePost = async(post_id) => {
-      Alert.alert("ระบบ", "ต้องการลบโพสต์หรือไม่", [
-        {
-          text: "ยกเลิก",
-          onPress: () => { return
-          },
+  const DeletePost = async (post_id) => {
+    Alert.alert("ระบบ", "ต้องการลบโพสต์หรือไม่", [
+      {
+        text: "ยกเลิก",
+        onPress: () => {
+          return
         },
-        {
-          text: "ตกลง",
-          onPress: async() => { 
-            try {
-              const token = await AsyncStorage.getItem("@token");
-              if (!token) {
-                alert("Token not found. Please log in again.");
-                return;
-              }
-        
-              // กำหนด URL ที่ส่ง parameter keyword ไปกับ GET request
-              const response = await fetch(
-                "http://" +
-                  app_var.api_host +
-                  "/users/delete_post?postId=" +
-                  encodeURIComponent(post_id),
-                {
-                  method: "DELETE",
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                  },
-                }
-              );
-        
-              const data = await response.json();
-              console.log(data.status)
-              navigation.reset({
-                index: 0,
-                routes: [{ name: "PhotoProfile" }],
-              });
-            } catch (error) {
-              console.error("Error:", error);
-              alert("An error occurred while searching.");
+      },
+      {
+        text: "ตกลง",
+        onPress: async () => {
+          try {
+            const token = await AsyncStorage.getItem("@token");
+            if (!token) {
+              alert("Token not found. Please log in again.");
+              return;
             }
-          },
+
+            // กำหนด URL ที่ส่ง parameter keyword ไปกับ GET request
+            const response = await fetch(
+              "http://" +
+              app_var.api_host +
+              "/users/delete_post?postId=" +
+              encodeURIComponent(post_id),
+              {
+                method: "DELETE",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+
+            const data = await response.json();
+            console.log(data.status)
+            navigation.reset({
+              index: 0,
+              routes: [{ name: "PhotoProfile" }],
+            });
+          } catch (error) {
+            console.error("Error:", error);
+            alert("An error occurred while searching.");
+          }
         },
-      ]);
+      },
+    ]);
     console.log(post_id)
   }
 
@@ -265,70 +266,74 @@ const PhotoProfile = ({ navigation }) => {
 
             <Text style={styles.titlecontent}>ผลงาน</Text>
             <View style={styles.body}>
-              {PostUser.map((user, i) => (
-                <View key={i} style={styles.item} onPress={DetailPost}>
-                  <View style={styles.profile_header}>
-                    <Image
-                      source={{
-                        uri: user.Img_profile,
-                      }}
-                      style={styles.profile_post}
-                    />
-                    <View>
-                      <Text style={{ fontSize: 16, fontWeight: "bold" }}>
-                        {user.Fullname}
-                      </Text>
-                      <Text style={{ fontSize: 10, color: "#888888" }}>
-                        {user.Date}
-                      </Text>
-                    </View>
-                  </View>
-
-                  <View style={styles.dropdownMenu}>
-                    <TouchableOpacity
-                      onPress={() => handleDropdownToggle(i)} 
-                    >
-                      <Text style={styles.dropdownIcon}>⋯</Text>
-                    </TouchableOpacity>
-                    {selectedDropdown === i && ( 
-                      <View style={styles.dropdown}>
-                        <TouchableOpacity onPress={() => navigation.navigate("PhotoPostEdit")}>
-                          <Text style={styles.dropdownItem}>Edit</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => DeletePost(user.PostId)}>
-                          <Text
-                            style={[
-                              styles.dropdownItem,
-                              styles.dropdownItemLast,
-                            ]}
-                          >
-                            Deletea
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    )}
-                  </View>
-
-                  <Swiper
-                    style={styles.swiper}
-                    showsPagination={true}
-                    loop={false}
-                  >
-                    {user.Img_Post.map((img, index) => (
+              {PostUser.length > 0 ? (
+                PostUser.map((user, i) => (
+                  <View key={i} style={styles.item} onPress={DetailPost}>
+                    <View style={styles.profile_header}>
                       <Image
-                        key={index}
-                        source={{ uri: img }}
-                        style={styles.image_body}
+                        source={{
+                          uri: user.Img_profile,
+                        }}
+                        style={styles.profile_post}
                       />
-                    ))}
-                  </Swiper>
-                  <Text style={styles.name_body}>
-                    {/* {user.Fullname || "No Fullname Available"} */}
-                    {user.Detail || "No Fullname Available"}
-                    {/* {user.Date || "No Fullname Available"}  */}
-                  </Text>
-                </View>
-              ))}
+                      <View>
+                        <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+                          {user.Fullname}
+                        </Text>
+                        <Text style={{ fontSize: 10, color: "#888888" }}>
+                          {user.Date}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View style={styles.dropdownMenu}>
+                      <TouchableOpacity onPress={() => handleDropdownToggle(i)}>
+                        <Text style={styles.dropdownIcon}>⋯</Text>
+                      </TouchableOpacity>
+                      {selectedDropdown === i && (
+                        <View style={styles.dropdown}>
+                          <TouchableOpacity
+                            onPress={() => navigation.navigate("PhotoPostEdit")}
+                          >
+                            <Text style={styles.dropdownItem}>Edit</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity onPress={() => DeletePost(user.PostId)}>
+                            <Text
+                              style={[
+                                styles.dropdownItem,
+                                styles.dropdownItemLast,
+                              ]}
+                            >
+                              Delete
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      )}
+                    </View>
+
+                    <Swiper
+                      style={styles.swiper}
+                      showsPagination={true}
+                      loop={false}
+                    >
+                      {user.Img_Post.map((img, index) => (
+                        <Image
+                          key={index}
+                          source={{ uri: img }}
+                          style={styles.image_body}
+                        />
+                      ))}
+                    </Swiper>
+                    <Text style={styles.name_body}>
+                      {user.Detail || "No Details Available"}
+                    </Text>
+                  </View>
+                ))
+              ) : (
+                <Text style={{ textAlign: "center", marginTop: 20 }}>
+                  ไม่มีโพสต์
+                </Text>
+              )}
             </View>
           </View>
         </ScrollView>
@@ -471,7 +476,7 @@ const PhotoProfile = ({ navigation }) => {
         Alert.alert("สำเร็จ", "เปลี่ยนรูปโปรไฟล์สำเร็จ!", [
           {
             text: "OK",
-            onPress: () => { 
+            onPress: () => {
               navigation.reset({
                 index: 0,
                 routes: [{ name: "PhotoProfile" }],
@@ -534,9 +539,8 @@ const PhotoProfile = ({ navigation }) => {
           <View style={styles.info}>
             <View style={styles.info_top}>
               <Text style={styles.name}>
-                {`${user.Fullname || "No Fullname Available"} ${
-                  user.Lastname || ""
-                }`.trim()}
+                {`${user.Fullname || "No Fullname Available"} ${user.Lastname || ""
+                  }`.trim()}
               </Text>
               <TouchableOpacity style={styles.btt_info} onPress={ProfileEdit}>
                 <Text style={{ fontSize: 12 }}>แก้ไขข้อมูล</Text>
@@ -598,7 +602,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    paddingTop: 80, 
+    paddingTop: 80,
   },
   navbar: {
     position: "absolute",
@@ -779,22 +783,22 @@ const styles = StyleSheet.create({
 
   dropdownMenu: {
     position: 'absolute',
-    right: 20, 
-    top: 10, 
-    zIndex: 1, 
+    right: 20,
+    top: 10,
+    zIndex: 1,
   },
   dropdownIcon: {
-    fontSize: 24, 
-    color: '#888888', 
+    fontSize: 24,
+    color: '#888888',
   },
   dropdown: {
     backgroundColor: '#ffffff',
     borderRadius: 5,
     padding: 10,
     position: 'absolute',
-    right: 0, 
-    top: 30, 
-    elevation: 5, 
+    right: 0,
+    top: 30,
+    elevation: 5,
     width: 120,
   },
   dropdownItem: {

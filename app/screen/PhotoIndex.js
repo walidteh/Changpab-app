@@ -172,6 +172,10 @@ const PhotoIndex = ({ navigation }) => {
     navigation.navigate("PhotoDetailPost");
   };
 
+  const DetailUser = () => {
+    navigation.navigate("PhotoDetailUser");
+  };
+
   const toggleDropdown = () => {
     setIsDropdownVisible(!isDropdownVisible);
   };
@@ -330,7 +334,7 @@ const PhotoIndex = ({ navigation }) => {
                 <TouchableOpacity
                   key={i}
                   style={styles.item_top}
-                  onPress={DetailPost}
+                  onPress={DetailUser}
                 >
                   <Image
                     source={{ uri: user.Img_profile }}
