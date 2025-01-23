@@ -26,13 +26,21 @@ import {
   faSquarePlus,
 } from "@fortawesome/free-solid-svg-icons";
 
+import { useRoute } from "@react-navigation/native";
+
 const PhotoPostEdit = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [text, setText] = useState(""); // เพิ่ม state สำหรับ TextInput
   const [user, setUser] = useState({});
   const [images, setImages] = useState([]); // จัดเก็บ URI ของรูปหลายรูป
-  const [imageSave, setImageSave] = useState([]); 
+  const [imageSave, setImageSave] = useState([]);
+  const [imageDelete, setImageDelete] = useState([]);
   const maxChars = 200; // จำนวนตัวอักษรสูงสุด
+  const route = useRoute();
+  const { postId } = route.params; // รับค่า postId จาก params
+  const { imagePost } = route.params; // รับค่า postId จาก params
+  const { detailPost } = route.params; // รับค่า postId จาก params
+  const [postDetails, setPostDetails] = useState(null);
 
   const fetchUser = async () => {
     try {
@@ -66,7 +74,57 @@ const PhotoPostEdit = ({ navigation }) => {
       setIsLoading(false);
     }
   };
+
+  const SavePostEdit = async () => {
+    const token = await AsyncStorage.getItem("@token");
+    if (!token) {
+      alert("Token not found. Please log in again.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("postdetail", text);
+    imageSave.forEach((uri, index) => {
+      formData.append("files", {
+        uri,
+        type: "image/jpeg",
+        name: uri.split("/").pop(),
+      });
+    });
+
+    // imageDelete.forEach((img) => {
+    //   console.log(img.img_id)
+    //   formData.append("imageDelete[]", img.img_id); // ส่ง id ไปในฟอร์มแบบ array
+    // });
+
+    const response = await fetch(
+      "http://" +
+        app_var.api_host +
+        "/users/edit_post?postId=" +
+        encodeURIComponent(postId),
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      }
+    );
+    if (!response.ok) {
+      throw new Error(`Failed to fetch post details: ${response.statusText}`);
+    }
+
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "PhotoProfile" }],
+    });
+  };
+
   useEffect(() => {
+    console.log("Received postId:", postId);
+    console.log("Received imagePost:", imagePost);
+    console.log("Received detailPost:", detailPost);
+    setImageDelete(imagePost);
     fetchUser();
   }, []);
 
@@ -123,16 +181,24 @@ const PhotoPostEdit = ({ navigation }) => {
       setImages(combinedImages); // อัปเดต state
 
       // ถ้าต้องการอัปโหลดรูปพร้อมกัน
-      setImageSave([...images, ...newImages])
+      setImageSave([...images, ...newImages]);
     }
   };
 
- 
-
   // ฟังก์ชันสำหรับลบรูป
-  const handleDeleteImage = (uri) => {
-    setImages((prevImages) => prevImages.filter((image) => image !== uri)); // ลบรูปตาม URI
+  const handleDeleteImage = (type, uri) => {
+    if (type === 1) {
+      setImages((prevImages) => prevImages.filter((image) => image !== uri));
+    } else {
+      setImageDelete((prevImages) =>
+        prevImages.filter((image) => image.img_id !== uri)
+      );
+      // console.log("delete from api", imageDelete);
+    }
   };
+  useEffect(() => {
+    console.log("delete from api", imageDelete);
+  },[imageDelete]);
 
   // ฟังก์ชันสำหรับอัปโหลดภาพไปยังเซิร์ฟเวอร์
   const uploadImages = async () => {
@@ -141,7 +207,7 @@ const PhotoPostEdit = ({ navigation }) => {
       alert("Token not found. Please log in again.");
       return;
     }
-    
+
     const formData = new FormData();
     formData.append("postdetail", text);
     imageSave.forEach((uri, index) => {
@@ -152,14 +218,17 @@ const PhotoPostEdit = ({ navigation }) => {
       });
     });
 
-    const response = await fetch("http://" + app_var.api_host + "/users/create_post", {
-      method: "POST",
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    });
+    const response = await fetch(
+      "http://" + app_var.api_host + "/users/create_post",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      }
+    );
 
     if (response.ok) {
       const result = await response.json();
@@ -227,11 +296,26 @@ const PhotoPostEdit = ({ navigation }) => {
 
             {/* แสดงภาพที่เลือก */}
             <View style={styles.imageContainer}>
+              {imageDelete.map((img, index) => (
+                <View key={index} style={styles.imageWrapper}>
+                  <Image
+                    source={{ uri: img.url }}
+                    style={styles.imagePreview}
+                  />
+                  <TouchableOpacity
+                    onPress={() => handleDeleteImage(2, img.img_id)}
+                    style={styles.deleteButton}
+                  >
+                    <Text style={styles.deleteText}>X</Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+
               {images.map((uri, index) => (
                 <View key={index} style={styles.imageWrapper}>
                   <Image source={{ uri }} style={styles.imagePreview} />
                   <TouchableOpacity
-                    onPress={() => handleDeleteImage(uri)}
+                    onPress={() => handleDeleteImage(1, uri)}
                     style={styles.deleteButton}
                   >
                     <Text style={styles.deleteText}>X</Text>
@@ -253,11 +337,8 @@ const PhotoPostEdit = ({ navigation }) => {
                 </TouchableOpacity>
               )}
               {images.length > 0 && (
-                <TouchableOpacity
-                  style={styles.button}
-                  onPress={uploadImages}
-                >
-                  <Text style={styles.buttonText}>โพสต์</Text>
+                <TouchableOpacity style={styles.button} onPress={SavePostEdit}>
+                  <Text style={styles.buttonText}>บันทึก</Text>
                 </TouchableOpacity>
               )}
             </View>

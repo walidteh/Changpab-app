@@ -213,7 +213,10 @@ const PhotoProfile = ({ navigation }) => {
         Img_profile: user.Img_profile,
         Detail: item.post_detail,
         Date: moment(item.post_date).format("D-M-YYYY HH:mm"),
-        Img_Post: item.images.map((image) => image.url),
+        Img_Post: item.images.map((image) => ({
+          url: image.url,
+          img_id: image.image_id
+        })),
       });
     });
     if (selectedMenu === "หน้าหลัก") {
@@ -293,7 +296,9 @@ const PhotoProfile = ({ navigation }) => {
                       {selectedDropdown === i && (
                         <View style={styles.dropdown}>
                           <TouchableOpacity
-                            onPress={() => navigation.navigate("PhotoPostEdit")}
+                            onPress={() => {
+                              navigation.navigate("PhotoPostEdit", { postId: user.PostId, imagePost: user.Img_Post, detailPost: user.Detail})
+                            }}
                           >
                             <Text style={styles.dropdownItem}>Edit</Text>
                           </TouchableOpacity>
@@ -319,7 +324,7 @@ const PhotoProfile = ({ navigation }) => {
                       {user.Img_Post.map((img, index) => (
                         <Image
                           key={index}
-                          source={{ uri: img }}
+                          source={{ uri: img.url }}
                           style={styles.image_body}
                         />
                       ))}
