@@ -2,6 +2,7 @@ package user
 
 import (
 	"changpab/jwt-api/orm"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -192,4 +193,86 @@ func GetPostRandom(c *gin.Context) {
 		*rows_get_post_random[i].Profile = ProfileHost + *rows_get_post_random[i].Profile
 	}
 	c.JSON(http.StatusOK, gin.H{"status": "OK", "post": rows_get_post_random})
+}
+
+func EditPost(c *gin.Context) {
+	postId := c.DefaultQuery("postId", "")
+	if postId == "" {
+		c.JSON(400, gin.H{"error": "Post ID is required"})
+		return
+	}
+	userId := c.MustGet("userId").(float64)
+
+	var post orm.Post
+	if err := orm.Db.Where("id = ? AND user_id = ?", postId, uint(userId)).First(&post).Error; err != nil {
+		c.JSON(404, gin.H{"error": "Post not found"})
+		return
+	}
+
+	form, err := c.MultipartForm()
+	if err != nil {
+		c.JSON(400, gin.H{"error": "Failed to parse form-data"})
+		return
+	}
+
+	PostDetail := c.DefaultPostForm("postdetail", post.Detail)
+	post.Detail = PostDetail
+	if err := orm.Db.Save(&post).Error; err != nil {
+		c.JSON(500, gin.H{"error": "Failed to update post"})
+		return
+	}
+
+	imagePath := fmt.Sprintf("./uploads/image_post/%d_*", post.ID)
+	matches, err := filepath.Glob(imagePath)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Failed to find existing images"})
+		return
+	}
+
+	for _, match := range matches {
+		if err := os.Remove(match); err != nil {
+			c.JSON(500, gin.H{"error": "Failed to delete old images"})
+			return
+		}
+	}
+
+	imageDelete := c.PostForm("imageDelete")
+	var imageDeleteArray []uint
+	if err := json.Unmarshal([]byte(imageDelete), &imageDeleteArray); err != nil {
+		c.JSON(400, gin.H{"status": "error", "message": "Invalid imageDelete format"})
+		return
+	}
+	fmt.Println(imageDeleteArray)
+
+	// imageDelete := c.PostFormArray("imageDelete[]")
+	orm.Db.Unscoped().
+		Where("post_id = ?", postId).
+		Not("id IN ?", imageDeleteArray).
+		Delete(&orm.Image{})
+
+	files := form.File["files"]
+	if files != nil {
+		for _, file := range files {
+			fileName := fmt.Sprintf("%d_%s", int(post.ID), file.Filename)
+			filePath := "./uploads/image_post/" + fileName
+			if err := c.SaveUploadedFile(file, filePath); err != nil {
+				c.JSON(500, gin.H{"error": "Failed to save file"})
+				return
+			}
+
+			image := orm.Image{
+				Img_url: fileName,
+				Post_ID: int(post.ID),
+			}
+			if err := orm.Db.Create(&image).Error; err != nil {
+				c.JSON(500, gin.H{"error": "Failed to update images"})
+				return
+			}
+		}
+	}
+
+	c.JSON(200, gin.H{
+		"status": "Post updated successfully",
+		"postId": postId,
+	})
 }

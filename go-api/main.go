@@ -40,6 +40,7 @@ func main() {
 	authorized.GET("/get_post_info", UserController.GetUserPost)
 	authorized.DELETE("/delete_post", UserController.DeletePost)
 	authorized.GET("/get_post_random", UserController.GetPostRandom)
+	authorized.PUT("/edit_post", UserController.EditPost)
 
 	device_host := os.Getenv("DEVICE_HOST")
 
