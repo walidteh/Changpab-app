@@ -30,17 +30,17 @@ import { useRoute } from "@react-navigation/native";
 
 const PhotoPostEdit = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [text, setText] = useState(""); // เพิ่ม state สำหรับ TextInput
+  const [text, setText] = useState(""); 
   const [user, setUser] = useState({});
-  const [images, setImages] = useState([]); // จัดเก็บ URI ของรูปหลายรูป
+  const [images, setImages] = useState([]); 
   const [imageSave, setImageSave] = useState([]);
   const [oldImagePost, setOldImagePost] = useState([]);
   const [imagePostDelete, setImagePostDelete] = useState([]);
-  const maxChars = 200; // จำนวนตัวอักษรสูงสุด
+  const maxChars = 200;
   const route = useRoute();
-  const { postId } = route.params; // รับค่า postId จาก params
-  const { imagePost } = route.params; // รับค่า postId จาก params
-  const { detailPost } = route.params; // รับค่า postId จาก params
+  const { postId } = route.params;
+  const { imagePost } = route.params;
+  const { detailPost } = route.params;
   const [postDetails, setPostDetails] = useState(null);
 
   const fetchUser = async () => {
@@ -93,7 +93,7 @@ const PhotoPostEdit = ({ navigation }) => {
       });
     });
 
-    const imgIds = oldImagePost.map((img) => {
+    const imgIds = imagePostDelete.map((img) => {
       const urlParts = img.url.split("/"); 
       return urlParts[urlParts.length - 1];
     });
@@ -132,7 +132,7 @@ const PhotoPostEdit = ({ navigation }) => {
   }, []);
 
   const handleTextChange = (input) => {
-    const words = input.split(/\s+/).filter(Boolean); // แยกข้อความเป็นคำ
+    const words = input.split(/\s+/).filter(Boolean);
     if (input.length <= maxChars) {
       setText(input);
     }
@@ -172,82 +172,34 @@ const PhotoPostEdit = ({ navigation }) => {
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsMultipleSelection: true, // เปิดให้เลือกหลายรูป
+      allowsMultipleSelection: true,
       quality: 1,
     });
 
     if (!result.canceled && result.assets) {
-      // เอาภาพที่เลือกใหม่มาเพิ่มใน images
-      const newImages = result.assets.slice(0, 10).map((asset) => asset.uri); // จำกัดที่ 10 รูป
-      setImages((prevImages) => [...prevImages, ...newImages]); // เพิ่มภาพใหม่ไปยังภาพที่มีอยู่แล้ว
-      const combinedImages = [...images, ...newImages].slice(0, 10); // จำกัดจำนวนภาพที่ 10
-      setImages(combinedImages); // อัปเดต state
+      const newImages = result.assets.slice(0, 10).map((asset) => asset.uri);
+      setImages((prevImages) => [...prevImages, ...newImages]); 
+      const combinedImages = [...images, ...newImages].slice(0, 10); 
+      setImages(combinedImages); 
 
-      // ถ้าต้องการอัปโหลดรูปพร้อมกัน
       setImageSave([...images, ...newImages]);
     }
   };
 
-  // ฟังก์ชันสำหรับลบรูป
   const handleDeleteImage = (type, uri) => {
     if (type === 1) {
       setImages((prevImages) => prevImages.filter((image) => image !== uri));
     } else {
-      setOldImagePost((prevImages) =>
-        prevImages.filter((image) => image.img_id !== uri)
-      );
-      // console.log("delete from api", oldImagePost);
-    }
-  };
-  useEffect(() => {
-    console.log("delete from api", oldImagePost);
-  },[oldImagePost]);
+      setOldImagePost((prevImages) => {
+        const imageToDelete = prevImages.find((image) => image.img_id === uri);
 
-  // ฟังก์ชันสำหรับอัปโหลดภาพไปยังเซิร์ฟเวอร์
-  const uploadImages = async () => {
-    const token = await AsyncStorage.getItem("@token");
-    if (!token) {
-      alert("Token not found. Please log in again.");
-      return;
-    }
+        if (imageToDelete) {
+          setImagePostDelete((prevDeleted) => [...prevDeleted, imageToDelete]);
+        }
 
-    const formData = new FormData();
-    formData.append("postdetail", text);
-    imageSave.forEach((uri, index) => {
-      formData.append("files", {
-        uri,
-        type: "image/jpeg", // หรือประเภทไฟล์ที่เหมาะสมกับไฟล์ภาพ
-        name: `image_${index}.jpg`,
+        return prevImages.filter((image) => image.img_id !== uri);
       });
-    });
-
-    const response = await fetch(
-      "http://" + app_var.api_host + "/users/create_post",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      }
-    );
-
-    if (response.ok) {
-      const result = await response.json();
-      console.log("Upload successful:", result);
-      navigation.reset({
-        index: 0,
-        routes: [{ name: "PhotoIndex" }],
-      });
-    } else {
-      console.error("Upload failed:", response.statusText);
-      alert("Failed to upload images.");
     }
-  };
-
-  const postImage = () => {
-    navigation.navigate("PhotoPost");
   };
 
   return (
