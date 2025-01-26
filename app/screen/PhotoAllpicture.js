@@ -126,9 +126,31 @@ const PhotoAllpicture = () => {
   const PhotoAdd = () => {
     navigation.navigate("PhotoIndex");
   };
+
   const toggleDropdown = () => {
     setIsDropdownVisible(!isDropdownVisible);
   };
+
+  const handleLogout = async () => {
+    try {
+      // ลบ token ออกจาก AsyncStorage
+      await AsyncStorage.removeItem("@token");
+
+      // ตรวจสอบว่า token ถูกลบออกจริง ๆ
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        console.log("Token removed successfully");
+      }
+
+      // รีเซ็ตการนำทางไปยังหน้า login
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "login" }], // เปลี่ยน 'Login' เป็นชื่อของหน้า Login ที่คุณใช้
+      });
+    } catch (error) {
+      console.error("Error clearing token:", error);
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -137,7 +159,7 @@ const PhotoAllpicture = () => {
         <View style={styles.leftBox}>
           <Text style={styles.titleTop}>CHANGPAB</Text>
         </View>
-        <View style={styles.profileContainer}>
+        <View style={styles.rightBox}>
           {/* กดที่รูปโปรไฟล์เพื่อแสดง dropdown */}
           <TouchableOpacity onPress={toggleDropdown}>
             <Image
@@ -151,36 +173,31 @@ const PhotoAllpicture = () => {
           {/* แสดง dropdown */}
           {isDropdownVisible && (
             <View style={styles.dropdown}>
-              <Text style={styles.infoText}>
-                {user.Fullname || "No Fullname Available"}{" "}
-                {user.Lastname || "No Lastname Available"}
-              </Text>
-              <Text style={styles.infoText}>
-                {user.Email || "No Email Available"}
-              </Text>
-              <Text style={styles.infoText}>
-                Username: {user.Username || "No Username Available"}
-              </Text>
-              <Button
-                title="Logout"
-                onPress={async () => {
-                  try {
-                    // ลบ token ออกจาก AsyncStorage
-                    await AsyncStorage.removeItem("@token");
-
-                    // ตรวจสอบว่า token ถูกลบออกจริง ๆ
-                    const token = await AsyncStorage.getItem("@token");
-                    if (!token) {
-                      console.log("Token removed successfully");
-                    }
-
-                    // นำทางไปยังหน้า login
-                    navigation.navigate("login");
-                  } catch (error) {
-                    console.error("Error clearing token:", error);
-                  }
-                }}
-              />
+              <View style={{ flexDirection: 'row' }}>
+                <Image
+                  source={{
+                    uri: user.Img_profile,
+                  }}
+                  style={styles.profileImage}
+                />
+                <View style={{ marginLeft: 10 }}>
+                  <Text style={styles.infoText}>
+                    {user.Fullname || "No Fullname Available"}{" "}
+                    {user.Lastname || "No Lastname Available"}
+                  </Text>
+                  <Text style={styles.emailText}>
+                    {user.Email || "No Email Available"}
+                  </Text>
+                  <Text style={styles.infoText}>
+                    Username : {user.Username || "No Username Available"}
+                  </Text>
+                </View>
+              </View>
+              <View style={{ alignItems: 'center', marginTop: 15 }}>
+                <TouchableOpacity style={styles.button} onPress={handleLogout}>
+                  <Text style={styles.buttonText}>Logout</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           )}
         </View>
@@ -246,30 +263,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     paddingTop: 80, // ชดเชยความสูงของ Navbar
   },
-  profileContainer: {
-    alignItems: "center",
-    top: 5,
-  },
-  profileImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 25,
-    borderWidth: 2,
-  },
-  dropdown: {
-    position: "absolute",
-    borderColor: "red",
-    borderWidth: 1,
-    top: 60,
-    backgroundColor: "#ffffff",
-    borderRadius: 8,
-    elevation: 5,
-    padding: 10,
-    alignItems: "center",
-    width: 220,
-    right: 0,
-    zIndex: 100,
-  },
   navbar: {
     position: "absolute",
     top: 0,
@@ -301,6 +294,50 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
   },
+
+  dropdown: {
+    position: "absolute",
+    top: 50,
+    backgroundColor: "#ffffff",
+    borderRadius: 8,
+    elevation: 5,
+    padding: 10,
+    width: 220,
+    right: 0,
+    zIndex: 100,
+  },
+  infoText: {
+    width: 150,
+    fontSize: 16,
+    flexWrap: 'wrap',
+  },
+  emailText: {
+    color: "#BEBEBE",
+    width: 150,
+    fontSize: 12,
+    flexWrap: 'wrap',
+  },
+  button: {
+    width: '50%',
+    height: 35,
+    backgroundColor: "#FF4D4D",
+    paddingVertical: 5,
+    paddingHorizontal: 5,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 25,
+    borderWidth: 2,
+  },
+
   exit: {
     flexDirection: "row",
     alignItems: "center",

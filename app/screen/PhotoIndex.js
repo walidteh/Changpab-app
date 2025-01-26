@@ -264,11 +264,11 @@ const PhotoIndex = ({ navigation }) => {
                       {user.Fullname || "No Fullname Available"}{" "}
                       {user.Lastname || "No Lastname Available"}
                     </Text>
-                    <Text style={styles.infoText}>
+                    <Text style={styles.emailText}>
                       {user.Email || "No Email Available"}
                     </Text>
                     <Text style={styles.infoText}>
-                      Username: {user.Username || "No Username Available"}
+                      Username : {user.Username || "No Username Available"}
                     </Text>
                   </View>
                 </View>
@@ -449,12 +449,22 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     elevation: 5,
     padding: 10,
-    width: 200,
+    width: 220,
     right: 0,
     zIndex: 100,
   },
   infoText: {
+    width: 150,
     fontSize: 16,
+    flexWrap: 'wrap',
+    // borderWidth: 1, // ความกว้างของเส้นขอบ
+    // borderColor: '#FF4D4D', // สีของเส้นขอบ
+  },
+  emailText: {
+    color: "#BEBEBE",
+    width: 150,
+    fontSize: 12,
+    flexWrap: 'wrap',
   },
   button: {
     width: '50%',

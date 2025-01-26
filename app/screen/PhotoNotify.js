@@ -1,6 +1,7 @@
 import { View, Text, SafeAreaView, StyleSheet, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
-import React, { useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState, useEffect } from 'react';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import app_var from "./public";
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faBars, faTimes, faMagnifyingGlass, faArrowLeft, faHouse, faBell, faUser, faSquarePlus } from '@fortawesome/free-solid-svg-icons';
@@ -21,7 +22,81 @@ const photographers = [
 ];
 
 const PhotoNotify = ({ navigation }) => {
-  
+  const [user, setUser] = useState({});
+  const [userAll, setUserAll] = useState([]);
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+
+  const fetchUser = async () => {
+    try {
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        alert("Token not found. Please log in again.");
+        return;
+      }
+
+      const response = await fetch(
+        "http://" + app_var.api_host + "/users/get_user_info",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+      if (data.status === "ok") {
+        setUser(data.userId);
+      } else {
+        alert("Failed to fetch user data");
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      alert("Error fetching user data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchAllUser = async () => {
+    try {
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        alert("Token not found. Please log in again.");
+        return;
+      }
+
+      const response = await fetch(
+        "http://" + app_var.api_host + "/users/get_all_user",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+      if (data.status === "ok") {
+        setUserAll(data.userId);
+      } else {
+        alert("Failed to fetch user data");
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      alert("Error fetching user data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUser();
+    fetchAllUser();
+  }, []);
+
   const PhotoIdex = () => {
     navigation.navigate('PhotoIndex');
   };
@@ -42,6 +117,31 @@ const PhotoNotify = ({ navigation }) => {
     navigation.navigate('PhotoPost');
   }
 
+  const toggleDropdown = () => {
+    setIsDropdownVisible(!isDropdownVisible);
+  };
+
+  const handleLogout = async () => {
+    try {
+      // ลบ token ออกจาก AsyncStorage
+      await AsyncStorage.removeItem("@token");
+
+      // ตรวจสอบว่า token ถูกลบออกจริง ๆ
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        console.log("Token removed successfully");
+      }
+
+      // รีเซ็ตการนำทางไปยังหน้า login
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "login" }], // เปลี่ยน 'Login' เป็นชื่อของหน้า Login ที่คุณใช้
+      });
+    } catch (error) {
+      console.error("Error clearing token:", error);
+    }
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Navbar */}
@@ -50,7 +150,46 @@ const PhotoNotify = ({ navigation }) => {
           <Text style={styles.titleTop}>CHANGPAB</Text>
         </View>
         <View style={styles.rightBox}>
-          <FontAwesomeIcon icon={faBars} size={25} color="#000" />
+          {/* กดที่รูปโปรไฟล์เพื่อแสดง dropdown */}
+          <TouchableOpacity onPress={toggleDropdown}>
+            <Image
+              source={{
+                uri: user.Img_profile,
+              }}
+              style={styles.profileImage}
+            />
+          </TouchableOpacity>
+
+          {/* แสดง dropdown */}
+          {isDropdownVisible && (
+            <View style={styles.dropdown}>
+              <View style={{ flexDirection: 'row' }}>
+                <Image
+                  source={{
+                    uri: user.Img_profile,
+                  }}
+                  style={styles.profileImage}
+                />
+                <View style={{ marginLeft: 10 }}>
+                  <Text style={styles.infoText}>
+                    {user.Fullname || "No Fullname Available"}{" "}
+                    {user.Lastname || "No Lastname Available"}
+                  </Text>
+                  <Text style={styles.emailText}>
+                    {user.Email || "No Email Available"}
+                  </Text>
+                  <Text style={styles.infoText}>
+                    Username : {user.Username || "No Username Available"}
+                  </Text>
+                </View>
+              </View>
+              <View style={{ alignItems: 'center', marginTop: 15 }}>
+                <TouchableOpacity style={styles.button} onPress={handleLogout}>
+                  <Text style={styles.buttonText}>Logout</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
         </View>
       </View>
 
@@ -155,6 +294,49 @@ const styles = StyleSheet.create({
   titleTop: {
     fontSize: 20,
     fontWeight: 'bold',
+  },
+
+  dropdown: {
+    position: "absolute",
+    top: 35,
+    backgroundColor: "#ffffff",
+    borderRadius: 8,
+    elevation: 5,
+    padding: 10,
+    width: 220,
+    right: 0,
+    zIndex: 100,
+  },
+  infoText: {
+    width: 150,
+    fontSize: 16,
+    flexWrap: 'wrap',
+  },
+  emailText: {
+    color: "#BEBEBE",
+    width: 150,
+    fontSize: 12,
+    flexWrap: 'wrap',
+  },
+  button: {
+    width: '50%',
+    height: 35,
+    backgroundColor: "#FF4D4D",
+    paddingVertical: 5,
+    paddingHorizontal: 5,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 25,
+    borderWidth: 2,
   },
 
   exit: {

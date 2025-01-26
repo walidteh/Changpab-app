@@ -210,7 +210,7 @@ const PhotoPostEdit = ({ navigation }) => {
           <Text style={styles.titleTop}>CHANGPAB</Text>
         </View>
         <View style={styles.rightBox}>
-          <FontAwesomeIcon icon={faBars} size={25} color="#000" />
+          {/* <FontAwesomeIcon icon={faBars} size={25} color="#000" /> */}
         </View>
       </View>
 

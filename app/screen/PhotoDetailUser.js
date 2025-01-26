@@ -39,8 +39,12 @@ const PhotoDetailUser = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [profileImage, setProfileImage] = useState(null);
   const [selectedDropdown, setSelectedDropdown] = useState(null);
+<<<<<<< Updated upstream
   const route = useRoute();
   const { userId } = route.params;
+=======
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+>>>>>>> Stashed changes
 
   const fetchAllUser = async () => {
     try {
@@ -212,6 +216,7 @@ const PhotoDetailUser = ({ navigation }) => {
     navigation.navigate("PhotoPost");
   };
 
+<<<<<<< Updated upstream
   const renderContent = () => {
     // post.forEach((item) => {
     //   PostUser.push({
@@ -301,6 +306,35 @@ const PhotoDetailUser = ({ navigation }) => {
         </Text>
       )
     }
+=======
+  const toggleDropdown = () => {
+    setIsDropdownVisible(!isDropdownVisible);
+  };
+
+  const handleLogout = async () => {
+    try {
+      // ลบ token ออกจาก AsyncStorage
+      await AsyncStorage.removeItem("@token");
+
+      // ตรวจสอบว่า token ถูกลบออกจริง ๆ
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        console.log("Token removed successfully");
+      }
+
+      // รีเซ็ตการนำทางไปยังหน้า login
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "login" }], // เปลี่ยน 'Login' เป็นชื่อของหน้า Login ที่คุณใช้
+      });
+    } catch (error) {
+      console.error("Error clearing token:", error);
+    }
+  }
+
+  const handleDropdownToggle = (index) => {
+    setSelectedDropdown(selectedDropdown === index ? null : index); // เปิด/ปิดเมนู
+>>>>>>> Stashed changes
   };
 
   return (
@@ -311,9 +345,52 @@ const PhotoDetailUser = ({ navigation }) => {
           <Text style={styles.titleTop}>CHANGPAB</Text>
         </View>
         <View style={styles.rightBox}>
-          <FontAwesomeIcon icon={faBars} size={25} color="#000" />
+          {/* กดที่รูปโปรไฟล์เพื่อแสดง dropdown */}
+          <TouchableOpacity onPress={toggleDropdown}>
+            <Image
+              source={{
+                uri: user.Img_profile,
+              }}
+              style={styles.profileImage}
+            />
+          </TouchableOpacity>
+
+          {/* แสดง dropdown */}
+          {isDropdownVisible && (
+            <View style={styles.dropdown}>
+              <View style={{ flexDirection: 'row' }}>
+                <Image
+                  source={{
+                    uri: user.Img_profile,
+                  }}
+                  style={styles.profileImage}
+                />
+                <View style={{ marginLeft: 10 }}>
+                  <Text style={styles.infoText}>
+                    {user.Fullname || "No Fullname Available"}{" "}
+                    {user.Lastname || "No Lastname Available"}
+                  </Text>
+                  <Text style={styles.emailText}>
+                    {user.Email || "No Email Available"}
+                  </Text>
+                  <Text style={styles.infoText}>
+                    Username : {user.Username || "No Username Available"}
+                  </Text>
+                </View>
+              </View>
+              <View style={{ alignItems: 'center', marginTop: 15 }}>
+                <TouchableOpacity style={styles.button} onPress={handleLogout}>
+                  <Text style={styles.buttonText}>Logout</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
         </View>
       </View>
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
       <ScrollView>
         <View style={styles.content}>
           <View style={styles.imageContainer}>
@@ -395,7 +472,78 @@ const PhotoDetailUser = ({ navigation }) => {
 
             <Text style={styles.titlecontent}>ผลงาน</Text>
             <View style={styles.body}>
+<<<<<<< Updated upstream
               {renderContent()}
+=======
+              {PostUser.length > 0 ? (
+                PostUser.map((user, i) => (
+                  <View key={i} style={styles.item} >
+                    <View style={styles.profile_header}>
+                      <Image
+                        source={{
+                          uri: user.Img_profile,
+                        }}
+                        style={styles.profile_post}
+                      />
+                      <View>
+                        <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+                          {user.Fullname}
+                        </Text>
+                        <Text style={{ fontSize: 10, color: "#888888" }}>
+                          {user.Date}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View style={styles.dropdownMenu}>
+                      <TouchableOpacity onPress={() => handleDropdownToggle(i)}>
+                        <Text style={styles.dropdownIcon}>⋯</Text>
+                      </TouchableOpacity>
+                      {selectedDropdown === i && (
+                        <View style={styles.dropdownPost}>
+                          <TouchableOpacity
+                            onPress={() => navigation.navigate("PhotoPostEdit")}
+                          >
+                            <Text style={styles.dropdownItem}>Edit</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity onPress={() => DeletePost(user.PostId)}>
+                            <Text
+                              style={[
+                                styles.dropdownItem,
+                                styles.dropdownItemLast,
+                              ]}
+                            >
+                              Delete
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      )}
+                    </View>
+
+                    <Swiper
+                      style={styles.swiper}
+                      showsPagination={true}
+                      loop={false}
+                    >
+                      {user.Img_Post.map((img, index) => (
+                        <Image
+                          key={index}
+                          source={{ uri: img }}
+                          style={styles.image_body}
+                        />
+                      ))}
+                    </Swiper>
+                    <Text style={styles.name_body}>
+                      {user.Detail || "No Details Available"}
+                    </Text>
+                  </View>
+                ))
+              ) : (
+                <Text style={{ textAlign: "center", marginTop: 20 }}>
+                  ไม่มีโพสต์
+                </Text>
+              )}
+>>>>>>> Stashed changes
             </View>
           </View>
         </View>
@@ -454,6 +602,49 @@ const styles = StyleSheet.create({
   titleTop: {
     fontSize: 20,
     fontWeight: "bold",
+  },
+
+  dropdown: {
+    position: "absolute",
+    top: 50,
+    backgroundColor: "#ffffff",
+    borderRadius: 8,
+    elevation: 5,
+    padding: 10,
+    width: 220,
+    right: 0,
+    zIndex: 100,
+  },
+  infoText: {
+    width: 150,
+    fontSize: 16,
+    flexWrap: 'wrap',
+  },
+  emailText: {
+    color: "#BEBEBE",
+    width: 150,
+    fontSize: 12,
+    flexWrap: 'wrap',
+  },
+  button: {
+    width: '50%',
+    height: 35,
+    backgroundColor: "#FF4D4D",
+    paddingVertical: 5,
+    paddingHorizontal: 5,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 25,
+    borderWidth: 2,
   },
 
   exit: {
@@ -610,8 +801,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: "#888888",
   },
+<<<<<<< Updated upstream
   dropdown: {
     backgroundColor: "#ffffff",
+=======
+  dropdownPost: {
+    backgroundColor: '#ffffff',
+>>>>>>> Stashed changes
     borderRadius: 5,
     padding: 10,
     position: "absolute",

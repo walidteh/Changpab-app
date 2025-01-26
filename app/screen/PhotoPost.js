@@ -31,8 +31,9 @@ const PhotoPost = ({ navigation }) => {
   const [text, setText] = useState(""); // เพิ่ม state สำหรับ TextInput
   const [user, setUser] = useState({});
   const [images, setImages] = useState([]); // จัดเก็บ URI ของรูปหลายรูป
-  const [imageSave, setImageSave] = useState([]); 
+  const [imageSave, setImageSave] = useState([]);
   const maxChars = 200; // จำนวนตัวอักษรสูงสุด
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 
   const fetchUser = async () => {
     try {
@@ -127,7 +128,7 @@ const PhotoPost = ({ navigation }) => {
     }
   };
 
- 
+
 
   // ฟังก์ชันสำหรับลบรูป
   const handleDeleteImage = (uri) => {
@@ -141,7 +142,7 @@ const PhotoPost = ({ navigation }) => {
       alert("Token not found. Please log in again.");
       return;
     }
-    
+
     const formData = new FormData();
     formData.append("postdetail", text);
     imageSave.forEach((uri, index) => {
@@ -178,6 +179,31 @@ const PhotoPost = ({ navigation }) => {
     navigation.navigate("PhotoPost");
   };
 
+  const toggleDropdown = () => {
+    setIsDropdownVisible(!isDropdownVisible);
+  };
+
+  const handleLogout = async () => {
+    try {
+      // ลบ token ออกจาก AsyncStorage
+      await AsyncStorage.removeItem("@token");
+
+      // ตรวจสอบว่า token ถูกลบออกจริง ๆ
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        console.log("Token removed successfully");
+      }
+
+      // รีเซ็ตการนำทางไปยังหน้า login
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "login" }], // เปลี่ยน 'Login' เป็นชื่อของหน้า Login ที่คุณใช้
+      });
+    } catch (error) {
+      console.error("Error clearing token:", error);
+    }
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Navbar */}
@@ -186,7 +212,46 @@ const PhotoPost = ({ navigation }) => {
           <Text style={styles.titleTop}>CHANGPAB</Text>
         </View>
         <View style={styles.rightBox}>
-          <FontAwesomeIcon icon={faBars} size={25} color="#000" />
+          {/* กดที่รูปโปรไฟล์เพื่อแสดง dropdown */}
+          <TouchableOpacity onPress={toggleDropdown}>
+            <Image
+              source={{
+                uri: user.Img_profile,
+              }}
+              style={styles.profileImage}
+            />
+          </TouchableOpacity>
+
+          {/* แสดง dropdown */}
+          {isDropdownVisible && (
+            <View style={styles.dropdown}>
+              <View style={{ flexDirection: 'row' }}>
+                <Image
+                  source={{
+                    uri: user.Img_profile,
+                  }}
+                  style={styles.profileImage}
+                />
+                <View style={{ marginLeft: 10 }}>
+                  <Text style={styles.infoText}>
+                    {user.Fullname || "No Fullname Available"}{" "}
+                    {user.Lastname || "No Lastname Available"}
+                  </Text>
+                  <Text style={styles.emailText}>
+                    {user.Email || "No Email Available"}
+                  </Text>
+                  <Text style={styles.infoText}>
+                    Username : {user.Username || "No Username Available"}
+                  </Text>
+                </View>
+              </View>
+              <View style={{ alignItems: 'center', marginTop: 15 }}>
+                <TouchableOpacity style={styles.button} onPress={handleLogout}>
+                  <Text style={styles.buttonText}>Logout</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
         </View>
       </View>
 
@@ -208,7 +273,7 @@ const PhotoPost = ({ navigation }) => {
               source={{
                 uri: user.Img_profile,
               }}
-              style={styles.profileImage}
+              style={styles.profileImagePost}
             />
             <Text style={styles.profilename}>{user.Fullname}</Text>
           </View>
@@ -244,7 +309,7 @@ const PhotoPost = ({ navigation }) => {
             <View style={styles.buttonContainer}>
               {images.length < 10 && ( // แสดงปุ่มเฉพาะเมื่อมีรูปน้อยกว่า 10
                 <TouchableOpacity
-                  style={styles.button}
+                  style={styles.buttonPost}
                   onPress={handleImagePicker}
                 >
                   <Text style={styles.buttonText}>
@@ -320,6 +385,49 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 
+  dropdown: {
+    position: "absolute",
+    top: 35,
+    backgroundColor: "#ffffff",
+    borderRadius: 8,
+    elevation: 5,
+    padding: 10,
+    width: 220,
+    right: 0,
+    zIndex: 100,
+  },
+  infoText: {
+    width: 150,
+    fontSize: 16,
+    flexWrap: 'wrap',
+  },
+  emailText: {
+    color: "#BEBEBE",
+    width: 150,
+    fontSize: 12,
+    flexWrap: 'wrap',
+  },
+  button: {
+    width: '50%',
+    height: 35,
+    backgroundColor: "#FF4D4D",
+    paddingVertical: 5,
+    paddingHorizontal: 5,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 25,
+    borderWidth: 2,
+  },
+
   exit: {
     flexDirection: "row", // จัดเรียงไอเท็มในแนวนอน
     alignItems: "center", // จัดให้อยู่ตรงกลางในแนวตั้ง
@@ -344,7 +452,7 @@ const styles = StyleSheet.create({
     padding: 10,
     alignItems: "center",
   },
-  profileImage: {
+  profileImagePost: {
     width: 60,
     height: 60,
     borderRadius: 50,
@@ -383,7 +491,7 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
     alignItems: "center",
   },
-  button: {
+  buttonPost: {
     flex: 1,
     width: "80%",
     backgroundColor: "#007BFF",
