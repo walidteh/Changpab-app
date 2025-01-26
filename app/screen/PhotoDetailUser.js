@@ -1,10 +1,20 @@
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, ImageBackground, Image } from 'react-native'
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  SafeAreaView,
+  ImageBackground,
+  Image,
+} from "react-native";
 import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import app_var from "./public";
 import * as ImagePicker from "expo-image-picker";
 import Swiper from "react-native-swiper";
 import moment from "moment";
+import { useRoute } from "@react-navigation/native";
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
@@ -29,6 +39,8 @@ const PhotoDetailUser = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [profileImage, setProfileImage] = useState(null);
   const [selectedDropdown, setSelectedDropdown] = useState(null);
+  const route = useRoute();
+  const { userId } = route.params;
 
   const fetchAllUser = async () => {
     try {
@@ -132,6 +144,7 @@ const PhotoDetailUser = ({ navigation }) => {
     }
   };
   useEffect(() => {
+    console.log("Received userId:", userId);
     fetchUser();
     fetchAllUser();
     fetchAllPost();
@@ -167,10 +180,13 @@ const PhotoDetailUser = ({ navigation }) => {
 
   const PostUser = [
     {
-      Img_profile: "https://via.placeholder.com/45",
+      Img_profile: "https://tsuburaya-prod.com/wp-content/uploads/2022/03/d_50-1.png",
       Fullname: "Test User",
       Date: moment().format("DD/MM/YYYY"),
-      Img_Post: ["https://via.placeholder.com/200", "https://via.placeholder.com/200"],
+      Img_Post: [
+        "https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://fdczvxmwwjwpwbeeqcth.supabase.co/storage/v1/object/public/images/846a2783-f3df-488d-8d04-19bc0ffa44c1/81c971bb-a5eb-4f0d-8716-67c23a93f895.png",
+        "https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://fdczvxmwwjwpwbeeqcth.supabase.co/storage/v1/object/public/images/846a2783-f3df-488d-8d04-19bc0ffa44c1/81c971bb-a5eb-4f0d-8716-67c23a93f895.png",
+      ],
       Detail: "This is a test post",
       PostId: "1",
     },
@@ -196,6 +212,97 @@ const PhotoDetailUser = ({ navigation }) => {
     navigation.navigate("PhotoPost");
   };
 
+  const renderContent = () => {
+    // post.forEach((item) => {
+    //   PostUser.push({
+    //      PostId: item.post_id,
+    //      Fullname: user.Fullname,
+    //     Img_profile: user.Img_profile,
+    //     Detail: item.post_detail,
+    //     Date: moment(item.post_date).format("D-M-YYYY HH:mm"),
+    //      Img_Post: item.images.map((image) => ({
+    //      url: image.url,
+    //      img_id: image.image_id
+    //     })),
+    //   });
+    // });
+    // console.log(PostUser)
+    if (PostUser.length > 0){
+      return (
+        PostUser.map((user, i) => (
+          <View key={i} style={styles.item}>
+            <View style={styles.profile_header}>
+              <Image
+                source={{
+                  uri: user.Img_profile,
+                }}
+                style={styles.profile_post}
+              />
+              <View>
+                <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+                  {user.Fullname}
+                </Text>
+                <Text style={{ fontSize: 10, color: "#888888" }}>
+                  {user.Date}
+                </Text>
+              </View>
+            </View>
+  
+            <View style={styles.dropdownMenu}>
+              <TouchableOpacity onPress={() => handleDropdownToggle(i)}>
+                <Text style={styles.dropdownIcon}>⋯</Text>
+              </TouchableOpacity>
+              {selectedDropdown === i && (
+                <View style={styles.dropdown}>
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate("PhotoPostEdit")}
+                  >
+                    <Text style={styles.dropdownItem}>Edit</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => DeletePost(user.PostId)}
+                  >
+                    <Text
+                      style={[
+                        styles.dropdownItem,
+                        styles.dropdownItemLast,
+                      ]}
+                    >
+                      Delete
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+  
+            <Swiper
+              style={styles.swiper}
+              showsPagination={true}
+              loop={false}
+            >
+              {user.Img_Post.map((img, index) => (
+                <Image
+                  key={index}
+                  source={{ uri: img }}
+                  style={styles.image_body}
+                />
+              ))}
+            </Swiper>
+            <Text style={styles.name_body}>
+              {user.Detail || "No Details Available"}
+            </Text>
+          </View>
+        ))
+      )
+    }else {
+      (
+        <Text style={{ textAlign: "center", marginTop: 20 }}>
+          ไม่มีโพสต์
+        </Text>
+      )
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Navbar */}
@@ -207,18 +314,6 @@ const PhotoDetailUser = ({ navigation }) => {
           <FontAwesomeIcon icon={faBars} size={25} color="#000" />
         </View>
       </View>
-
-      {/* ย้อนกลับ
-      <View style={styles.exit}>
-        <TouchableOpacity
-          style={styles.exitIcon}
-          onPress={() => navigation.goBack()}
-        >
-          <FontAwesomeIcon icon={faArrowLeft} size={18} color="#000" />
-        </TouchableOpacity>
-        <Text style={styles.exitText}>รายละเอียด</Text>
-      </View> */}
-
       <ScrollView>
         <View style={styles.content}>
           <View style={styles.imageContainer}>
@@ -245,8 +340,9 @@ const PhotoDetailUser = ({ navigation }) => {
           <View style={styles.info}>
             <View style={styles.info_top}>
               <Text style={styles.name}>
-                {`${user.Fullname || "No Fullname Available"} ${user.Lastname || ""
-                  }`.trim()}
+                {`${user.Fullname || "No Fullname Available"} ${
+                  user.Lastname || ""
+                }`.trim()}
               </Text>
             </View>
           </View>
@@ -299,74 +395,7 @@ const PhotoDetailUser = ({ navigation }) => {
 
             <Text style={styles.titlecontent}>ผลงาน</Text>
             <View style={styles.body}>
-              {PostUser.length > 0 ? (
-                PostUser.map((user, i) => (
-                  <View key={i} style={styles.item} >
-                    <View style={styles.profile_header}>
-                      <Image
-                        source={{
-                          uri: user.Img_profile,
-                        }}
-                        style={styles.profile_post}
-                      />
-                      <View>
-                        <Text style={{ fontSize: 16, fontWeight: "bold" }}>
-                          {user.Fullname}
-                        </Text>
-                        <Text style={{ fontSize: 10, color: "#888888" }}>
-                          {user.Date}
-                        </Text>
-                      </View>
-                    </View>
-
-                    <View style={styles.dropdownMenu}>
-                      <TouchableOpacity onPress={() => handleDropdownToggle(i)}>
-                        <Text style={styles.dropdownIcon}>⋯</Text>
-                      </TouchableOpacity>
-                      {selectedDropdown === i && (
-                        <View style={styles.dropdown}>
-                          <TouchableOpacity
-                            onPress={() => navigation.navigate("PhotoPostEdit")}
-                          >
-                            <Text style={styles.dropdownItem}>Edit</Text>
-                          </TouchableOpacity>
-                          <TouchableOpacity onPress={() => DeletePost(user.PostId)}>
-                            <Text
-                              style={[
-                                styles.dropdownItem,
-                                styles.dropdownItemLast,
-                              ]}
-                            >
-                              Delete
-                            </Text>
-                          </TouchableOpacity>
-                        </View>
-                      )}
-                    </View>
-
-                    <Swiper
-                      style={styles.swiper}
-                      showsPagination={true}
-                      loop={false}
-                    >
-                      {user.Img_Post.map((img, index) => (
-                        <Image
-                          key={index}
-                          source={{ uri: img }}
-                          style={styles.image_body}
-                        />
-                      ))}
-                    </Swiper>
-                    <Text style={styles.name_body}>
-                      {user.Detail || "No Details Available"}
-                    </Text>
-                  </View>
-                ))
-              ) : (
-                <Text style={{ textAlign: "center", marginTop: 20 }}>
-                  ไม่มีโพสต์
-                </Text>
-              )}
+              {renderContent()}
             </View>
           </View>
         </View>
@@ -391,7 +420,7 @@ const PhotoDetailUser = ({ navigation }) => {
         </TouchableOpacity>
       </View>
     </SafeAreaView>
-  )
+  );
 };
 
 const styles = StyleSheet.create({
@@ -460,8 +489,8 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     position: "relative", // ทำให้ปุ่มสามารถวางซ้อนบนโลโก้ได้
-     alignItems: "center",
-     justifyContent: "center",
+    alignItems: "center",
+    justifyContent: "center",
   },
   logo: {
     width: 120, // ขนาดโลโก้
@@ -501,7 +530,7 @@ const styles = StyleSheet.create({
   content_home: {
     marginBottom: 100,
     padding: 15,
-    marginTop: -10.
+    marginTop: -10,
   },
   titlecontent: {
     fontSize: 16,
@@ -572,20 +601,20 @@ const styles = StyleSheet.create({
   },
 
   dropdownMenu: {
-    position: 'absolute',
+    position: "absolute",
     right: 20,
     top: 10,
     zIndex: 1,
   },
   dropdownIcon: {
     fontSize: 24,
-    color: '#888888',
+    color: "#888888",
   },
   dropdown: {
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
     borderRadius: 5,
     padding: 10,
-    position: 'absolute',
+    position: "absolute",
     right: 0,
     top: 30,
     elevation: 5,
@@ -594,7 +623,7 @@ const styles = StyleSheet.create({
   dropdownItem: {
     padding: 10,
     fontSize: 14,
-    color: '#333333',
+    color: "#333333",
   },
 
   menu: {
@@ -623,4 +652,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PhotoDetailUser
+export default PhotoDetailUser;

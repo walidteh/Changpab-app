@@ -334,7 +334,9 @@ const PhotoIndex = ({ navigation }) => {
                 <TouchableOpacity
                   key={i}
                   style={styles.item_top}
-                  onPress={DetailUser}
+                  onPress={() => {
+                    navigation.navigate("PhotoDetailUser", { userId: user.ID})
+                  }}
                 >
                   <Image
                     source={{ uri: user.Img_profile }}
