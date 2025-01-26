@@ -229,17 +229,12 @@ func EditPost(c *gin.Context) {
 		c.JSON(400, gin.H{"status": "error", "message": "Invalid imgNameNotDel format"})
 		return
 	}
-	fmt.Println("Image files to keep:", imageNotDeleteArray)
+	fmt.Println("Image files to delete:", imageNotDeleteArray)
 
-	imagePath := fmt.Sprintf("./uploads/imagepost/%s", post.ID)
-	matches, err := filepath.Glob(imagePath)
-	if err != nil {
-		c.JSON(500, gin.H{"error": "Failed to find existing images"})
-		return
-	}
-
-	for _, match := range matches {
-		if err := os.Remove(match); err != nil {
+	for _, imgName := range imageNotDeleteArray {
+		imgPath := fmt.Sprintf("./uploads/image_post/%s", imgName)
+		fmt.Println("Delete : ", imgPath, " Successfuly")
+		if err := os.Remove(imgPath); err != nil {
 			c.JSON(500, gin.H{"error": "Failed to delete old images"})
 			return
 		}
@@ -247,15 +242,7 @@ func EditPost(c *gin.Context) {
 
 	if len(imageNotDeleteArray) > 0 {
 		if err := orm.Db.Unscoped().
-			Where("post_id = ?", postId).
-			Not("img_url IN ?", imageNotDeleteArray).
-			Delete(&orm.Image{}).Error; err != nil {
-			c.JSON(500, gin.H{"error": "Failed to delete images from database"})
-			return
-		}
-	} else {
-		if err := orm.Db.Unscoped().
-			Where("post_id = ?", postId).
+			Where("img_url IN ?", imageNotDeleteArray).
 			Delete(&orm.Image{}).Error; err != nil {
 			c.JSON(500, gin.H{"error": "Failed to delete images from database"})
 			return
