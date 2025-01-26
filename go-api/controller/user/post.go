@@ -39,7 +39,7 @@ func CreatePost(c *gin.Context) {
 	var img_post []orm.Image
 
 	for _, file := range files {
-		fileName := fmt.Sprintf("%d_%s", int(post.ID), file.Filename)
+		fileName := fmt.Sprintf("%d_%s.%s", int(post.ID), RandomString(8), GetFileType(file.Filename))
 		filePath := "./uploads/image_post/" + fileName
 		if err := c.SaveUploadedFile(file, filePath); err != nil {
 			c.JSON(500, gin.H{"error": "Failed to save file"})
@@ -222,7 +222,16 @@ func EditPost(c *gin.Context) {
 		return
 	}
 
-	imagePath := fmt.Sprintf("./uploads/image_post/%d_*", post.ID)
+	imageNotDelete := c.PostForm("imgNameNotDel")
+	fmt.Println(imageNotDelete)
+	var imageNotDeleteArray []string
+	if err := json.Unmarshal([]byte(imageNotDelete), &imageNotDeleteArray); err != nil {
+		c.JSON(400, gin.H{"status": "error", "message": "Invalid imgNameNotDel format"})
+		return
+	}
+	fmt.Println("Image files to keep:", imageNotDeleteArray)
+
+	imagePath := fmt.Sprintf("./uploads/imagepost/%s", post.ID)
 	matches, err := filepath.Glob(imagePath)
 	if err != nil {
 		c.JSON(500, gin.H{"error": "Failed to find existing images"})
@@ -236,24 +245,27 @@ func EditPost(c *gin.Context) {
 		}
 	}
 
-	imageDelete := c.PostForm("imageDelete")
-	var imageDeleteArray []uint
-	if err := json.Unmarshal([]byte(imageDelete), &imageDeleteArray); err != nil {
-		c.JSON(400, gin.H{"status": "error", "message": "Invalid imageDelete format"})
-		return
+	if len(imageNotDeleteArray) > 0 {
+		if err := orm.Db.Unscoped().
+			Where("post_id = ?", postId).
+			Not("img_url IN ?", imageNotDeleteArray).
+			Delete(&orm.Image{}).Error; err != nil {
+			c.JSON(500, gin.H{"error": "Failed to delete images from database"})
+			return
+		}
+	} else {
+		if err := orm.Db.Unscoped().
+			Where("post_id = ?", postId).
+			Delete(&orm.Image{}).Error; err != nil {
+			c.JSON(500, gin.H{"error": "Failed to delete images from database"})
+			return
+		}
 	}
-	fmt.Println(imageDeleteArray)
-
-	// imageDelete := c.PostFormArray("imageDelete[]")
-	orm.Db.Unscoped().
-		Where("post_id = ?", postId).
-		Not("id IN ?", imageDeleteArray).
-		Delete(&orm.Image{})
 
 	files := form.File["files"]
 	if files != nil {
 		for _, file := range files {
-			fileName := fmt.Sprintf("%d_%s", int(post.ID), file.Filename)
+			fileName := fmt.Sprintf("%d_%s.%s", int(post.ID), RandomString(8), GetFileType(file.Filename))
 			filePath := "./uploads/image_post/" + fileName
 			if err := c.SaveUploadedFile(file, filePath); err != nil {
 				c.JSON(500, gin.H{"error": "Failed to save file"})

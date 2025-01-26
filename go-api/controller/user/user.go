@@ -56,7 +56,7 @@ func UploadImageProfile(c *gin.Context) {
 	}
 
 	// ตั้งชื่อไฟล์ใหม่ หรือจัดการชื่อไฟล์ตามที่ต้องการ
-	fileName := fmt.Sprintf("%d_%s", int(userId), file.Filename)
+	fileName := fmt.Sprintf("%d_%s.%s", int(userId), RandomString(8), GetFileType(file.Filename))
 	filePath := fmt.Sprintf("./uploads/user_profile/%s", fileName)
 
 	fmt.Println(fileName)
