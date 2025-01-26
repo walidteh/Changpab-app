@@ -102,3 +102,67 @@ func Search(c *gin.Context) {
 		"users":  users,
 	})
 }
+
+func GetUserInfo_Visitors(c *gin.Context) {
+	userId := c.DefaultQuery("userId", "")
+	device_host := os.Getenv("DEVICE_HOST")
+	var imageHost = "http://" + device_host + ":8080/get_image/user_profile/"
+	var user orm.User
+	orm.Db.First(&user, userId)
+	user.Img_profile = fmt.Sprintf(imageHost+"%s", user.Img_profile)
+	c.JSON(http.StatusOK, gin.H{"status": "ok", "message": "User Read Success", "userId": user})
+
+	rows_get_user_post = nil
+	userPostId := c.DefaultQuery("userPostId", "")
+
+	err := orm.Db.Raw(`
+		SELECT 
+			posts.id AS post_id,
+			posts.detail AS post_detail,
+			posts.created_at AS post_date,
+			images.id AS image_id,
+			images.img_url AS image_url
+		FROM 
+			posts
+		LEFT JOIN 
+			images 
+		ON 
+			posts.id = images.post_id
+		WHERE 
+			posts.user_id = ? ORDER BY post_id DESC;
+	`, userPostId).Scan(&rows_get_user_post).Error
+
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	var imageHost_post = "http://" + device_host + ":8080/get_image/image_post/"
+	for i := range rows_get_user_post {
+		*rows_get_user_post[i].ImageURL = imageHost_post + *rows_get_user_post[i].ImageURL
+	}
+	result := make([]map[string]interface{}, 0)
+	postMap := make(map[uint]map[string]interface{})
+
+	for _, row := range rows_get_user_post {
+		if _, exists := postMap[row.PostID]; !exists {
+			post := map[string]interface{}{
+				"post_id":     row.PostID,
+				"post_detail": row.PostDetail,
+				"post_date":   row.PostDate,
+				"images":      []map[string]interface{}{},
+			}
+			postMap[row.PostID] = post
+			result = append(result, post)
+		}
+		if row.ImageID != nil && row.ImageURL != nil {
+			image := map[string]interface{}{
+				"image_id": *row.ImageID,
+				"url":      *row.ImageURL,
+			}
+			postMap[row.PostID]["images"] = append(postMap[row.PostID]["images"].([]map[string]interface{}), image)
+		}
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "OK", "post": result})
+
+}
