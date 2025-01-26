@@ -148,7 +148,7 @@ const PhotoPost = ({ navigation }) => {
       formData.append("files", {
         uri,
         type: "image/jpeg", // หรือประเภทไฟล์ที่เหมาะสมกับไฟล์ภาพ
-        name: `image_${index}.jpg`,
+        name: uri.split("/").pop(),
       });
     });
 

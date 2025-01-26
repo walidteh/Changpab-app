@@ -34,7 +34,8 @@ const PhotoPostEdit = ({ navigation }) => {
   const [user, setUser] = useState({});
   const [images, setImages] = useState([]); // จัดเก็บ URI ของรูปหลายรูป
   const [imageSave, setImageSave] = useState([]);
-  const [imageDelete, setImageDelete] = useState([]);
+  const [oldImagePost, setOldImagePost] = useState([]);
+  const [imagePostDelete, setImagePostDelete] = useState([]);
   const maxChars = 200; // จำนวนตัวอักษรสูงสุด
   const route = useRoute();
   const { postId } = route.params; // รับค่า postId จาก params
@@ -92,10 +93,11 @@ const PhotoPostEdit = ({ navigation }) => {
       });
     });
 
-    // imageDelete.forEach((img) => {
-    //   console.log(img.img_id)
-    //   formData.append("imageDelete[]", img.img_id); // ส่ง id ไปในฟอร์มแบบ array
-    // });
+    const imgIds = oldImagePost.map((img) => {
+      const urlParts = img.url.split("/"); 
+      return urlParts[urlParts.length - 1];
+    });
+    formData.append("imgNameNotDel", JSON.stringify(imgIds));
 
     const response = await fetch(
       "http://" +
@@ -124,8 +126,9 @@ const PhotoPostEdit = ({ navigation }) => {
     console.log("Received postId:", postId);
     console.log("Received imagePost:", imagePost);
     console.log("Received detailPost:", detailPost);
-    setImageDelete(imagePost);
+    setOldImagePost(imagePost);
     fetchUser();
+    setText(detailPost);
   }, []);
 
   const handleTextChange = (input) => {
@@ -190,15 +193,15 @@ const PhotoPostEdit = ({ navigation }) => {
     if (type === 1) {
       setImages((prevImages) => prevImages.filter((image) => image !== uri));
     } else {
-      setImageDelete((prevImages) =>
+      setOldImagePost((prevImages) =>
         prevImages.filter((image) => image.img_id !== uri)
       );
-      // console.log("delete from api", imageDelete);
+      // console.log("delete from api", oldImagePost);
     }
   };
   useEffect(() => {
-    console.log("delete from api", imageDelete);
-  },[imageDelete]);
+    console.log("delete from api", oldImagePost);
+  },[oldImagePost]);
 
   // ฟังก์ชันสำหรับอัปโหลดภาพไปยังเซิร์ฟเวอร์
   const uploadImages = async () => {
@@ -296,7 +299,7 @@ const PhotoPostEdit = ({ navigation }) => {
 
             {/* แสดงภาพที่เลือก */}
             <View style={styles.imageContainer}>
-              {imageDelete.map((img, index) => (
+              {oldImagePost.map((img, index) => (
                 <View key={index} style={styles.imageWrapper}>
                   <Image
                     source={{ uri: img.url }}
@@ -336,11 +339,11 @@ const PhotoPostEdit = ({ navigation }) => {
                   </Text>
                 </TouchableOpacity>
               )}
-              {images.length > 0 && (
+              {/* {images.length > 0 || oldImagePost.length > 0 && ( */}
                 <TouchableOpacity style={styles.button} onPress={SavePostEdit}>
                   <Text style={styles.buttonText}>บันทึก</Text>
                 </TouchableOpacity>
-              )}
+              {/* )} */}
             </View>
           </View>
         </View>
