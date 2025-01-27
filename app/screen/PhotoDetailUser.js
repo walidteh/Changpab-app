@@ -39,12 +39,9 @@ const PhotoDetailUser = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [profileImage, setProfileImage] = useState(null);
   const [selectedDropdown, setSelectedDropdown] = useState(null);
-<<<<<<< Updated upstream
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const route = useRoute();
   const { userId } = route.params;
-=======
-  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
->>>>>>> Stashed changes
 
   const fetchAllUser = async () => {
     try {
@@ -216,7 +213,10 @@ const PhotoDetailUser = ({ navigation }) => {
     navigation.navigate("PhotoPost");
   };
 
-<<<<<<< Updated upstream
+  const toggleDropdown = () => {
+    setIsDropdownVisible(!isDropdownVisible);
+  };
+
   const renderContent = () => {
     // post.forEach((item) => {
     //   PostUser.push({
@@ -306,35 +306,6 @@ const PhotoDetailUser = ({ navigation }) => {
         </Text>
       )
     }
-=======
-  const toggleDropdown = () => {
-    setIsDropdownVisible(!isDropdownVisible);
-  };
-
-  const handleLogout = async () => {
-    try {
-      // ลบ token ออกจาก AsyncStorage
-      await AsyncStorage.removeItem("@token");
-
-      // ตรวจสอบว่า token ถูกลบออกจริง ๆ
-      const token = await AsyncStorage.getItem("@token");
-      if (!token) {
-        console.log("Token removed successfully");
-      }
-
-      // รีเซ็ตการนำทางไปยังหน้า login
-      navigation.reset({
-        index: 0,
-        routes: [{ name: "login" }], // เปลี่ยน 'Login' เป็นชื่อของหน้า Login ที่คุณใช้
-      });
-    } catch (error) {
-      console.error("Error clearing token:", error);
-    }
-  }
-
-  const handleDropdownToggle = (index) => {
-    setSelectedDropdown(selectedDropdown === index ? null : index); // เปิด/ปิดเมนู
->>>>>>> Stashed changes
   };
 
   return (
@@ -387,10 +358,6 @@ const PhotoDetailUser = ({ navigation }) => {
           )}
         </View>
       </View>
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
       <ScrollView>
         <View style={styles.content}>
           <View style={styles.imageContainer}>
@@ -472,78 +439,7 @@ const PhotoDetailUser = ({ navigation }) => {
 
             <Text style={styles.titlecontent}>ผลงาน</Text>
             <View style={styles.body}>
-<<<<<<< Updated upstream
               {renderContent()}
-=======
-              {PostUser.length > 0 ? (
-                PostUser.map((user, i) => (
-                  <View key={i} style={styles.item} >
-                    <View style={styles.profile_header}>
-                      <Image
-                        source={{
-                          uri: user.Img_profile,
-                        }}
-                        style={styles.profile_post}
-                      />
-                      <View>
-                        <Text style={{ fontSize: 16, fontWeight: "bold" }}>
-                          {user.Fullname}
-                        </Text>
-                        <Text style={{ fontSize: 10, color: "#888888" }}>
-                          {user.Date}
-                        </Text>
-                      </View>
-                    </View>
-
-                    <View style={styles.dropdownMenu}>
-                      <TouchableOpacity onPress={() => handleDropdownToggle(i)}>
-                        <Text style={styles.dropdownIcon}>⋯</Text>
-                      </TouchableOpacity>
-                      {selectedDropdown === i && (
-                        <View style={styles.dropdownPost}>
-                          <TouchableOpacity
-                            onPress={() => navigation.navigate("PhotoPostEdit")}
-                          >
-                            <Text style={styles.dropdownItem}>Edit</Text>
-                          </TouchableOpacity>
-                          <TouchableOpacity onPress={() => DeletePost(user.PostId)}>
-                            <Text
-                              style={[
-                                styles.dropdownItem,
-                                styles.dropdownItemLast,
-                              ]}
-                            >
-                              Delete
-                            </Text>
-                          </TouchableOpacity>
-                        </View>
-                      )}
-                    </View>
-
-                    <Swiper
-                      style={styles.swiper}
-                      showsPagination={true}
-                      loop={false}
-                    >
-                      {user.Img_Post.map((img, index) => (
-                        <Image
-                          key={index}
-                          source={{ uri: img }}
-                          style={styles.image_body}
-                        />
-                      ))}
-                    </Swiper>
-                    <Text style={styles.name_body}>
-                      {user.Detail || "No Details Available"}
-                    </Text>
-                  </View>
-                ))
-              ) : (
-                <Text style={{ textAlign: "center", marginTop: 20 }}>
-                  ไม่มีโพสต์
-                </Text>
-              )}
->>>>>>> Stashed changes
             </View>
           </View>
         </View>
@@ -801,13 +697,8 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: "#888888",
   },
-<<<<<<< Updated upstream
   dropdown: {
     backgroundColor: "#ffffff",
-=======
-  dropdownPost: {
-    backgroundColor: '#ffffff',
->>>>>>> Stashed changes
     borderRadius: 5,
     padding: 10,
     position: "absolute",
