@@ -77,7 +77,9 @@ const PhotoDetailUser = ({ navigation }) => {
     }
   };
 
-  const fetchAllPost = async () => {
+  const [refreshing, setRefreshing] = useState(false); 
+
+  const fetchUserVisitors = async () => {
     try {
       const token = await AsyncStorage.getItem("@token");
       if (!token) {
@@ -86,7 +88,7 @@ const PhotoDetailUser = ({ navigation }) => {
       }
 
       const response = await fetch(
-        "http://" + app_var.api_host + "/users/get_post_info",
+        `http://${app_var.api_host}/users/get_post_visitors?userId=${encodeURIComponent(userId)}`,
         {
           method: "GET",
           headers: {
@@ -98,42 +100,15 @@ const PhotoDetailUser = ({ navigation }) => {
 
       const data = await response.json();
       if (data.status === "OK") {
-        setPost(data.post);
-        // console.log(post);
-      } else {
-        alert("Failed to fetch user data");
-      }
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-      alert("Error fetching user data");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const [refreshing, setRefreshing] = useState(false); // Declare refreshing state
-  const fetchUser = async () => {
-    try {
-      const token = await AsyncStorage.getItem("@token");
-      if (!token) {
-        alert("Token not found. Please log in again.");
-        return;
-      }
-
-      const response = await fetch(
-        "http://" + app_var.api_host + "/users/get_user_info",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const data = await response.json();
-      if (data.status === "ok") {
-        setUser(data.userId);
+        setUser(data.user);
+        // data.posts.forEach((post) => {
+        //   console.log("Post ID:", post.post_id);
+        //   console.log("Post Detail:", post.post_detail);
+        //   post.images.forEach((image) => {
+        //     console.log("Image URL:", image.url);
+        //   });
+        // });
+        setPost(data.posts);
       } else {
         alert("Failed to fetch user data");
       }
@@ -146,9 +121,7 @@ const PhotoDetailUser = ({ navigation }) => {
   };
   useEffect(() => {
     console.log("Received userId:", userId);
-    fetchUser();
-    fetchAllUser();
-    fetchAllPost();
+    fetchUserVisitors();
   }, []);
 
   const handleImagePicker = async () => {
@@ -179,59 +152,52 @@ const PhotoDetailUser = ({ navigation }) => {
     }
   };
 
-  const PostUser = [
-    {
-      Img_profile: "https://tsuburaya-prod.com/wp-content/uploads/2022/03/d_50-1.png",
-      Fullname: "Test User",
-      Date: moment().format("DD/MM/YYYY"),
-      Img_Post: [
-        "https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://fdczvxmwwjwpwbeeqcth.supabase.co/storage/v1/object/public/images/846a2783-f3df-488d-8d04-19bc0ffa44c1/81c971bb-a5eb-4f0d-8716-67c23a93f895.png",
-        "https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://fdczvxmwwjwpwbeeqcth.supabase.co/storage/v1/object/public/images/846a2783-f3df-488d-8d04-19bc0ffa44c1/81c971bb-a5eb-4f0d-8716-67c23a93f895.png",
-      ],
-      Detail: "This is a test post",
-      PostId: "1",
-    },
-  ];
-
+  
   const PhotoIdex = () => {
     navigation.navigate("PhotoIndex");
   };
-
+  
   const PhotoSearce = () => {
     navigation.navigate("PhotoSearch");
   };
-
+  
   const PhotoNotify = () => {
     navigation.navigate("PhotoNotify");
   };
-
+  
   const PhotoProfile = () => {
     navigation.navigate("PhotoProfile");
   };
-
+  
   const PhotoPost = () => {
     navigation.navigate("PhotoPost");
   };
-
+  
   const toggleDropdown = () => {
     setIsDropdownVisible(!isDropdownVisible);
   };
+  
+  const handleDropdownToggle = (index) => {
+    setSelectedDropdown(selectedDropdown === index ? null : index); // เปิด/ปิดเมนู
+  };
+  
+  const PostUser = [];
 
   const renderContent = () => {
-    // post.forEach((item) => {
-    //   PostUser.push({
-    //      PostId: item.post_id,
-    //      Fullname: user.Fullname,
-    //     Img_profile: user.Img_profile,
-    //     Detail: item.post_detail,
-    //     Date: moment(item.post_date).format("D-M-YYYY HH:mm"),
-    //      Img_Post: item.images.map((image) => ({
-    //      url: image.url,
-    //      img_id: image.image_id
-    //     })),
-    //   });
-    // });
-    // console.log(PostUser)
+    post.forEach((item) => {
+      PostUser.push({
+         PostId: item.post_id,
+         Fullname: user.fullname,
+        Img_profile: user.img_profile,
+        Detail: item.post_detail,
+        Date: moment(item.post_date).format("D-M-YYYY HH:mm"),
+         Img_Post: item.images.map((image) => ({
+         url: image.url,
+         img_id: image.image_id
+        })),
+      });
+    });
+    console.log(PostUser[0])
     if (PostUser.length > 0){
       return (
         PostUser.map((user, i) => (
@@ -252,34 +218,6 @@ const PhotoDetailUser = ({ navigation }) => {
                 </Text>
               </View>
             </View>
-  
-            <View style={styles.dropdownMenu}>
-              <TouchableOpacity onPress={() => handleDropdownToggle(i)}>
-                <Text style={styles.dropdownIcon}>⋯</Text>
-              </TouchableOpacity>
-              {selectedDropdown === i && (
-                <View style={styles.dropdown}>
-                  <TouchableOpacity
-                    onPress={() => navigation.navigate("PhotoPostEdit")}
-                  >
-                    <Text style={styles.dropdownItem}>Edit</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => DeletePost(user.PostId)}
-                  >
-                    <Text
-                      style={[
-                        styles.dropdownItem,
-                        styles.dropdownItemLast,
-                      ]}
-                    >
-                      Delete
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-            </View>
-  
             <Swiper
               style={styles.swiper}
               showsPagination={true}
@@ -288,7 +226,7 @@ const PhotoDetailUser = ({ navigation }) => {
               {user.Img_Post.map((img, index) => (
                 <Image
                   key={index}
-                  source={{ uri: img }}
+                  source={{ uri: img.url }}
                   style={styles.image_body}
                 />
               ))}
@@ -316,7 +254,6 @@ const PhotoDetailUser = ({ navigation }) => {
           <Text style={styles.titleTop}>CHANGPAB</Text>
         </View>
         <View style={styles.rightBox}>
-          {/* กดที่รูปโปรไฟล์เพื่อแสดง dropdown */}
           <TouchableOpacity onPress={toggleDropdown}>
             <Image
               source={{
@@ -372,7 +309,7 @@ const PhotoDetailUser = ({ navigation }) => {
               <View style={styles.logoContainer}>
                 <Image
                   source={{
-                    uri: user.Img_profile,
+                    uri: user.img_profile,
                   }}
                   style={styles.logo}
                 />
@@ -384,9 +321,7 @@ const PhotoDetailUser = ({ navigation }) => {
           <View style={styles.info}>
             <View style={styles.info_top}>
               <Text style={styles.name}>
-                {`${user.Fullname || "No Fullname Available"} ${
-                  user.Lastname || ""
-                }`.trim()}
+                {user.fullname}
               </Text>
             </View>
           </View>
@@ -687,31 +622,6 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
 
-  dropdownMenu: {
-    position: "absolute",
-    right: 20,
-    top: 10,
-    zIndex: 1,
-  },
-  dropdownIcon: {
-    fontSize: 24,
-    color: "#888888",
-  },
-  dropdown: {
-    backgroundColor: "#ffffff",
-    borderRadius: 5,
-    padding: 10,
-    position: "absolute",
-    right: 0,
-    top: 30,
-    elevation: 5,
-    width: 120,
-  },
-  dropdownItem: {
-    padding: 10,
-    fontSize: 14,
-    color: "#333333",
-  },
 
   menu: {
     position: "absolute",
