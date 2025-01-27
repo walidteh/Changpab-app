@@ -104,18 +104,34 @@ func Search(c *gin.Context) {
 }
 
 func GetUserInfo_Visitors(c *gin.Context) {
+	// เปลี่ยนจาก DefaultPostForm เป็น DefaultQuery เพื่อดึงข้อมูลจาก query parameters
 	userId := c.DefaultQuery("userId", "")
+	if userId == "" {
+		c.JSON(400, gin.H{"error": "Missing or invalid userId"})
+		return
+	}
+
 	device_host := os.Getenv("DEVICE_HOST")
-	var imageHost = "http://" + device_host + ":8080/get_image/user_profile/"
+	imageHostProfile := fmt.Sprintf("http://%s:8080/get_image/user_profile/", device_host)
+	imageHostPost := fmt.Sprintf("http://%s:8080/get_image/image_post/", device_host)
+
 	var user orm.User
-	orm.Db.First(&user, userId)
-	user.Img_profile = fmt.Sprintf(imageHost+"%s", user.Img_profile)
-	c.JSON(http.StatusOK, gin.H{"status": "ok", "message": "User Read Success", "userId": user})
+	if err := orm.Db.First(&user, userId).Error; err != nil {
+		c.JSON(404, gin.H{"error": "User not found"})
+		return
+	}
 
-	rows_get_user_post = nil
-	userPostId := c.DefaultQuery("userPostId", "")
+	user.Img_profile = fmt.Sprintf("%s%s", imageHostProfile, user.Img_profile)
 
-	err := orm.Db.Raw(`
+	var rows_get_user_post []struct {
+		PostID     uint    `json:"post_id"`
+		PostDetail string  `json:"post_detail"`
+		PostDate   string  `json:"post_date"`
+		ImageID    *uint   `json:"image_id"`
+		ImageURL   *string `json:"image_url"`
+	}
+
+	if err := orm.Db.Raw(`
 		SELECT 
 			posts.id AS post_id,
 			posts.detail AS post_detail,
@@ -129,18 +145,13 @@ func GetUserInfo_Visitors(c *gin.Context) {
 		ON 
 			posts.id = images.post_id
 		WHERE 
-			posts.user_id = ? ORDER BY post_id DESC;
-	`, userPostId).Scan(&rows_get_user_post).Error
-
-	if err != nil {
+			posts.user_id = ?
+		ORDER BY post_id DESC;
+	`, userId).Scan(&rows_get_user_post).Error; err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 
-	var imageHost_post = "http://" + device_host + ":8080/get_image/image_post/"
-	for i := range rows_get_user_post {
-		*rows_get_user_post[i].ImageURL = imageHost_post + *rows_get_user_post[i].ImageURL
-	}
 	result := make([]map[string]interface{}, 0)
 	postMap := make(map[uint]map[string]interface{})
 
@@ -158,11 +169,20 @@ func GetUserInfo_Visitors(c *gin.Context) {
 		if row.ImageID != nil && row.ImageURL != nil {
 			image := map[string]interface{}{
 				"image_id": *row.ImageID,
-				"url":      *row.ImageURL,
+				"url":      imageHostPost + *row.ImageURL,
 			}
 			postMap[row.PostID]["images"] = append(postMap[row.PostID]["images"].([]map[string]interface{}), image)
 		}
 	}
-	c.JSON(http.StatusOK, gin.H{"status": "OK", "post": result})
 
+	c.JSON(http.StatusOK, gin.H{
+		"status": "OK",
+		"user": map[string]interface{}{
+			"user_id":     user.ID,
+			"fullname":    user.Fullname,
+			"img_profile": user.Img_profile,
+			"email":       user.Email,
+		},
+		"posts": result,
+	})
 }
