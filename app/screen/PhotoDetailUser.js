@@ -65,7 +65,7 @@ const PhotoDetailUser = ({ navigation }) => {
       const data = await response.json();
       if (data.status === "ok") {
         setUserAll(data.userId);
-        // console.log(data.userId[0].Img_profile);
+        console.log(data.userId[0].Img_profile);
       } else {
         alert("Failed to fetch user data");
       }
