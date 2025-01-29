@@ -28,6 +28,7 @@ const PhotoAllpicture = () => {
   const [user, setUser] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [userAll, setUserAll] = useState([]);
+  const [post, setPost] = useState([]);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 
   const [refreshing, setRefreshing] = useState(false); // Declare refreshing state
@@ -105,7 +106,43 @@ const PhotoAllpicture = () => {
   useEffect(() => {
     fetchUser();
     fetchAllUser();
+    fetchPostRandom();
   }, []);
+
+  const fetchPostRandom = async (keyword) => {
+    try {
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        alert("Token not found. Please log in again.");
+        return;
+      }
+
+      // กำหนด URL ที่ส่ง parameter keyword ไปกับ GET request
+      const response = await fetch(
+        "http://" +
+        app_var.api_host +
+        "/users/get_post_random?limit=" +
+        encodeURIComponent(8),
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+      if (data.status === "OK") {
+        setPost(data.post);
+        // console.log(data.post);
+      } else {
+        alert("Failed to fetch user data");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("An error occurred while searching.");
+    }
+  };
 
   const PhotoIdex = () => {
     navigation.navigate("PhotoIndex");
@@ -125,6 +162,10 @@ const PhotoAllpicture = () => {
 
   const PhotoAdd = () => {
     navigation.navigate("PhotoIndex");
+  };
+
+  const DetailPost = () => {
+    navigation.navigate("PhotoDetailPost");
   };
 
   const toggleDropdown = () => {
@@ -217,7 +258,7 @@ const PhotoAllpicture = () => {
       {/* รูป */}
       <ScrollView>
         <View style={styles.body}>
-          {userAll.map((user, i) => (
+          {/* {userAll.map((user, i) => (
             <TouchableOpacity
               key={i}
               style={styles.item}
@@ -231,7 +272,28 @@ const PhotoAllpicture = () => {
                 {user.Fullname || "No Fullname Available"}
               </Text>
             </TouchableOpacity>
-          ))}
+          ))} */}
+          {post && post.length > 0 ? (
+            post.map((post, i) => (
+              <TouchableOpacity
+                key={i}
+                style={styles.item}
+                onPress={DetailPost}
+              >
+                <Image
+                  source={{ uri: post.image_url }}
+                  style={styles.image_body}
+                />
+                <Text style={styles.name}>
+                  {post.fullname || "No Fullname Available"}
+                </Text>
+              </TouchableOpacity>
+            ))
+          ) : (
+            <Text style={{ textAlign: "center", marginTop: 20 }}>
+              ไม่มีโพสต์
+            </Text>
+          )}
         </View>
       </ScrollView>
 

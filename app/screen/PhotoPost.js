@@ -319,7 +319,7 @@ const PhotoPost = ({ navigation }) => {
               )}
               {images.length > 0 && (
                 <TouchableOpacity
-                  style={styles.button}
+                  style={styles.buttonPost}
                   onPress={uploadImages}
                 >
                   <Text style={styles.buttonText}>โพสต์</Text>

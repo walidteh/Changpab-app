@@ -165,10 +165,6 @@ const PhotoSearch = () => {
     navigation.navigate("PhotoPost");
   };
 
-  const DetailPost = () => {
-    navigation.navigate("DetailPost");
-  };
-
   const toggleDropdown = () => {
     setIsDropdownVisible(!isDropdownVisible);
   };

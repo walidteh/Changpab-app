@@ -34,16 +34,14 @@ import { faFacebook, faInstagram } from "@fortawesome/free-brands-svg-icons";
 
 const PhotoDetailUser = ({ navigation }) => {
   const [user, setUser] = useState({});
-  const [userAll, setUserAll] = useState([]);
   const [post, setPost] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [profileImage, setProfileImage] = useState(null);
-  const [selectedDropdown, setSelectedDropdown] = useState(null);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const route = useRoute();
   const { userId } = route.params;
 
-  const fetchAllUser = async () => {
+  const fetchUser = async () => {
     try {
       const token = await AsyncStorage.getItem("@token");
       if (!token) {
@@ -52,7 +50,7 @@ const PhotoDetailUser = ({ navigation }) => {
       }
 
       const response = await fetch(
-        "http://" + app_var.api_host + "/users/get_all_user",
+        "http://" + app_var.api_host + "/users/get_user_info",
         {
           method: "GET",
           headers: {
@@ -64,8 +62,7 @@ const PhotoDetailUser = ({ navigation }) => {
 
       const data = await response.json();
       if (data.status === "ok") {
-        setUserAll(data.userId);
-        console.log(data.userId[0].Img_profile);
+        setUser(data.userId);
       } else {
         alert("Failed to fetch user data");
       }
@@ -76,8 +73,6 @@ const PhotoDetailUser = ({ navigation }) => {
       setIsLoading(false);
     }
   };
-
-  const [refreshing, setRefreshing] = useState(false); 
 
   const fetchUserVisitors = async () => {
     try {
@@ -122,6 +117,7 @@ const PhotoDetailUser = ({ navigation }) => {
   useEffect(() => {
     console.log("Received userId:", userId);
     fetchUserVisitors();
+    fetchUser();
   }, []);
 
   const handleImagePicker = async () => {
@@ -152,53 +148,70 @@ const PhotoDetailUser = ({ navigation }) => {
     }
   };
 
-  
+
   const PhotoIdex = () => {
     navigation.navigate("PhotoIndex");
   };
-  
+
   const PhotoSearce = () => {
     navigation.navigate("PhotoSearch");
   };
-  
+
   const PhotoNotify = () => {
     navigation.navigate("PhotoNotify");
   };
-  
+
   const PhotoProfile = () => {
     navigation.navigate("PhotoProfile");
   };
-  
+
   const PhotoPost = () => {
     navigation.navigate("PhotoPost");
   };
-  
+
   const toggleDropdown = () => {
     setIsDropdownVisible(!isDropdownVisible);
   };
-  
-  const handleDropdownToggle = (index) => {
-    setSelectedDropdown(selectedDropdown === index ? null : index); // เปิด/ปิดเมนู
-  };
-  
+
+  const handleLogout = async () => {
+    try {
+      // ลบ token ออกจาก AsyncStorage
+      await AsyncStorage.removeItem("@token");
+
+      // ตรวจสอบว่า token ถูกลบออกจริง ๆ
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        console.log("Token removed successfully");
+      }
+
+      // รีเซ็ตการนำทางไปยังหน้า login
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "login" }], // เปลี่ยน 'Login' เป็นชื่อของหน้า Login ที่คุณใช้
+      });
+    } catch (error) {
+      console.error("Error clearing token:", error);
+    }
+  }
+
   const PostUser = [];
 
   const renderContent = () => {
     post.forEach((item) => {
       PostUser.push({
-         PostId: item.post_id,
-         Fullname: user.fullname,
+        PostId: item.post_id,
+        Fullname: user.fullname,
         Img_profile: user.img_profile,
         Detail: item.post_detail,
         Date: moment(item.post_date).format("D-M-YYYY HH:mm"),
-         Img_Post: item.images.map((image) => ({
-         url: image.url,
-         img_id: image.image_id
+        Img_Post: item.images.map((image) => ({
+          url: image.url,
+          img_id: image.image_id
         })),
       });
     });
     console.log(PostUser[0])
-    if (PostUser.length > 0){
+    if (PostUser.length > 0) {
       return (
         PostUser.map((user, i) => (
           <View key={i} style={styles.item}>
@@ -237,7 +250,7 @@ const PhotoDetailUser = ({ navigation }) => {
           </View>
         ))
       )
-    }else {
+    } else {
       (
         <Text style={{ textAlign: "center", marginTop: 20 }}>
           ไม่มีโพสต์
@@ -254,6 +267,7 @@ const PhotoDetailUser = ({ navigation }) => {
           <Text style={styles.titleTop}>CHANGPAB</Text>
         </View>
         <View style={styles.rightBox}>
+          {/* กดที่รูปโปรไฟล์เพื่อแสดง dropdown */}
           <TouchableOpacity onPress={toggleDropdown}>
             <Image
               source={{
