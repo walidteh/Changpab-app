@@ -21,4 +21,5 @@ func InitDB() {
 	Db.AutoMigrate(&User{})
 	Db.AutoMigrate(&Image{})
 	Db.AutoMigrate(&Post{})
+	Db.AutoMigrate(&Contact{})
 }
