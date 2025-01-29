@@ -34,6 +34,7 @@ import { faFacebook, faInstagram } from "@fortawesome/free-brands-svg-icons";
 
 const PhotoDetailUser = ({ navigation }) => {
   const [user, setUser] = useState({});
+  const [userVisitors, setUserVisitors] = useState({});
   const [post, setPost] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [profileImage, setProfileImage] = useState(null);
@@ -63,6 +64,7 @@ const PhotoDetailUser = ({ navigation }) => {
       const data = await response.json();
       if (data.status === "ok") {
         setUser(data.userId);
+        // console.log("User Dataaa:", user); 
       } else {
         alert("Failed to fetch user data");
       }
@@ -75,6 +77,12 @@ const PhotoDetailUser = ({ navigation }) => {
   };
 
   const fetchUserVisitors = async () => {
+    // ImageProfile = await AsyncStorage.getItem("@uesr_img_profile");
+    //   if (!ImageProfile) {
+    //     alert("Token not found. Please log in again.");
+    //   }
+    //   console.log(ImageProfile)
+
     try {
       const token = await AsyncStorage.getItem("@token");
       if (!token) {
@@ -95,14 +103,7 @@ const PhotoDetailUser = ({ navigation }) => {
 
       const data = await response.json();
       if (data.status === "OK") {
-        setUser(data.user);
-        // data.posts.forEach((post) => {
-        //   console.log("Post ID:", post.post_id);
-        //   console.log("Post Detail:", post.post_detail);
-        //   post.images.forEach((image) => {
-        //     console.log("Image URL:", image.url);
-        //   });
-        // });
+        setUserVisitors(data.user);
         setPost(data.posts);
       } else {
         alert("Failed to fetch user data");
@@ -114,6 +115,9 @@ const PhotoDetailUser = ({ navigation }) => {
       setIsLoading(false);
     }
   };
+
+  const ImageProfile = "";
+
   useEffect(() => {
     console.log("Received userId:", userId);
     fetchUserVisitors();
@@ -200,8 +204,8 @@ const PhotoDetailUser = ({ navigation }) => {
     post.forEach((item) => {
       PostUser.push({
         PostId: item.post_id,
-        Fullname: user.fullname,
-        Img_profile: user.img_profile,
+        Fullname: userVisitors.fullname,
+        Img_profile: userVisitors.img_profile,
         Detail: item.post_detail,
         Date: moment(item.post_date).format("D-M-YYYY HH:mm"),
         Img_Post: item.images.map((image) => ({
@@ -323,7 +327,7 @@ const PhotoDetailUser = ({ navigation }) => {
               <View style={styles.logoContainer}>
                 <Image
                   source={{
-                    uri: user.img_profile,
+                    uri: userVisitors.img_profile,
                   }}
                   style={styles.logo}
                 />
@@ -335,7 +339,7 @@ const PhotoDetailUser = ({ navigation }) => {
           <View style={styles.info}>
             <View style={styles.info_top}>
               <Text style={styles.name}>
-                {user.fullname}
+                {userVisitors.fullname}
               </Text>
             </View>
           </View>
