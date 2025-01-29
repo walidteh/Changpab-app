@@ -36,6 +36,7 @@ const PhotoIndex = ({ navigation }) => {
   const handlePress = () => {
     navigation.navigate("Profile");
   };
+
   const fetchUser = async () => {
     try {
       const token = await AsyncStorage.getItem("@token");

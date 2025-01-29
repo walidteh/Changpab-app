@@ -16,6 +16,8 @@ import app_var from "./public";
 import * as ImagePicker from "expo-image-picker";
 import Swiper from "react-native-swiper";
 import moment from "moment";
+import { Linking } from 'react-native';
+
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
@@ -163,7 +165,7 @@ const PhotoProfile = ({ navigation }) => {
       {
         text: "ยกเลิก",
         onPress: () => {
-          return
+          return;
         },
       },
       {
@@ -179,9 +181,9 @@ const PhotoProfile = ({ navigation }) => {
             // กำหนด URL ที่ส่ง parameter keyword ไปกับ GET request
             const response = await fetch(
               "http://" +
-              app_var.api_host +
-              "/users/delete_post?postId=" +
-              encodeURIComponent(post_id),
+                app_var.api_host +
+                "/users/delete_post?postId=" +
+                encodeURIComponent(post_id),
               {
                 method: "DELETE",
                 headers: {
@@ -191,7 +193,7 @@ const PhotoProfile = ({ navigation }) => {
             );
 
             const data = await response.json();
-            console.log(data.status)
+            console.log(data.status);
             navigation.reset({
               index: 0,
               routes: [{ name: "PhotoProfile" }],
@@ -203,8 +205,58 @@ const PhotoProfile = ({ navigation }) => {
         },
       },
     ]);
-    console.log(post_id)
-  }
+    console.log(post_id);
+  };
+
+  // const contactData = [
+  //   { icon: faFacebook, text: "Facebook", key: "facebook" },
+  //   { icon: faFontAwesome, color: "#ffa500", text: "Page Facebook", key: "page" },
+  //   { icon: faInstagram, color: "#f56949", text: "Instagram", key: "instagram" },
+  //   { icon: faPhone, color: "#34A853", text: "Phone Number", key: "phone" },
+  //   { icon: faEnvelope, color: "#d44638", text: "E-mail", key: "email" }
+  // ];
+
+  // const userContacts = {
+  //   facebook: "https://facebook.com/user",
+  //   instagram: "https://instagram.com/user",
+  //   // phone: "0123456789",
+  //   email: "walid.123377az@gmial.com"
+  // };
+
+  const openlink = (url) => {
+    // ตรวจสอบว่า URL นั้นสามารถเปิดได้หรือไม่
+    Linking.canOpenURL(url)
+      .then((supported) => {
+        if (supported) {
+          // เปิด URL
+          Linking.openURL(url);
+        } else {
+          console.log('ไม่สามารถเปิดลิงก์นี้ได้');
+        }
+      })
+      .catch((err) => console.error('เกิดข้อผิดพลาดในการเปิดลิงก์:', err));
+  };
+
+  const contactData = [
+    {
+      id: 1,
+      contact_name: "walid",
+      contact_link: "https://www.facebook.com/Waris058/",
+      contact_icon: faFacebook,
+      contact_color: "#1877f2",
+    },
+    {
+      id: 2,
+      contact_name: "waris_04",
+      contact_link: "https://www.google.co.th/",
+      contact_icon: faInstagram,
+      contact_color: "#f56949",
+    },
+  ];
+
+  // const filteredContacts = contactData.filter(
+  //   (contact) => userContacts[contact.key]
+  // );
 
   const renderContent = () => {
     post.forEach((item) => {
@@ -216,7 +268,7 @@ const PhotoProfile = ({ navigation }) => {
         Date: moment(item.post_date).format("D-M-YYYY HH:mm"),
         Img_Post: item.images.map((image) => ({
           url: image.url,
-          img_id: image.image_id
+          img_id: image.image_id,
         })),
       });
     });
@@ -232,31 +284,20 @@ const PhotoProfile = ({ navigation }) => {
               <Text style={{ fontSize: 14, marginBottom: 15 }}>
                 ช่องทางการติดต่อ
               </Text>
-              <TouchableOpacity style={styles.contact}>
-                <FontAwesomeIcon icon={faFacebook} size={24} color="#1877f2" />
-                <Text style={styles.textcontact}>Facebook</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.contact}>
-                <FontAwesomeIcon
-                  icon={faFontAwesome}
-                  size={24}
-                  color="#ffa500"
-                />
-                <Text style={styles.textcontact}>Page Facebook</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.contact}>
-                <FontAwesomeIcon icon={faInstagram} size={24} color="#f56949" />
-                <Text style={styles.textcontact}>Instagram</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.contact}>
-                <FontAwesomeIcon icon={faPhone} size={24} color="#34A853" />
-                <Text style={styles.textcontact}>Phone Number</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.contact}>
-                <FontAwesomeIcon icon={faEnvelope} size={24} color="#d44638" />
-                <Text style={styles.textcontact}>E-mail</Text>
-              </TouchableOpacity>
-
+              {contactData.map((contact, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.contact}
+                  onPress={() => openlink(contact.contact_link)}
+                >
+                  <FontAwesomeIcon
+                    icon={contact.contact_icon}
+                    size={24}
+                    color={contact.contact_color}
+                  />
+                  <Text style={styles.textcontact}>{contact.contact_name}</Text>
+                </TouchableOpacity>
+              ))}
               <Text style={{ fontSize: 14, marginBottom: 15 }}>เรทราคา</Text>
               <View style={styles.contact}>
                 <Text style={styles.textcontact}>ปริญญา</Text>
@@ -298,12 +339,18 @@ const PhotoProfile = ({ navigation }) => {
                         <View style={styles.dropdownPost}>
                           <TouchableOpacity
                             onPress={() => {
-                              navigation.navigate("PhotoPostEdit", { postId: user.PostId, imagePost: user.Img_Post, detailPost: user.Detail })
+                              navigation.navigate("PhotoPostEdit", {
+                                postId: user.PostId,
+                                imagePost: user.Img_Post,
+                                detailPost: user.Detail,
+                              });
                             }}
                           >
                             <Text style={styles.dropdownItem}>Edit</Text>
                           </TouchableOpacity>
-                          <TouchableOpacity onPress={() => DeletePost(user.PostId)}>
+                          <TouchableOpacity
+                            onPress={() => DeletePost(user.PostId)}
+                          >
                             <Text
                               style={[
                                 styles.dropdownItem,
@@ -524,7 +571,7 @@ const PhotoProfile = ({ navigation }) => {
     } catch (error) {
       console.error("Error clearing token:", error);
     }
-  }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -538,11 +585,11 @@ const PhotoProfile = ({ navigation }) => {
           <TouchableOpacity onPress={toggleDropdown}>
             <FontAwesomeIcon icon={faBars} size={25} color="#000" />
           </TouchableOpacity>
-          
+
           {/* แสดง dropdown */}
           {isDropdownVisible && (
             <View style={styles.dropdown}>
-              <View style={{ flexDirection: 'row' }}>
+              <View style={{ flexDirection: "row" }}>
                 <Image
                   source={{
                     uri: user.Img_profile,
@@ -562,7 +609,7 @@ const PhotoProfile = ({ navigation }) => {
                   </Text>
                 </View>
               </View>
-              <View style={{ alignItems: 'center', marginTop: 15 }}>
+              <View style={{ alignItems: "center", marginTop: 15 }}>
                 <TouchableOpacity style={styles.button} onPress={handleLogout}>
                   <Text style={styles.buttonText}>Logout</Text>
                 </TouchableOpacity>
@@ -604,8 +651,9 @@ const PhotoProfile = ({ navigation }) => {
           <View style={styles.info}>
             <View style={styles.info_top}>
               <Text style={styles.name}>
-                {`${user.Fullname || "No Fullname Available"} ${user.Lastname || ""
-                  }`.trim()}
+                {`${user.Fullname || "No Fullname Available"} ${
+                  user.Lastname || ""
+                }`.trim()}
               </Text>
               <TouchableOpacity style={styles.btt_info} onPress={ProfileEdit}>
                 <Text style={{ fontSize: 12 }}>แก้ไขข้อมูล</Text>
@@ -710,16 +758,16 @@ const styles = StyleSheet.create({
   infoText: {
     width: 150,
     fontSize: 16,
-    flexWrap: 'wrap',
+    flexWrap: "wrap",
   },
   emailText: {
     color: "#BEBEBE",
     width: 150,
     fontSize: 12,
-    flexWrap: 'wrap',
+    flexWrap: "wrap",
   },
   button: {
-    width: '50%',
+    width: "50%",
     height: 35,
     backgroundColor: "#FF4D4D",
     paddingVertical: 5,
@@ -890,20 +938,20 @@ const styles = StyleSheet.create({
   },
 
   dropdownMenu: {
-    position: 'absolute',
+    position: "absolute",
     right: 20,
     top: 10,
     zIndex: 1,
   },
   dropdownIcon: {
     fontSize: 24,
-    color: '#888888',
+    color: "#888888",
   },
   dropdownPost: {
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
     borderRadius: 5,
     padding: 10,
-    position: 'absolute',
+    position: "absolute",
     right: 0,
     top: 30,
     elevation: 5,
@@ -912,7 +960,7 @@ const styles = StyleSheet.create({
   dropdownItem: {
     padding: 10,
     fontSize: 14,
-    color: '#333333',
+    color: "#333333",
   },
 
   menu: {
