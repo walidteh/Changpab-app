@@ -13,6 +13,7 @@ import {
 import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import app_var from "./public";
+import styles from "./styles";
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
@@ -115,9 +116,9 @@ const PhotoIndex = ({ navigation }) => {
       // กำหนด URL ที่ส่ง parameter keyword ไปกับ GET request
       const response = await fetch(
         "http://" +
-          app_var.api_host +
-          "/users/get_post_random?limit=" +
-          encodeURIComponent(8),
+        app_var.api_host +
+        "/users/get_post_random?limit=" +
+        encodeURIComponent(8),
         {
           method: "GET",
           headers: {
@@ -239,7 +240,7 @@ const PhotoIndex = ({ navigation }) => {
           <View style={styles.leftBox}>
             <Text style={styles.titleTop}>CHANGPAB</Text>
           </View>
-          <View style={styles.profileContainer}>
+          <View style={styles.rightBox}>
             {/* กดที่รูปโปรไฟล์เพื่อแสดง dropdown */}
             <TouchableOpacity onPress={toggleDropdown}>
               <Image
@@ -283,35 +284,35 @@ const PhotoIndex = ({ navigation }) => {
           </View>
         </View>
 
-        <View style={styles.background} />
-        <View style={styles.card_top}>
-          <View style={styles.imageContainer}>
+        <View style={stylesIn.background} />
+        <View style={stylesIn.card_top}>
+          <View style={stylesIn.imageContainer}>
             <ImageBackground
               source={images[currentIndex]}
-              style={styles.imageBackground}
+              style={stylesIn.imageBackground}
               resizeMode="cover"
             >
-              <View style={styles.textContainer}>
-                <Text style={styles.mainText}>
+              <View style={stylesIn.textContainer}>
+                <Text style={stylesIn.mainText}>
                   "หาช่างภาพที่ใช่ ได้ที่นี่..."
                 </Text>
-                <Text style={styles.subText}>
+                <Text style={stylesIn.subText}>
                   ถ่ายรูปปริญญา ถ่ายงานแต่ง ถ่ายแบบ และอื่นๆ
                 </Text>
               </View>
               <Image
                 source={require("../assets/logo/camera.png")}
-                style={styles.logo}
+                style={stylesIn.logo}
               />
             </ImageBackground>
           </View>
         </View>
 
-        <View style={styles.card_bottom}>
-          <View style={styles.header}>
-            <Text style={styles.titleBottom}>ช่างภาพ</Text>
+        <View style={stylesIn.card_bottom}>
+          <View style={stylesIn.header}>
+            <Text style={stylesIn.titleBottom}>ช่างภาพ</Text>
             <TouchableOpacity
-              style={styles.seeAll}
+              style={stylesIn.seeAll}
               onPress={PhotoAllphotographer}
             >
               <Text style={{ fontSize: 14, color: "#000" }}>ทั้งหมด</Text>
@@ -330,29 +331,29 @@ const PhotoIndex = ({ navigation }) => {
             style={{ paddingLeft: 15 }}
           >
             {userAll
-              .slice(0, 6) // เลือกแค่ 6 อัน
+              .slice(0, 15) // เลือกแค่ 15 อัน
               .map((user, i) => (
                 <TouchableOpacity
                   key={i}
-                  style={styles.item_top}
+                  style={stylesIn.item_top}
                   onPress={() => {
-                    navigation.navigate("PhotoDetailUser", { userId: user.ID})
+                    navigation.navigate("PhotoDetailUser", { userId: user.ID })
                   }}
                 >
                   <Image
                     source={{ uri: user.Img_profile }}
-                    style={styles.image}
+                    style={stylesIn.image}
                   />
-                  <Text style={styles.name}>
+                  <Text style={stylesIn.name}>
                     {user.Fullname || "No Fullname Available"}
                   </Text>
                 </TouchableOpacity>
               ))}
           </ScrollView>
 
-          <View style={styles.header}>
-            <Text style={styles.titleBottom}>ตัวอย่างรูปภาพ</Text>
-            <TouchableOpacity style={styles.seeAll} onPress={PhotoAllpicture}>
+          <View style={stylesIn.header}>
+            <Text style={stylesIn.titleBottom}>ตัวอย่างรูปภาพ</Text>
+            <TouchableOpacity style={stylesIn.seeAll} onPress={PhotoAllpicture}>
               <Text style={{ fontSize: 14, color: "#000" }}>ทั้งหมด</Text>
               <FontAwesomeIcon
                 icon={faGreaterThan}
@@ -388,8 +389,8 @@ const PhotoIndex = ({ navigation }) => {
               ))
             ) : (
               <Text style={{ textAlign: "center", marginTop: 20 }}>
-                                ไม่มีโพสต์
-                              </Text>
+                ไม่มีโพสต์
+              </Text>
             )}
           </View>
         </View>
@@ -417,12 +418,8 @@ const PhotoIndex = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  // เพิ่ม marginTop ใน ScrollView เพื่อให้เนื้อหาไม่ทับ navbar
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
+const stylesIn = StyleSheet.create({
+  /********** background blue **********/ 
   background: {
     position: "absolute",
     top: 0,
@@ -432,56 +429,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#09587A",
     opacity: 0.8,
   },
-  profileContainer: {
-    alignItems: "center",
-    top: 5,
-  },
-  profileImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 25,
-    borderWidth: 2,
-  },
 
-  dropdown: {
-    position: "absolute",
-    top: 60,
-    backgroundColor: "#ffffff",
-    borderRadius: 8,
-    elevation: 5,
-    padding: 10,
-    width: 220,
-    right: 0,
-    zIndex: 100,
-  },
-  infoText: {
-    width: 150,
-    fontSize: 16,
-    flexWrap: 'wrap',
-    // borderWidth: 1, // ความกว้างของเส้นขอบ
-    // borderColor: '#FF4D4D', // สีของเส้นขอบ
-  },
-  emailText: {
-    color: "#BEBEBE",
-    width: 150,
-    fontSize: 12,
-    flexWrap: 'wrap',
-  },
-  button: {
-    width: '50%',
-    height: 35,
-    backgroundColor: "#FF4D4D",
-    paddingVertical: 5,
-    paddingHorizontal: 5,
-    borderRadius: 5,
-    alignItems: "center",
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "bold",
-  },
-
+  /********** card image background **********/ 
   card_top: {
     width: "100%",
     backgroundColor: "#fff",
@@ -491,37 +440,6 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     alignItems: "center",
     zIndex: 1, // ให้อยู่เหนือพื้นหลัง
-  },
-  navbar: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: "auto",
-    backgroundColor: "#fff",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingTop: 30,
-    paddingBottom: 20,
-    zIndex: 1000, // ให้อยู่ด้านหน้าสุด
-  },
-  leftBox: {
-    flex: 1,
-  },
-  rightBox: {
-    flex: 1,
-    alignItems: "flex-end",
-  },
-  logo_user: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-  },
-  titleTop: {
-    fontSize: 20,
-    fontWeight: "bold",
   },
   imageContainer: {
     width: "85%",
@@ -553,6 +471,8 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
   },
+
+  /********** card content bottom **********/ 
   card_bottom: {
     width: "100%",
     backgroundColor: "#fff",
@@ -562,6 +482,7 @@ const styles = StyleSheet.create({
     marginBottom: 50,
     alignItems: "center",
   },
+
   header: {
     width: "90%",
     flexDirection: "row",
@@ -591,64 +512,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 12,
     textAlign: "center",
-  },
-  body: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: "#fff",
-    flexDirection: "row",
-    flexWrap: "wrap", // จัดเรียงหลายคอลัมน์
-    justifyContent: "space-between",
-  },
-  item: {
-    width: "48%", // ขนาดกล่อง 48% เพื่อให้มีระยะห่างระหว่างกล่อง
-    aspectRatio: 1, // ทำให้กล่องเป็นสี่เหลี่ยมจัตุรัส
-    marginBottom: 16,
-    backgroundColor: "#f5f5f5",
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 3, // สำหรับ Android
-  },
-  image_body: {
-    width: "70%",
-    height: "70%",
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  name: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#333",
-    textAlign: "center",
-  },
-  menu: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    transform: [{ translateY: -10 }], // ดันขึ้นครึ่งหนึ่งของความสูงเมนู
-    height: 60,
-    backgroundColor: "#fff",
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    borderRadius: 100,
-    marginHorizontal: 16, // เพิ่มขอบซ้ายขวา
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 5, // สำหรับ Android
-  },
-  menuItem: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
   },
 });
 

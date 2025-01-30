@@ -18,6 +18,7 @@ import * as ImagePicker from "expo-image-picker";
 import Swiper from "react-native-swiper";
 import moment from "moment";
 import { Linking } from "react-native";
+import styles from "./styles";
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
@@ -178,15 +179,15 @@ const PhotoProfile = ({ navigation }) => {
         },
         body: formData,
       });
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
         console.log("บันทึกแล้ว:", data);
         alert("บันทึกข้อมูลเรียบร้อย!");
         setContactName("");
         setContactLink("");
-  
+
         return data;
       } else {
         alert(`เกิดข้อผิดพลาด: ${data.error}`);
@@ -196,9 +197,6 @@ const PhotoProfile = ({ navigation }) => {
       alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
     }
   };
-  
-  
-  
 
   useEffect(() => {
     fetchUser();
@@ -232,9 +230,9 @@ const PhotoProfile = ({ navigation }) => {
             // กำหนด URL ที่ส่ง parameter keyword ไปกับ GET request
             const response = await fetch(
               "http://" +
-                app_var.api_host +
-                "/users/delete_post?postId=" +
-                encodeURIComponent(post_id),
+              app_var.api_host +
+              "/users/delete_post?postId=" +
+              encodeURIComponent(post_id),
               {
                 method: "DELETE",
                 headers: {
@@ -325,163 +323,162 @@ const PhotoProfile = ({ navigation }) => {
     });
     if (selectedMenu === "หน้าหลัก") {
       return (
-        <ScrollView>
-          <View style={styles.content_home}>
-            <Text style={styles.titlecontent}>รายละเอียด</Text>
+        <View style={stylesIn.content_home}>
+          <Text style={stylesIn.titlecontent}>รายละเอียด</Text>
 
-            <View style={styles.detials}>
-              <Text style={styles.caption}>ข้อมูล ประวัตื caption </Text>
+          <View style={stylesIn.detials}>
+            <Text style={stylesIn.caption}>ข้อมูล ประวัตื caption </Text>
 
-              <View style={styles.container}>
-      <View style={styles.header}>
-        <Text>ช่องทางการติดต่อ</Text>
-        <TouchableOpacity onPress={() => setContact(!contact)}>
-          <Text style={{ fontSize: 24 }}>+</Text>
-        </TouchableOpacity>
-      </View>
-
-      {contact && (
-        <View style={styles.form}>
-          <TextInput
-            placeholder="Enter your name"
-            style={styles.input}
-            value={contactName}
-            onChangeText={setContactName}
-          />
-          <TextInput
-            placeholder="Enter your link"
-            style={styles.input}
-            value={contactLink}
-            onChangeText={setContactLink}
-          />
-          <TouchableOpacity style={styles.saveButton} onPress={() => CreateContact(contactName, contactLink, setContactName, setContactLink, navigation)}>
-            <Text style={styles.saveButtonText}>บันทึก</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-        <View style={{paddingTop: 10}}>
-          {contactData.map((contact) => (
-            <TouchableOpacity key={contact.id} style={styles.contact} onPress={() => openlink(contact.contact_link)}>
-              <FontAwesomeIcon icon={contact.contact_icon} size={24} color={contact.contact_color} />
-              <Text style={styles.contactText}>{contact.contact_name}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-    </View>
-              <Text style={{ fontSize: 14, marginBottom: 15 }}>เรทราคา</Text>
-              <View style={styles.contact}>
-                <Text style={styles.textcontact}>ปริญญา</Text>
-                <Text style={styles.textcontact}>3000 - 5000</Text>
+            <View style={stylesIn.container}>
+              <View style={stylesIn.header}>
+                <Text>ช่องทางการติดต่อ</Text>
+                <TouchableOpacity onPress={() => setContact(!contact)}>
+                  <Text style={{ fontSize: 24 }}>+</Text>
+                </TouchableOpacity>
               </View>
-              <View style={styles.contact}>
-                <Text style={styles.textcontact}>งานแต่ง</Text>
-                <Text style={styles.textcontact}>3000 - 8000</Text>
+
+              {contact && (
+                <View style={stylesIn.form}>
+                  <TextInput
+                    placeholder="Enter your name"
+                    style={stylesIn.input}
+                    value={contactName}
+                    onChangeText={setContactName}
+                  />
+                  <TextInput
+                    placeholder="Enter your link"
+                    style={stylesIn.input}
+                    value={contactLink}
+                    onChangeText={setContactLink}
+                  />
+                  <TouchableOpacity style={stylesIn.saveButton} onPress={() => CreateContact(contactName, contactLink, setContactName, setContactLink, navigation)}>
+                    <Text style={stylesIn.saveButtonText}>บันทึก</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+              <View style={{ paddingTop: 10 }}>
+                {contactData.map((contact) => (
+                  <TouchableOpacity key={contact.id} style={stylesIn.contact} onPress={() => openlink(contact.contact_link)}>
+                    <FontAwesomeIcon icon={contact.contact_icon} size={24} color={contact.contact_color} />
+                    <Text style={stylesIn.contactText}>{contact.contact_name}</Text>
+                  </TouchableOpacity>
+                ))}
               </View>
             </View>
-
-            <Text style={styles.titlecontent}>ผลงาน</Text>
-            <View style={styles.body}>
-              {PostUser.length > 0 ? (
-                PostUser.map((user, i) => (
-                  <View key={i} style={styles.item} onPress={DetailPost}>
-                    <View style={styles.profile_header}>
-                      <Image
-                        source={{
-                          uri: user.Img_profile,
-                        }}
-                        style={styles.profile_post}
-                      />
-                      <View>
-                        <Text style={{ fontSize: 16, fontWeight: "bold" }}>
-                          {user.Fullname}
-                        </Text>
-                        <Text style={{ fontSize: 10, color: "#888888" }}>
-                          {user.Date}
-                        </Text>
-                      </View>
-                    </View>
-
-                    <View style={styles.dropdownMenu}>
-                      <TouchableOpacity onPress={() => handleDropdownToggle(i)}>
-                        <Text style={styles.dropdownIcon}>⋯</Text>
-                      </TouchableOpacity>
-                      {selectedDropdown === i && (
-                        <View style={styles.dropdownPost}>
-                          <TouchableOpacity
-                            onPress={() => {
-                              navigation.navigate("PhotoPostEdit", {
-                                postId: user.PostId,
-                                imagePost: user.Img_Post,
-                                detailPost: user.Detail,
-                              });
-                            }}
-                          >
-                            <Text style={styles.dropdownItem}>Edit</Text>
-                          </TouchableOpacity>
-                          <TouchableOpacity
-                            onPress={() => DeletePost(user.PostId)}
-                          >
-                            <Text
-                              style={[
-                                styles.dropdownItem,
-                                styles.dropdownItemLast,
-                              ]}
-                            >
-                              Delete
-                            </Text>
-                          </TouchableOpacity>
-                        </View>
-                      )}
-                    </View>
-
-                    <Swiper
-                      style={styles.swiper}
-                      showsPagination={true}
-                      loop={false}
-                    >
-                      {user.Img_Post.map((img, index) => (
-                        <Image
-                          key={index}
-                          source={{ uri: img.url }}
-                          style={styles.image_body}
-                        />
-                      ))}
-                    </Swiper>
-                    <Text style={styles.name_body}>
-                      {user.Detail || "No Details Available"}
-                    </Text>
-                  </View>
-                ))
-              ) : (
-                <Text style={{ textAlign: "center", marginTop: 20 }}>
-                  ไม่มีโพสต์
-                </Text>
-              )}
+            <Text style={{ fontSize: 14, marginBottom: 15 }}>เรทราคา</Text>
+            <View style={stylesIn.contact}>
+              <Text style={stylesIn.textcontact}>ปริญญา</Text>
+              <Text style={stylesIn.textcontact}>3000 - 5000</Text>
+            </View>
+            <View style={stylesIn.contact}>
+              <Text style={stylesIn.textcontact}>งานแต่ง</Text>
+              <Text style={stylesIn.textcontact}>3000 - 8000</Text>
             </View>
           </View>
-        </ScrollView>
+
+          <Text style={stylesIn.titlecontent}>ผลงาน</Text>
+          <View style={stylesIn.body}>
+            {PostUser.length > 0 ? (
+              PostUser.map((user, i) => (
+                <View key={i} style={stylesIn.item} onPress={DetailPost}>
+                  <View style={stylesIn.profile_header}>
+                    <Image
+                      source={{
+                        uri: user.Img_profile,
+                      }}
+                      style={stylesIn.profile_post}
+                    />
+                    <View>
+                      <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+                        {user.Fullname}
+                      </Text>
+                      <Text style={{ fontSize: 10, color: "#888888" }}>
+                        {user.Date}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View style={stylesIn.dropdownMenu}>
+                    <TouchableOpacity onPress={() => handleDropdownToggle(i)}>
+                      <Text style={stylesIn.dropdownIcon}>⋯</Text>
+                    </TouchableOpacity>
+                    {selectedDropdown === i && (
+                      <View style={stylesIn.dropdownPost}>
+                        <TouchableOpacity
+                          onPress={() => {
+                            navigation.navigate("PhotoPostEdit", {
+                              postId: user.PostId,
+                              imagePost: user.Img_Post,
+                              detailPost: user.Detail,
+                            });
+                          }}
+                        >
+                          <Text style={stylesIn.dropdownItem}>แก้ไขโพสต์</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() => DeletePost(user.PostId)}
+                        >
+                          <Text
+                            style={[
+                              stylesIn.dropdownItem,
+                              stylesIn.dropdownItemLast,
+                            ]}
+                          >
+                            ลบโพสต์
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                  </View>
+
+                  <Swiper
+                    style={stylesIn.swiper}
+                    showsPagination={true}
+                    loop={false}
+                  >
+                    {user.Img_Post.map((img, index) => (
+                      <Image
+                        key={index}
+                        source={{ uri: img.url }}
+                        style={stylesIn.image_body}
+                      />
+                    ))}
+                  </Swiper>
+                  <Text style={stylesIn.name_body}>
+                    {user.Detail || "No Details Available"}
+                  </Text>
+                </View>
+              ))
+            ) : (
+              <Text style={{ textAlign: "center", marginTop: 20 }}>
+                ไม่มีโพสต์
+              </Text>
+            )}
+          </View>
+        </View>
+
       );
     } else if (selectedMenu === "ถูกใจ") {
       return (
-        <ScrollView>
-          <View style={styles.body}>
+        <View style={stylesIn.content_home}>
+          <View style={stylesIn.body}>
             {userAll.map((user, i) => (
               <TouchableOpacity
                 key={i}
-                style={styles.item}
+                style={stylesIn.item}
                 onPress={DetailPost}
               >
                 <Image
                   source={{ uri: user.Img_profile }}
-                  style={styles.image_body}
+                  style={stylesIn.image_body}
                 />
-                <Text style={styles.name_body}>
+                <Text style={stylesIn.name_body}>
                   {user.Fullname || "No Fullname Available"}
                 </Text>
               </TouchableOpacity>
             ))}
           </View>
-        </ScrollView>
+        </View>
       );
     }
     return null;
@@ -690,26 +687,26 @@ const PhotoProfile = ({ navigation }) => {
       </View>
 
       <ScrollView>
-        <View style={styles.content}>
-          <View style={styles.imageContainer}>
+        <View style={stylesIn.content}>
+          <View style={stylesIn.imageContainer}>
             <ImageBackground
               source={require("../assets/background/03.jpg")}
-              style={styles.imageBackground}
+              style={stylesIn.imageBackground}
               resizeMode="cover"
             >
               <TouchableOpacity onPress={() => navigation.goBack()}>
                 <FontAwesomeIcon icon={faArrowLeft} size={20} color="#fff" />
               </TouchableOpacity>
-              <View style={styles.logoContainer}>
+              <View style={stylesIn.logoContainer}>
                 <Image
                   source={{
                     uri: user.Img_profile,
                   }}
-                  style={styles.logo}
+                  style={stylesIn.logo}
                 />
                 <TouchableOpacity
                   onPress={handleImagePicker}
-                  style={styles.uploadImage}
+                  style={stylesIn.uploadImage}
                 >
                   <FontAwesomeIcon icon={faCamera} size={20} color="#fff" />
                 </TouchableOpacity>
@@ -718,35 +715,34 @@ const PhotoProfile = ({ navigation }) => {
           </View>
 
           {/* ชื่อ และ เมนู */}
-          <View style={styles.info}>
-            <View style={styles.info_top}>
-              <Text style={styles.name}>
-                {`${user.Fullname || "No Fullname Available"} ${
-                  user.Lastname || ""
-                }`.trim()}
+          <View style={stylesIn.info}>
+            <View style={stylesIn.info_top}>
+              <Text style={stylesIn.name}>
+                {`${user.Fullname || "No Fullname Available"} ${user.Lastname || ""
+                  }`.trim()}
               </Text>
-              <TouchableOpacity style={styles.btt_info} onPress={ProfileEdit}>
+              <TouchableOpacity style={stylesIn.btt_info} onPress={ProfileEdit}>
                 <Text style={{ fontSize: 12 }}>แก้ไขข้อมูล</Text>
               </TouchableOpacity>
             </View>
 
-            <View style={styles.menuInfo}>
+            <View style={stylesIn.menuInfo}>
               <TouchableOpacity
-                style={styles.titleInfo}
+                style={stylesIn.titleInfo}
                 onPress={() => setSelectedMenu("หน้าหลัก")}
               >
                 <Text
-                  style={selectedMenu === "หน้าหลัก" ? styles.activeMenu : null}
+                  style={selectedMenu === "หน้าหลัก" ? stylesIn.activeMenu : null}
                 >
                   หน้าหลัก
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.titleInfo}
+                style={stylesIn.titleInfo}
                 onPress={() => setSelectedMenu("ถูกใจ")}
               >
                 <Text
-                  style={selectedMenu === "ถูกใจ" ? styles.activeMenu : null}
+                  style={selectedMenu === "ถูกใจ" ? stylesIn.activeMenu : null}
                 >
                   ถูกใจ
                 </Text>
@@ -755,7 +751,7 @@ const PhotoProfile = ({ navigation }) => {
           </View>
 
           {/* ส่วนเนื้อหาที่จะเปลี่ยน */}
-          <View style={styles.dynamicContent}>{renderContent()}</View>
+          <View style={stylesIn.dynamicContent}>{renderContent()}</View>
         </View>
       </ScrollView>
 
@@ -781,10 +777,7 @@ const PhotoProfile = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    // padding: 20,
-  },
+const stylesIn = StyleSheet.create({
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -841,83 +834,10 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontSize: 16,
   },
-  container: {
-    flex: 1,
-    // backgroundColor: "#fff",
-    // paddingTop: 80,
-  },
-  navbar: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 90, // ความสูงของ Navbar
-    backgroundColor: "#fff",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingTop: 30, // เพิ่มระยะด้านบนสำหรับ SafeArea
-    paddingBottom: 10,
-    zIndex: 1000,
-  },
-  leftBox: {
-    flex: 1,
-  },
-  rightBox: {
-    flex: 1,
-    alignItems: "flex-end",
-  },
-  titleTop: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-
-  dropdown: {
-    position: "absolute",
-    top: 35,
-    backgroundColor: "#ffffff",
-    borderRadius: 8,
-    elevation: 5,
-    padding: 10,
-    width: 220,
-    right: 0,
-    zIndex: 100,
-  },
-  infoText: {
-    width: 150,
-    fontSize: 16,
-    flexWrap: "wrap",
-  },
-  emailText: {
-    color: "#BEBEBE",
-    width: 150,
-    fontSize: 12,
-    flexWrap: "wrap",
-  },
-  button: {
-    width: "50%",
-    height: 35,
-    backgroundColor: "#FF4D4D",
-    paddingVertical: 5,
-    paddingHorizontal: 5,
-    borderRadius: 5,
-    alignItems: "center",
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "bold",
-  },
-  profileImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 25,
-    borderWidth: 2,
-  },
 
   content: {
     width: "auto",
+    marginTop: 80,
   },
   imageContainer: {
     width: "100%",
@@ -997,6 +917,7 @@ const styles = StyleSheet.create({
 
   content_home: {
     marginBottom: 100,
+    padding: 10,
   },
   titlecontent: {
     fontSize: 16,
@@ -1090,31 +1011,6 @@ const styles = StyleSheet.create({
     padding: 10,
     fontSize: 14,
     color: "#333333",
-  },
-
-  menu: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    transform: [{ translateY: -10 }], // ดันขึ้นครึ่งหนึ่งของความสูงเมนู
-    height: 60,
-    backgroundColor: "#fff",
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    borderRadius: 100,
-    marginHorizontal: 16, // เพิ่มขอบซ้ายขวา
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 5, // สำหรับ Android
-  },
-  menuItem: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
   },
 });
 

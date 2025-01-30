@@ -2,6 +2,7 @@ import { View, Text, SafeAreaView, StyleSheet, TextInput, TouchableOpacity, Scro
 import React, { useState, useEffect } from 'react';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import app_var from "./public";
+import styles from './styles';
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faBars, faTimes, faMagnifyingGlass, faArrowLeft, faHouse, faBell, faUser, faSquarePlus } from '@fortawesome/free-solid-svg-icons';
@@ -212,15 +213,15 @@ const PhotoNotify = ({ navigation }) => {
 
       {/*เนื้อหา*/}
       <ScrollView>
-        <View style={styles.message}>
+        <View style={stylesIn.message}>
           {photographers.map((item) => (
             <TouchableOpacity
               key={item.id}
-              style={styles.item}
+              style={stylesIn.item}
               onPress={() => PhotoNotify()}
             >
-              <Text style={styles.name}>{item.id}</Text>
-              <Text style={styles.sub}>{item.name}</Text>
+              <Text style={stylesIn.name}>{item.id}</Text>
+              <Text style={stylesIn.sub}>{item.name}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -263,98 +264,7 @@ const PhotoNotify = ({ navigation }) => {
   )
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    paddingTop: 80, // ชดเชยความสูงของ Navbar
-  },
-  navbar: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 90, // ความสูงของ Navbar
-    backgroundColor: '#fff',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 30, // เพิ่มระยะด้านบนสำหรับ SafeArea
-    paddingBottom: 10,
-    zIndex: 1000,
-  },
-  leftBox: {
-    flex: 1,
-  },
-  rightBox: {
-    flex: 1,
-    alignItems: 'flex-end',
-  },
-  titleTop: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-
-  dropdown: {
-    position: "absolute",
-    top: 35,
-    backgroundColor: "#ffffff",
-    borderRadius: 8,
-    elevation: 5,
-    padding: 10,
-    width: 220,
-    right: 0,
-    zIndex: 100,
-  },
-  infoText: {
-    width: 150,
-    fontSize: 16,
-    flexWrap: 'wrap',
-  },
-  emailText: {
-    color: "#BEBEBE",
-    width: 150,
-    fontSize: 12,
-    flexWrap: 'wrap',
-  },
-  button: {
-    width: '50%',
-    height: 35,
-    backgroundColor: "#FF4D4D",
-    paddingVertical: 5,
-    paddingHorizontal: 5,
-    borderRadius: 5,
-    alignItems: "center",
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "bold",
-  },
-  profileImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 25,
-    borderWidth: 2,
-  },
-
-  exit: {
-    flexDirection: 'row', // จัดเรียงไอเท็มในแนวนอน
-    alignItems: 'center', // จัดให้อยู่ตรงกลางในแนวตั้ง
-    justifyContent: 'center', // ข้อความอยู่ตรงกลาง
-    paddingVertical: 10,
-    position: 'relative', // เพื่อจัดไอคอนให้อยู่ซ้ายสุด
-  },
-  exitIcon: {
-    position: 'absolute', // ทำให้ไอคอนย้ายไปด้านซ้ายสุด
-    left: 20, // ระยะห่างจากขอบซ้าย
-  },
-  exitText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-
+const stylesIn = StyleSheet.create({
   message: {
     marginBottom: 80,
   },
@@ -372,31 +282,6 @@ const styles = StyleSheet.create({
     borderWidth: 1, // ความกว้างของเส้นขอบ
     borderColor: '#ddd', // สีของเส้นขอบ
     padding: 10,
-  },
-
-  menu: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    transform: [{ translateY: -10 }], // ดันขึ้นครึ่งหนึ่งของความสูงเมนู
-    height: 60,
-    backgroundColor: '#fff',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    borderRadius: 100,
-    marginHorizontal: 16, // เพิ่มขอบซ้ายขวา
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 5, // สำหรับ Android
-  },
-  menuItem: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });
 
