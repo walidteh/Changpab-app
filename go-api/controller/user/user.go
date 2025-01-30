@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -192,18 +193,35 @@ func CreateContact(c *gin.Context) {
 
 	Contact_name := c.DefaultPostForm("Name", "")
 	Contact_link := c.DefaultPostForm("Link", "")
-	Contact_host := c.DefaultPostForm("Host", "")
 
 	if Contact_name == "" || Contact_link == "" {
 		c.JSON(400, gin.H{"error": "Name and Link are required"})
 		return
 	}
 
+	var host_found string = "default"
+	if isValidPhoneNumber(Contact_name) {
+		host_found = "phone"
+	}
+	if isValidEmail(Contact_name) {
+		host_found = "email"
+	}
+	if host_found == "default" {
+		hosts := [...]string{"facebook", "tiktok", "instagram"}
+		for _, host := range hosts {
+			if strings.Contains(Contact_link, host) {
+				fmt.Println("Found:", host)
+				host_found = host
+				break
+			}
+		}
+	}
+
 	contact := orm.Contact{
 		User_ID:      uint(userId),
 		Contact_name: Contact_name,
 		Contact_link: Contact_link,
-		Contact_host: Contact_host,
+		Contact_host: host_found,
 	}
 	if err := orm.Db.Create(&contact).Error; err != nil {
 		c.JSON(500, gin.H{"error": "Failed to create post"})
@@ -211,4 +229,12 @@ func CreateContact(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{"status": "OK"})
+}
+
+func GetContact(c *gin.Context) {
+	userId := c.MustGet("userId").(float64)
+
+	var contact []orm.Contact
+	orm.Db.Where("user_id = ?", userId).Find(&contact)
+	c.JSON(http.StatusOK, gin.H{"status": "ok", "message": "User Read Success", "userContact": contact})
 }

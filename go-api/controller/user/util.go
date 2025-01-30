@@ -3,6 +3,7 @@ package user
 import (
 	"math/rand"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -24,4 +25,13 @@ func GetFileType(fileName string) string {
 		return strings.TrimPrefix(ext, ".")
 	}
 	return ""
+}
+
+func isValidEmail(email string) bool {
+	re := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
+	return re.MatchString(email)
+}
+func isValidPhoneNumber(phone string) bool {
+	re := regexp.MustCompile(`^(\+66|0)[689]\d{8}$`)
+	return re.MatchString(phone)
 }
