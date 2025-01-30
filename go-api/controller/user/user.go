@@ -194,6 +194,11 @@ func CreateContact(c *gin.Context) {
 	Contact_link := c.DefaultPostForm("Link", "")
 	Contact_host := c.DefaultPostForm("Host", "")
 
+	if Contact_name == "" || Contact_link == "" {
+		c.JSON(400, gin.H{"error": "Name and Link are required"})
+		return
+	}
+
 	contact := orm.Contact{
 		User_ID:      uint(userId),
 		Contact_name: Contact_name,
