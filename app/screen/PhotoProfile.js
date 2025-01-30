@@ -47,6 +47,14 @@ const PhotoProfile = ({ navigation }) => {
   const [contact, setContact] = useState(false);
   const [contactName, setContactName] = useState("");
   const [contactLink, setContactLink] = useState("");
+  const HostInfo = [
+    {platform : "facebook", icon: faFacebook, color: "#1877f2"},
+    {platform : "instagram", icon: faInstagram, color: "#f56949"},
+    {platform : "phone", icon: faPhone, color: "#34A853"},
+    {platform : "email", icon: faEnvelope, color: "#d44638"},
+    {platform : "default", icon: faEnvelope, color: "#000000"}
+  ];
+  const [contactInfo, setContactInfo] = useState([]);
 
 
   const handleDropdownToggle = (index) => {
@@ -155,7 +163,9 @@ const PhotoProfile = ({ navigation }) => {
     }
   };
 
-  const CreateContact = async (contactName, contactLink, setContactName, setContactLink, navigation) => {
+  
+
+  const CreateContact = async (contactName, contactLink, setContactName, setContactLink) => {
     try {
       const token = await AsyncStorage.getItem("@token");
       if (!token) {
@@ -169,7 +179,6 @@ const PhotoProfile = ({ navigation }) => {
       let formData = new FormData();
       formData.append("Name", contactName);
       formData.append("Link", contactLink);
-      formData.append("Host", "default");
 
       const response = await fetch(`http://${app_var.api_host}/users/create_contact`, {
         method: "POST",
@@ -183,6 +192,7 @@ const PhotoProfile = ({ navigation }) => {
   
       if (response.ok) {
         console.log("บันทึกแล้ว:", data);
+        fetchContact();
         alert("บันทึกข้อมูลเรียบร้อย!");
         setContactName("");
         setContactLink("");
@@ -195,15 +205,75 @@ const PhotoProfile = ({ navigation }) => {
       console.error("Error:", error);
       alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
     }
+    
   };
   
-  
-  
+  const fetchContact = async () => {
+    try {
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        alert("Token not found. Please log in again.");
+        return;
+      }
+
+      const response = await fetch(`http://${app_var.api_host}/users/get_contact`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setContactInfo(data.userContact);
+        // console.log(contactInfo)
+      } else {
+        alert("Failed to fetch user data");
+      }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        alert("Error fetching user data");
+      } finally {
+        setIsLoading(false);
+    }
+  }
+
+
+  var contactData = [
+    // {
+    //   id: 1,
+    //   contact_name: "walid",
+    //   contact_link: "https://www.facebook.com/Waris058/",
+    //   contact_icon: faFacebook,
+    //   contact_color: "#1877f2",
+    // },
+    // {
+    //   id: 2,
+    //   contact_name: "waris_04",
+    //   contact_link: "https://www.google.co.th/",
+    //   contact_icon: faInstagram,
+    //   contact_color: "#f56949",
+    // },
+  ];
+
+  // useEffect(() => {
+  //   console.log("cccccc", contactInfo)
+  //   contactInfo.forEach((item)=> {
+  //     contactData.push({
+  //       id: item.ID,
+  //       contact_name: item.Contact_name,
+  //       contact_link: item.Contact_link,
+  //       contact_icon: faFacebook,
+  //       contact_color: "#1877f2",
+  //     })
+  //   })
+  // }, [contactInfo])
 
   useEffect(() => {
     fetchUser();
     fetchAllUser();
     fetchAllPost();
+    fetchContact();
   }, []);
 
   const [selectedMenu, setSelectedMenu] = useState("หน้าหลัก"); // เก็บสถานะของเมนูที่เลือก
@@ -275,39 +345,20 @@ const PhotoProfile = ({ navigation }) => {
   // };
 
   const openlink = (url) => {
-    // ตรวจสอบว่า URL นั้นสามารถเปิดได้หรือไม่
-    Linking.canOpenURL(url)
-      .then((supported) => {
-        if (supported) {
-          // เปิด URL
-          Linking.openURL(url);
-        } else {
-          console.log("ไม่สามารถเปิดลิงก์นี้ได้");
-        }
-      })
-      .catch((err) => console.error("เกิดข้อผิดพลาดในการเปิดลิงก์:", err));
+    console.log(url)
+    // Linking.canOpenURL(url)
+    //   .then((supported) => {
+    //     if (supported) {
+    //       Linking.openURL(url);
+    //     } else {
+    //       console.log("ไม่สามารถเปิดลิงก์นี้ได้");
+    //     }
+    //   })
+    //   .catch((err) => console.error("เกิดข้อผิดพลาดในการเปิดลิงก์:", err));
   };
 
-  const contactData = [
-    {
-      id: 1,
-      contact_name: "walid",
-      contact_link: "https://www.facebook.com/Waris058/",
-      contact_icon: faFacebook,
-      contact_color: "#1877f2",
-    },
-    {
-      id: 2,
-      contact_name: "waris_04",
-      contact_link: "https://www.google.co.th/",
-      contact_icon: faInstagram,
-      contact_color: "#f56949",
-    },
-  ];
+  
 
-  // const filteredContacts = contactData.filter(
-  //   (contact) => userContacts[contact.key]
-  // );
 
   const renderContent = () => {
     post.forEach((item) => {
@@ -323,6 +374,25 @@ const PhotoProfile = ({ navigation }) => {
         })),
       });
     });
+    contactInfo.forEach((item)=> {
+      var temp = {}
+      for (let i of HostInfo) {
+        if (i.platform == item.Contact_host) {
+          // console.log("---> ", i.platform)
+          temp = i 
+        }
+      }
+      if(temp !== undefined){
+        // console.log(temp)
+        contactData.push({
+          id: item.ID,
+          contact_name: item.Contact_name,
+          contact_link: item.Contact_link,
+          contact_icon: temp.icon,
+          contact_color: temp.color,
+        })
+      }
+    })
     if (selectedMenu === "หน้าหลัก") {
       return (
         <ScrollView>
