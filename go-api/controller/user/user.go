@@ -186,3 +186,24 @@ func GetUserInfo_Visitors(c *gin.Context) {
 		"posts": result,
 	})
 }
+
+func CreateContact(c *gin.Context) {
+	userId := c.MustGet("userId").(float64)
+
+	Contact_name := c.DefaultPostForm("Name", "")
+	Contact_link := c.DefaultPostForm("Link", "")
+	Contact_host := c.DefaultPostForm("Host", "")
+
+	contact := orm.Contact{
+		User_ID:      uint(userId),
+		Contact_name: Contact_name,
+		Contact_link: Contact_link,
+		Contact_host: Contact_host,
+	}
+	if err := orm.Db.Create(&contact).Error; err != nil {
+		c.JSON(500, gin.H{"error": "Failed to create post"})
+		return
+	}
+
+	c.JSON(200, gin.H{"status": "OK"})
+}
