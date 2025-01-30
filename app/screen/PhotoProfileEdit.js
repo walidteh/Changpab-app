@@ -1,9 +1,9 @@
 import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity, Image, TextInput, ScrollView, Alert } from 'react-native'
 import React, { useState, useEffect } from 'react'
-
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import app_var from "./public";
 import * as ImagePicker from "expo-image-picker";
+import styles from './styles';
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
@@ -264,7 +264,7 @@ const PhotoProfileEdit = ({ navigation }) => {
 
           {/* แสดง dropdown */}
           {isDropdownVisible && (
-            <View style={styles.dropdown}>
+            <View style={styles.dropdown1}>
               <View style={{ flexDirection: 'row' }}>
                 <Image
                   source={{
@@ -307,43 +307,43 @@ const PhotoProfileEdit = ({ navigation }) => {
       </View>
 
       <ScrollView>
-        <View style={styles.content}>
-          <View style={styles.logoContainer}>
+        <View style={stylesIn.content}>
+          <View style={stylesIn.logoContainer}>
             <Image
               source={{
                 uri: user.Img_profile,
               }}
-              style={styles.logo}
+              style={stylesIn.logo}
             />
-            <TouchableOpacity onPress={handleImagePicker} style={styles.uploadImage}>
+            <TouchableOpacity onPress={handleImagePicker} style={stylesIn.uploadImage}>
               <FontAwesomeIcon icon={faCamera} size={20} color="#fff" />
             </TouchableOpacity>
-            <Text style={styles.name}>
+            <Text style={stylesIn.name}>
               {`${user.Fullname || "No Fullname Available"} ${user.Lastname || ""}`.trim()}
             </Text>
           </View>
-          <View style={styles.inputView}>
-            <Text style={styles.intoinput}>ชื่อ</Text>
+          <View style={stylesIn.inputView}>
+            <Text style={stylesIn.intoinput}>ชื่อ</Text>
             <TextInput
-              style={styles.input}
+              style={stylesIn.input}
               placeholder="กรุณาป้อนชื่อ"
               // value={firstname}
               // onChangeText={setFirstname}
               autoCorrect={false}
               autoCapitalize="none"
             />
-            <Text style={styles.intoinput}>นามสกุล</Text>
+            <Text style={stylesIn.intoinput}>นามสกุล</Text>
             <TextInput
-              style={styles.input}
+              style={stylesIn.input}
               placeholder="กรุณาป้อนนามสกุล"
               // value={firstname}
               // onChangeText={setFirstname}
               autoCorrect={false}
               autoCapitalize="none"
             />
-            <Text style={styles.intoinput}>ประวัติ</Text>
+            <Text style={stylesIn.intoinput}>ประวัติ</Text>
             <TextInput
-              style={styles.inputBio}
+              style={stylesIn.inputBio}
               placeholder="เขียนอะไรสักหน่อย"
               // value={text}
               // onChangeText={handleTextChange}
@@ -352,13 +352,13 @@ const PhotoProfileEdit = ({ navigation }) => {
               multiline
               textAlignVertical="top"
             />
-            <View style={styles.contact}>
-              <Text style={styles.intoinput}>ช่องทางการติดต่อ</Text>
-              <View style={styles.Boxinput}>
+            <View style={stylesIn.contact}>
+              <Text style={stylesIn.intoinput}>ช่องทางการติดต่อ</Text>
+              <View style={stylesIn.Boxinput}>
                 <FontAwesomeIcon icon={faFacebook} size={34} color="#1877f2" />
-                <View style={styles.contactname}>
+                <View style={stylesIn.contactname}>
                   <TextInput
-                    style={styles.input}
+                    style={stylesIn.input}
                     marginBottom='10'
                     placeholder="กรุณากรอกชื่อเฟซบุ๊ค"
                     // value={firstname}
@@ -367,7 +367,7 @@ const PhotoProfileEdit = ({ navigation }) => {
                     autoCapitalize="none"
                   />
                   <TextInput
-                    style={styles.input}
+                    style={stylesIn.input}
                     placeholder="กรุณาวางลิ้งค์โปรไฟล์"
                     // value={firstname}
                     // onChangeText={setFirstname}
@@ -377,11 +377,11 @@ const PhotoProfileEdit = ({ navigation }) => {
                 </View>
               </View>
 
-              <View style={styles.Boxinput}>
+              <View style={stylesIn.Boxinput}>
                 <FontAwesomeIcon icon={faFontAwesome} size={34} color="#ffa500" />
-                <View style={styles.contactname}>
+                <View style={stylesIn.contactname}>
                   <TextInput
-                    style={styles.input}
+                    style={stylesIn.input}
                     marginBottom='10'
                     placeholder="กรุณากรอกเพจเฟซบุ๊ค"
                     // value={firstname}
@@ -390,7 +390,7 @@ const PhotoProfileEdit = ({ navigation }) => {
                     autoCapitalize="none"
                   />
                   <TextInput
-                    style={styles.input}
+                    style={stylesIn.input}
                     placeholder="กรุณาวางลิ้งค์โปรไฟล์"
                     // value={firstname}
                     // onChangeText={setFirstname}
@@ -400,11 +400,11 @@ const PhotoProfileEdit = ({ navigation }) => {
                 </View>
               </View>
 
-              <View style={styles.Boxinput}>
+              <View style={stylesIn.Boxinput}>
                 <FontAwesomeIcon icon={faInstagram} size={34} color="#f56949" />
-                <View style={styles.contactname}>
+                <View style={stylesIn.contactname}>
                   <TextInput
-                    style={styles.input}
+                    style={stylesIn.input}
                     marginBottom='10'
                     placeholder="กรุณากรอกชื่ออินสตาแกรม"
                     // value={firstname}
@@ -413,7 +413,7 @@ const PhotoProfileEdit = ({ navigation }) => {
                     autoCapitalize="none"
                   />
                   <TextInput
-                    style={styles.input}
+                    style={stylesIn.input}
                     placeholder="กรุณาวางลิ้งค์โปรไฟล์"
                     // value={firstname}
                     // onChangeText={setFirstname}
@@ -423,11 +423,11 @@ const PhotoProfileEdit = ({ navigation }) => {
                 </View>
               </View>
 
-              <View style={styles.Boxinput}>
+              <View style={stylesIn.Boxinput}>
                 <FontAwesomeIcon icon={faPhone} size={30} color="#34A853" />
-                <View style={styles.contactname}>
+                <View style={stylesIn.contactname}>
                   <TextInput
-                    style={styles.input}
+                    style={stylesIn.input}
                     marginBottom='10'
                     placeholder="กรุณากรอกเบอร์โทรศัพท์"
                     // value={firstname}
@@ -446,11 +446,11 @@ const PhotoProfileEdit = ({ navigation }) => {
                 </View>
               </View>
 
-              <View style={styles.Boxinput}>
+              <View style={stylesIn.Boxinput}>
                 <FontAwesomeIcon icon={faEnvelope} size={30} color="#d44638" />
-                <View style={styles.contactname}>
+                <View style={stylesIn.contactname}>
                   <TextInput
-                    style={styles.input}
+                    style={stylesIn.input}
                     marginBottom='10'
                     placeholder="กรุณากรอกอีเมล"
                     // value={firstname}
@@ -469,9 +469,9 @@ const PhotoProfileEdit = ({ navigation }) => {
                 </View>
               </View>
 
-              <Text style={styles.intoinput}>เรทราคา</Text>
-              <View style={styles.Boxinput}>
-                <View style={styles.contactname}>
+              <Text style={stylesIn.intoinput}>เรทราคา</Text>
+              <View style={stylesIn.Boxinput}>
+                <View style={stylesIn.contactname}>
                   <TextInput
                     style={{
                       width: '100%',
@@ -507,8 +507,8 @@ const PhotoProfileEdit = ({ navigation }) => {
               </View>
             </View>
           </View>
-          <TouchableOpacity style={styles.bottom} onPress={onSave}>
-            <Text style={styles.buttonText}>บันทึก</Text>
+          <TouchableOpacity style={stylesIn.bottom} onPress={onSave}>
+            <Text style={stylesIn.buttonText}>บันทึก</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -535,98 +535,7 @@ const PhotoProfileEdit = ({ navigation }) => {
   )
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    paddingTop: 80, // ชดเชยความสูงของ Navbar
-  },
-  navbar: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 90, // ความสูงของ Navbar
-    backgroundColor: "#fff",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingTop: 30, // เพิ่มระยะด้านบนสำหรับ SafeArea
-    paddingBottom: 10,
-    zIndex: 1000,
-  },
-  leftBox: {
-    flex: 1,
-  },
-  rightBox: {
-    flex: 1,
-    alignItems: "flex-end",
-  },
-  titleTop: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-
-  dropdown: {
-    position: "absolute",
-    top: 35,
-    backgroundColor: "#ffffff",
-    borderRadius: 8,
-    elevation: 5,
-    padding: 10,
-    width: 220,
-    right: 0,
-    zIndex: 100,
-  },
-  infoText: {
-    width: 150,
-    fontSize: 16,
-    flexWrap: 'wrap',
-  },
-  emailText: {
-    color: "#BEBEBE",
-    width: 150,
-    fontSize: 12,
-    flexWrap: 'wrap',
-  },
-  button: {
-    width: '50%',
-    height: 35,
-    backgroundColor: "#FF4D4D",
-    paddingVertical: 5,
-    paddingHorizontal: 5,
-    borderRadius: 5,
-    alignItems: "center",
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "bold",
-  },
-  profileImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 25,
-    borderWidth: 2,
-  },
-
-  exit: {
-    flexDirection: "row", // จัดเรียงไอเท็มในแนวนอน
-    alignItems: "center", // จัดให้อยู่ตรงกลางในแนวตั้ง
-    justifyContent: "center", // ข้อความอยู่ตรงกลาง
-    paddingVertical: 10,
-    position: "relative", // เพื่อจัดไอคอนให้อยู่ซ้ายสุด
-  },
-  exitIcon: {
-    position: "absolute", // ทำให้ไอคอนย้ายไปด้านซ้ายสุด
-    left: 20, // ระยะห่างจากขอบซ้าย
-  },
-  exitText: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-
+const stylesIn = StyleSheet.create({
   content: {
     width: "auto",
     marginBottom: 150,
@@ -713,31 +622,6 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
-  },
-
-  menu: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    transform: [{ translateY: -10 }], // ดันขึ้นครึ่งหนึ่งของความสูงเมนู
-    height: 60,
-    backgroundColor: "#fff",
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    borderRadius: 100,
-    marginHorizontal: 16, // เพิ่มขอบซ้ายขวา
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 5, // สำหรับ Android
-  },
-  menuItem: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
   },
 });
 

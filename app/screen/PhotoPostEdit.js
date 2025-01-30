@@ -11,6 +11,7 @@ import {
 import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import app_var from "./public";
+import styles from "./styles";
 
 import * as ImagePicker from "expo-image-picker";
 
@@ -209,9 +210,6 @@ const PhotoPostEdit = ({ navigation }) => {
         <View style={styles.leftBox}>
           <Text style={styles.titleTop}>CHANGPAB</Text>
         </View>
-        <View style={styles.rightBox}>
-          {/* <FontAwesomeIcon icon={faBars} size={25} color="#000" /> */}
-        </View>
       </View>
 
       {/* ย้อนกลับ */}
@@ -226,20 +224,20 @@ const PhotoPostEdit = ({ navigation }) => {
       </View>
 
       <ScrollView>
-        <View style={styles.content}>
-          <View style={styles.profile}>
+        <View style={stylesIn.content}>
+          <View style={stylesIn.profile}>
             <Image
               source={{
                 uri: user.Img_profile,
               }}
-              style={styles.profileImage}
+              style={stylesIn.profileImage}
             />
-            <Text style={styles.profilename}>{user.Fullname}</Text>
+            <Text style={stylesIn.profilename}>{user.Fullname}</Text>
           </View>
 
-          <View style={styles.contentpost}>
+          <View style={stylesIn.contentpost}>
             <TextInput
-              style={styles.input}
+              style={stylesIn.input}
               placeholder="เขียนอะไรสักหน่อย"
               value={text}
               onChangeText={handleTextChange}
@@ -250,50 +248,50 @@ const PhotoPostEdit = ({ navigation }) => {
             />
 
             {/* แสดงภาพที่เลือก */}
-            <View style={styles.imageContainer}>
+            <View style={stylesIn.imageContainer}>
               {oldImagePost.map((img, index) => (
-                <View key={index} style={styles.imageWrapper}>
+                <View key={index} style={stylesIn.imageWrapper}>
                   <Image
                     source={{ uri: img.url }}
-                    style={styles.imagePreview}
+                    style={stylesIn.imagePreview}
                   />
                   <TouchableOpacity
                     onPress={() => handleDeleteImage(2, img.img_id)}
-                    style={styles.deleteButton}
+                    style={stylesIn.deleteButton}
                   >
-                    <Text style={styles.deleteText}>X</Text>
+                    <Text style={stylesIn.deleteText}>X</Text>
                   </TouchableOpacity>
                 </View>
               ))}
 
               {images.map((uri, index) => (
-                <View key={index} style={styles.imageWrapper}>
-                  <Image source={{ uri }} style={styles.imagePreview} />
+                <View key={index} style={stylesIn.imageWrapper}>
+                  <Image source={{ uri }} style={stylesIn.imagePreview} />
                   <TouchableOpacity
                     onPress={() => handleDeleteImage(1, uri)}
-                    style={styles.deleteButton}
+                    style={stylesIn.deleteButton}
                   >
-                    <Text style={styles.deleteText}>X</Text>
+                    <Text style={stylesIn.deleteText}>X</Text>
                   </TouchableOpacity>
                 </View>
               ))}
             </View>
 
             {/* ปุ่มสำหรับแนบภาพ */}
-            <View style={styles.buttonContainer}>
+            <View style={stylesIn.buttonContainer}>
               {images.length < 10 && ( // แสดงปุ่มเฉพาะเมื่อมีรูปน้อยกว่า 10
                 <TouchableOpacity
-                  style={styles.button}
+                  style={stylesIn.button}
                   onPress={handleImagePicker}
                 >
-                  <Text style={styles.buttonText}>
+                  <Text style={stylesIn.buttonText}>
                     เลือกภาพ (สูงสุด 10 รูป)
                   </Text>
                 </TouchableOpacity>
               )}
               {/* {images.length > 0 || oldImagePost.length > 0 && ( */}
-                <TouchableOpacity style={styles.button} onPress={SavePostEdit}>
-                  <Text style={styles.buttonText}>บันทึก</Text>
+                <TouchableOpacity style={stylesIn.button} onPress={SavePostEdit}>
+                  <Text style={stylesIn.buttonText}>บันทึก</Text>
                 </TouchableOpacity>
               {/* )} */}
             </View>
@@ -323,55 +321,7 @@ const PhotoPostEdit = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    paddingTop: 80, // ชดเชยความสูงของ Navbar
-  },
-  navbar: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 90, // ความสูงของ Navbar
-    backgroundColor: "#fff",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingTop: 30, // เพิ่มระยะด้านบนสำหรับ SafeArea
-    paddingBottom: 10,
-    zIndex: 1000,
-  },
-  leftBox: {
-    flex: 1,
-  },
-  rightBox: {
-    flex: 1,
-    alignItems: "flex-end",
-  },
-  titleTop: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-
-  exit: {
-    flexDirection: "row", // จัดเรียงไอเท็มในแนวนอน
-    alignItems: "center", // จัดให้อยู่ตรงกลางในแนวตั้ง
-    justifyContent: "center", // ข้อความอยู่ตรงกลาง
-    paddingVertical: 10,
-    position: "relative", // เพื่อจัดไอคอนให้อยู่ซ้ายสุด
-  },
-  exitIcon: {
-    position: "absolute", // ทำให้ไอคอนย้ายไปด้านซ้ายสุด
-    left: 20, // ระยะห่างจากขอบซ้าย
-  },
-  exitText: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-
+const stylesIn = StyleSheet.create({
   content: {
     width: "100%",
   },
@@ -449,31 +399,6 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
     textAlign: "center",
-  },
-
-  menu: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    transform: [{ translateY: -10 }], // ดันขึ้นครึ่งหนึ่งของความสูงเมนู
-    height: 60,
-    backgroundColor: "#fff",
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    borderRadius: 100,
-    marginHorizontal: 16, // เพิ่มขอบซ้ายขวา
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 5, // สำหรับ Android
-  },
-  menuItem: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
   },
 });
 

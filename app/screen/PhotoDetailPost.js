@@ -5,6 +5,7 @@ import app_var from "./public";
 import * as ImagePicker from "expo-image-picker";
 import Swiper from "react-native-swiper";
 import moment from "moment";
+import styles from "./styles";
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
@@ -315,15 +316,15 @@ const PhotoDetailPost = ({ navigation }) => {
         <Text style={styles.exitText}>รายละเอียดโพสต์</Text>
       </View>
 
-      <View style={styles.body}>
+      <View style={stylesIn.body}>
         {PostUser.map((user, i) => (
-          <View key={i} style={styles.item}>
-            <View style={styles.profile_header}>
+          <View key={i} style={stylesIn.item}>
+            <View style={stylesIn.profile_header}>
               <Image
                 source={{
                   uri: user.Img_profile,
                 }}
-                style={styles.profile_post}
+                style={stylesIn.profile_post}
               />
               <View>
                 <Text style={{ fontSize: 16, fontWeight: "bold" }}>
@@ -335,25 +336,25 @@ const PhotoDetailPost = ({ navigation }) => {
               </View>
             </View>
 
-            <View style={styles.dropdownMenu}>
+            <View style={stylesIn.dropdownMenu}>
               <TouchableOpacity
                 onPress={() => handleDropdownToggle(i)}
               >
-                <Text style={styles.dropdownIcon}>⋯</Text>
+                <Text style={stylesIn.dropdownIcon}>⋯</Text>
               </TouchableOpacity>
               {selectedDropdown === i && (
-                <View style={styles.dropdownPost}>
+                <View style={stylesIn.dropdownPost}>
                   <TouchableOpacity onPress={() => (i)}>
-                    <Text style={styles.dropdownItem}>Edit</Text>
+                    <Text style={stylesIn.dropdownItem}>Edit</Text>
                   </TouchableOpacity>
                   <TouchableOpacity onPress={() => DeletePost(user.PostId)}>
                     <Text
                       style={[
-                        styles.dropdownItem,
-                        styles.dropdownItemLast,
+                        stylesIn.dropdownItem,
+                        stylesIn.dropdownItemLast,
                       ]}
                     >
-                      Deletea
+                      Delete
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -402,98 +403,7 @@ const PhotoDetailPost = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    paddingTop: 80, // ชดเชยความสูงของ Navbar
-  },
-  navbar: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 90, // ความสูงของ Navbar
-    backgroundColor: "#fff",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingTop: 30, // เพิ่มระยะด้านบนสำหรับ SafeArea
-    paddingBottom: 10,
-    zIndex: 1000,
-  },
-  leftBox: {
-    flex: 1,
-  },
-  rightBox: {
-    flex: 1,
-    alignItems: "flex-end",
-  },
-  titleTop: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-
-  dropdown: {
-    position: "absolute",
-    top: 50,
-    backgroundColor: "#ffffff",
-    borderRadius: 8,
-    elevation: 5,
-    padding: 10,
-    width: 220,
-    right: 0,
-    zIndex: 100,
-  },
-  infoText: {
-    width: 150,
-    fontSize: 16,
-    flexWrap: 'wrap',
-  },
-  emailText: {
-    color: "#BEBEBE",
-    width: 150,
-    fontSize: 12,
-    flexWrap: 'wrap',
-  },
-  button: {
-    width: '50%',
-    height: 35,
-    backgroundColor: "#FF4D4D",
-    paddingVertical: 5,
-    paddingHorizontal: 5,
-    borderRadius: 5,
-    alignItems: "center",
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "bold",
-  },
-  profileImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 25,
-    borderWidth: 2,
-  },
-
-  exit: {
-    flexDirection: "row", // จัดเรียงไอเท็มในแนวนอน
-    alignItems: "center", // จัดให้อยู่ตรงกลางในแนวตั้ง
-    justifyContent: "center", // ข้อความอยู่ตรงกลาง
-    paddingVertical: 10,
-    position: "relative", // เพื่อจัดไอคอนให้อยู่ซ้ายสุด
-  },
-  exitIcon: {
-    position: "absolute", // ทำให้ไอคอนย้ายไปด้านซ้ายสุด
-    left: 20, // ระยะห่างจากขอบซ้าย
-  },
-  exitText: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-
+const stylesIn = StyleSheet.create({
   body: {
     flex: 1,
     padding: 10,
@@ -511,23 +421,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3, // เฉพาะ Android
     padding: 10,
-  },
-  swiper: {
-    height: 270,
-  },
-  image_body: {
-    width: "100%", // ปรับรูปให้เต็มความกว้างของกล่องg
-    aspectRatio: 1.5, // กำหนดอัตราส่วนภาพ เช่น 1.5 สำหรับภาพแนวนอน
-    borderRadius: 8,
-    marginBottom: 8,
-    resizeMode: "contain", // ปรับการแสดงผลของรูปภาพ
-  },
-  name_body: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#333",
-    paddingHorizontal: 10,
-    // textAlign: "center",
   },
 
   profile_header: {
@@ -566,31 +459,6 @@ const styles = StyleSheet.create({
     padding: 10,
     fontSize: 14,
     color: '#333333',
-  },
-
-  menu: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    transform: [{ translateY: -10 }], // ดันขึ้นครึ่งหนึ่งของความสูงเมนู
-    height: 60,
-    backgroundColor: "#fff",
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    borderRadius: 100,
-    marginHorizontal: 16, // เพิ่มขอบซ้ายขวา
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 5, // สำหรับ Android
-  },
-  menuItem: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
   },
 });
 

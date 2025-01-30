@@ -15,6 +15,7 @@ import * as ImagePicker from "expo-image-picker";
 import Swiper from "react-native-swiper";
 import moment from "moment";
 import { useRoute } from "@react-navigation/native";
+import styles from "./styles";
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
@@ -313,85 +314,86 @@ const PhotoDetailUser = ({ navigation }) => {
           )}
         </View>
       </View>
+
       <ScrollView>
-        <View style={styles.content}>
-          <View style={styles.imageContainer}>
+        <View style={stylesIn.content}>
+          <View style={stylesIn.imageContainer}>
             <ImageBackground
               source={require("../assets/background/03.jpg")}
-              style={styles.imageBackground}
+              style={stylesIn.imageBackground}
               resizeMode="cover"
             >
               <TouchableOpacity onPress={() => navigation.goBack()}>
                 <FontAwesomeIcon icon={faArrowLeft} size={20} color="#fff" />
               </TouchableOpacity>
-              <View style={styles.logoContainer}>
+              <View style={stylesIn.logoContainer}>
                 <Image
                   source={{
                     uri: userVisitors.img_profile,
                   }}
-                  style={styles.logo}
+                  style={stylesIn.logo}
                 />
               </View>
             </ImageBackground>
           </View>
 
           {/* ชื่อ และ เมนู */}
-          <View style={styles.info}>
-            <View style={styles.info_top}>
-              <Text style={styles.name}>
+          <View style={stylesIn.info}>
+            <View style={stylesIn.info_top}>
+              <Text style={stylesIn.name}>
                 {userVisitors.fullname}
               </Text>
             </View>
           </View>
 
           {/* ส่วนเนื้อหาที่จะเปลี่ยน */}
-          <View style={styles.content_home}>
-            <Text style={styles.titlecontent}>รายละเอียด</Text>
+          <View style={stylesIn.content_home}>
+            <Text style={stylesIn.titlecontent}>รายละเอียด</Text>
 
-            <View style={styles.detials}>
-              <Text style={styles.caption}>ข้อมูล ประวัตื caption </Text>
+            <View style={stylesIn.detials}>
+              <Text style={stylesIn.caption}>ข้อมูล ประวัตื caption </Text>
 
               <Text style={{ fontSize: 14, marginBottom: 15 }}>
                 ช่องทางการติดต่อ
               </Text>
-              <TouchableOpacity style={styles.contact}>
+              <TouchableOpacity style={stylesIn.contact}>
                 <FontAwesomeIcon icon={faFacebook} size={24} color="#1877f2" />
-                <Text style={styles.textcontact}>Facebook</Text>
+                <Text style={stylesIn.textcontact}>Facebook</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.contact}>
+              <TouchableOpacity style={stylesIn.contact}>
                 <FontAwesomeIcon
                   icon={faFontAwesome}
                   size={24}
                   color="#ffa500"
                 />
-                <Text style={styles.textcontact}>Page Facebook</Text>
+                <Text style={stylesIn.textcontact}>Page Facebook</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.contact}>
+              <TouchableOpacity style={stylesIn.contact}>
                 <FontAwesomeIcon icon={faInstagram} size={24} color="#f56949" />
-                <Text style={styles.textcontact}>Instagram</Text>
+                <Text style={stylesIn.textcontact}>Instagram</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.contact}>
+              <TouchableOpacity style={stylesIn.contact}>
                 <FontAwesomeIcon icon={faPhone} size={24} color="#34A853" />
-                <Text style={styles.textcontact}>Phone Number</Text>
+                <Text style={stylesIn.textcontact}>Phone Number</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.contact}>
+              <TouchableOpacity style={stylesIn.contact}>
                 <FontAwesomeIcon icon={faEnvelope} size={24} color="#d44638" />
-                <Text style={styles.textcontact}>E-mail</Text>
+                <Text style={stylesIn.textcontact}>E-mail</Text>
               </TouchableOpacity>
 
               <Text style={{ fontSize: 14, marginBottom: 15 }}>เรทราคา</Text>
-              <View style={styles.contact}>
-                <Text style={styles.textcontact}>ปริญญา</Text>
-                <Text style={styles.textcontact}>3000 - 5000</Text>
+              <View style={stylesIn.contact}>
+                <Text style={stylesIn.textcontact}>ปริญญา</Text>
+                <Text style={stylesIn.textcontact}>3000 - 5000</Text>
               </View>
-              <View style={styles.contact}>
-                <Text style={styles.textcontact}>งานแต่ง</Text>
-                <Text style={styles.textcontact}>3000 - 8000</Text>
+              <View style={stylesIn.contact}>
+                <Text style={stylesIn.textcontact}>งานแต่ง</Text>
+                <Text style={stylesIn.textcontact}>3000 - 8000</Text>
               </View>
             </View>
 
-            <Text style={styles.titlecontent}>ผลงาน</Text>
-            <View style={styles.body}>
+            <Text style={stylesIn.titlecontent}>ผลงาน</Text>
+            <View style={stylesIn.body}>
               {renderContent()}
             </View>
           </View>
@@ -420,100 +422,10 @@ const PhotoDetailUser = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    paddingTop: 80, // ชดเชยความสูงของ Navbar
-  },
-  navbar: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 90, // ความสูงของ Navbar
-    backgroundColor: "#fff",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingTop: 30, // เพิ่มระยะด้านบนสำหรับ SafeArea
-    paddingBottom: 10,
-    zIndex: 1000,
-  },
-  leftBox: {
-    flex: 1,
-  },
-  rightBox: {
-    flex: 1,
-    alignItems: "flex-end",
-  },
-  titleTop: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-
-  dropdown: {
-    position: "absolute",
-    top: 50,
-    backgroundColor: "#ffffff",
-    borderRadius: 8,
-    elevation: 5,
-    padding: 10,
-    width: 220,
-    right: 0,
-    zIndex: 100,
-  },
-  infoText: {
-    width: 150,
-    fontSize: 16,
-    flexWrap: 'wrap',
-  },
-  emailText: {
-    color: "#BEBEBE",
-    width: 150,
-    fontSize: 12,
-    flexWrap: 'wrap',
-  },
-  button: {
-    width: '50%',
-    height: 35,
-    backgroundColor: "#FF4D4D",
-    paddingVertical: 5,
-    paddingHorizontal: 5,
-    borderRadius: 5,
-    alignItems: "center",
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "bold",
-  },
-  profileImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 25,
-    borderWidth: 2,
-  },
-
-  exit: {
-    flexDirection: "row", // จัดเรียงไอเท็มในแนวนอน
-    alignItems: "center", // จัดให้อยู่ตรงกลางในแนวตั้ง
-    justifyContent: "center", // ข้อความอยู่ตรงกลาง
-    paddingVertical: 10,
-    position: "relative", // เพื่อจัดไอคอนให้อยู่ซ้ายสุด
-  },
-  exitIcon: {
-    position: "absolute", // ทำให้ไอคอนย้ายไปด้านซ้ายสุด
-    left: 20, // ระยะห่างจากขอบซ้าย
-  },
-  exitText: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-
+const stylesIn = StyleSheet.create({
   content: {
     width: "auto",
+    marginTop: 80,
   },
   imageContainer: {
     width: "100%",
@@ -535,7 +447,7 @@ const styles = StyleSheet.create({
   logo: {
     width: 120, // ขนาดโลโก้
     height: 120,
-    borderRadius: 50, // รูปทรงกลม
+    borderRadius: 100, // รูปทรงกลม
   },
 
   info: {
@@ -638,32 +550,6 @@ const styles = StyleSheet.create({
     height: 45,
     borderRadius: 50, // รูปทรงกลม
     marginRight: 10,
-  },
-
-
-  menu: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    transform: [{ translateY: -10 }], // ดันขึ้นครึ่งหนึ่งของความสูงเมนู
-    height: 60,
-    backgroundColor: "#fff",
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    borderRadius: 100,
-    marginHorizontal: 16, // เพิ่มขอบซ้ายขวา
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 5, // สำหรับ Android
-  },
-  menuItem: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
   },
 });
 
