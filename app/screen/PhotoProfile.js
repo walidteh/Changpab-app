@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Button,
   Alert,
+  TextInput,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -16,8 +17,7 @@ import app_var from "./public";
 import * as ImagePicker from "expo-image-picker";
 import Swiper from "react-native-swiper";
 import moment from "moment";
-import { Linking } from 'react-native';
-
+import { Linking } from "react-native";
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
@@ -34,6 +34,7 @@ import {
   faEnvelope,
 } from "@fortawesome/free-solid-svg-icons";
 import { faFacebook, faInstagram } from "@fortawesome/free-brands-svg-icons";
+import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 
 const PhotoProfile = ({ navigation }) => {
   const [user, setUser] = useState({});
@@ -43,6 +44,7 @@ const PhotoProfile = ({ navigation }) => {
   const [profileImage, setProfileImage] = useState(null);
   const [selectedDropdown, setSelectedDropdown] = useState(null);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const [showForm, setShowForm] = useState(false);
 
   const handleDropdownToggle = (index) => {
     setSelectedDropdown(selectedDropdown === index ? null : index); // เปิด/ปิดเมนู
@@ -231,10 +233,10 @@ const PhotoProfile = ({ navigation }) => {
           // เปิด URL
           Linking.openURL(url);
         } else {
-          console.log('ไม่สามารถเปิดลิงก์นี้ได้');
+          console.log("ไม่สามารถเปิดลิงก์นี้ได้");
         }
       })
-      .catch((err) => console.error('เกิดข้อผิดพลาดในการเปิดลิงก์:', err));
+      .catch((err) => console.error("เกิดข้อผิดพลาดในการเปิดลิงก์:", err));
   };
 
   const contactData = [
@@ -281,23 +283,32 @@ const PhotoProfile = ({ navigation }) => {
             <View style={styles.detials}>
               <Text style={styles.caption}>ข้อมูล ประวัตื caption </Text>
 
-              <Text style={{ fontSize: 14, marginBottom: 15 }}>
-                ช่องทางการติดต่อ
-              </Text>
-              {contactData.map((contact, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={styles.contact}
-                  onPress={() => openlink(contact.contact_link)}
-                >
-                  <FontAwesomeIcon
-                    icon={contact.contact_icon}
-                    size={24}
-                    color={contact.contact_color}
-                  />
-                  <Text style={styles.textcontact}>{contact.contact_name}</Text>
-                </TouchableOpacity>
-              ))}
+              <View style={styles.container}>
+      <View style={styles.header}>
+        <Text>ช่องทางการติดต่อ</Text>
+        <TouchableOpacity onPress={() => setShowForm(!showForm)}>
+          <Text style={{ fontSize: 24 }}>+</Text>
+        </TouchableOpacity>
+      </View>
+
+      {showForm && (
+        <View style={styles.form}>
+          <TextInput placeholder="Enter your name" style={styles.input} />
+          <TextInput placeholder="Enter your link" style={styles.input} />
+          <TouchableOpacity style={styles.saveButton}>
+            <Text style={styles.saveButtonText}>บันทึก</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+        <View style={{paddingTop: 10}}>
+          {contactData.map((contact) => (
+            <TouchableOpacity key={contact.id} style={styles.contact} onPress={() => openlink(contact.contact_link)}>
+              <FontAwesomeIcon icon={contact.contact_icon} size={24} color={contact.contact_color} />
+              <Text style={styles.contactText}>{contact.contact_name}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+    </View>
               <Text style={{ fontSize: 14, marginBottom: 15 }}>เรทราคา</Text>
               <View style={styles.contact}>
                 <Text style={styles.textcontact}>ปริญญา</Text>
@@ -713,9 +724,68 @@ const PhotoProfile = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
+    // padding: 20,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    // marginBottom: 10,
+    // padding: 10
+  },
+  headerText: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  form: {
+    marginBottom: 14,
+    backgroundColor: "#f9f9f9",
+    padding: 15,
+    borderRadius: 10,
+    marginTop: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2, // สำหรับ Android
+  },
+  input: {
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+    marginBottom: 10,
+    padding: 8,
+  },
+  saveButton: {
+    backgroundColor: "#063B52",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  saveButtonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  contactItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+    backgroundColor: "white",
+    borderRadius: 10,
+    marginTop: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  contactText: {
+    marginLeft: 10,
+    fontSize: 16,
+  },
+  container: {
     flex: 1,
-    backgroundColor: "#fff",
-    paddingTop: 80,
+    // backgroundColor: "#fff",
+    // paddingTop: 80,
   },
   navbar: {
     position: "absolute",
