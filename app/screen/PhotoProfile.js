@@ -44,7 +44,10 @@ const PhotoProfile = ({ navigation }) => {
   const [profileImage, setProfileImage] = useState(null);
   const [selectedDropdown, setSelectedDropdown] = useState(null);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-  const [showForm, setShowForm] = useState(false);
+  const [contact, setContact] = useState(false);
+  const [contactName, setContactName] = useState("");
+  const [contactLink, setContactLink] = useState("");
+
 
   const handleDropdownToggle = (index) => {
     setSelectedDropdown(selectedDropdown === index ? null : index); // เปิด/ปิดเมนู
@@ -151,6 +154,52 @@ const PhotoProfile = ({ navigation }) => {
       setIsLoading(false);
     }
   };
+
+  const CreateContact = async (contactName, contactLink, setContactName, setContactLink, navigation) => {
+    try {
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        alert("Token not found. Please log in again.");
+        return;
+      }
+      if (!contactName || !contactLink) {
+        alert("กรุณากรอกชื่อและลิงก์ให้ครบ");
+        return;
+      }
+      let formData = new FormData();
+      formData.append("Name", contactName);
+      formData.append("Link", contactLink);
+      formData.append("Host", "default");
+
+      const response = await fetch(`http://${app_var.api_host}/users/create_contact`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        console.log("บันทึกแล้ว:", data);
+        alert("บันทึกข้อมูลเรียบร้อย!");
+        setContactName("");
+        setContactLink("");
+  
+        return data;
+      } else {
+        alert(`เกิดข้อผิดพลาด: ${data.error}`);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+    }
+  };
+  
+  
+  
+
   useEffect(() => {
     fetchUser();
     fetchAllUser();
@@ -286,16 +335,26 @@ const PhotoProfile = ({ navigation }) => {
               <View style={styles.container}>
       <View style={styles.header}>
         <Text>ช่องทางการติดต่อ</Text>
-        <TouchableOpacity onPress={() => setShowForm(!showForm)}>
+        <TouchableOpacity onPress={() => setContact(!contact)}>
           <Text style={{ fontSize: 24 }}>+</Text>
         </TouchableOpacity>
       </View>
 
-      {showForm && (
+      {contact && (
         <View style={styles.form}>
-          <TextInput placeholder="Enter your name" style={styles.input} />
-          <TextInput placeholder="Enter your link" style={styles.input} />
-          <TouchableOpacity style={styles.saveButton}>
+          <TextInput
+            placeholder="Enter your name"
+            style={styles.input}
+            value={contactName}
+            onChangeText={setContactName}
+          />
+          <TextInput
+            placeholder="Enter your link"
+            style={styles.input}
+            value={contactLink}
+            onChangeText={setContactLink}
+          />
+          <TouchableOpacity style={styles.saveButton} onPress={() => CreateContact(contactName, contactLink, setContactName, setContactLink, navigation)}>
             <Text style={styles.saveButtonText}>บันทึก</Text>
           </TouchableOpacity>
         </View>
