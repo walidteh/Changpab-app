@@ -32,8 +32,10 @@ import {
   faFontAwesome,
   faPhone,
   faEnvelope,
+  faEdit,
+  faTrash
 } from "@fortawesome/free-solid-svg-icons";
-import { faFacebook, faInstagram } from "@fortawesome/free-brands-svg-icons";
+import { faFacebook, faInstagram,} from "@fortawesome/free-brands-svg-icons";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 
 const PhotoProfile = ({ navigation }) => {
@@ -55,6 +57,9 @@ const PhotoProfile = ({ navigation }) => {
     {platform : "default", icon: faEnvelope, color: "#000000"}
   ];
   const [contactInfo, setContactInfo] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isEditingContactItem, setIsEditingContactItem] = useState(false);
+
 
 
   const handleDropdownToggle = (index) => {
@@ -378,12 +383,10 @@ const PhotoProfile = ({ navigation }) => {
       var temp = {}
       for (let i of HostInfo) {
         if (i.platform == item.Contact_host) {
-          // console.log("---> ", i.platform)
           temp = i 
         }
       }
       if(temp !== undefined){
-        // console.log(temp)
         contactData.push({
           id: item.ID,
           contact_name: item.Contact_name,
@@ -403,10 +406,17 @@ const PhotoProfile = ({ navigation }) => {
               <Text style={styles.caption}>ข้อมูล ประวัตื caption </Text>
 
               <View style={styles.container}>
+
+{/* ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- */}
+
+
       <View style={styles.header}>
         <Text>ช่องทางการติดต่อ</Text>
-        <TouchableOpacity onPress={() => setContact(!contact)}>
-          <Text style={{ fontSize: 24 }}>+</Text>
+        <TouchableOpacity onPress={() => {
+          setContact(!contact);
+          setIsEditing(!isEditing);
+        }}> 
+          <Text style={{ fontSize: 12 }}>{isEditing ? "เสร็จสิ้น" : "แก้ไข"}</Text>
         </TouchableOpacity>
       </View>
 
@@ -424,19 +434,61 @@ const PhotoProfile = ({ navigation }) => {
             value={contactLink}
             onChangeText={setContactLink}
           />
-          <TouchableOpacity style={styles.saveButton} onPress={() => CreateContact(contactName, contactLink, setContactName, setContactLink, navigation)}>
-            <Text style={styles.saveButtonText}>บันทึก</Text>
-          </TouchableOpacity>
+          <View style={{display: 'flex', flexDirection: 'row', flexGrow: '1', justifyContent: 'space-around', gap: 10}}>
+            {isEditingContactItem &&(<TouchableOpacity style={[styles.saveButton, {flex: 1}]} onPress={() => {
+                setContactName('');
+                setContactLink('')
+              setIsEditingContactItem(false);
+              }}>
+              <Text style={styles.saveButtonText}>ยกเลิก</Text>
+            </TouchableOpacity>)}
+            <TouchableOpacity style={[styles.saveButton, {flex: 1}]} onPress={() => {
+              // console.log(isEditing)
+              if(isEditingContactItem){
+                console.log("edit")
+                setContactName('');
+                setContactLink('');
+              }else {
+                CreateContact(contactName, contactLink, setContactName, setContactLink, navigation)
+              }
+              setIsEditingContactItem(false);
+              }}>
+              <Text style={styles.saveButtonText}>{isEditingContactItem ? "แก้ไข" : "บันทึก"}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       )}
-        <View style={{paddingTop: 10}}>
+        <View style={{ paddingTop: 10 }}>
           {contactData.map((contact) => (
-            <TouchableOpacity key={contact.id} style={styles.contact} onPress={() => openlink(contact.contact_link)}>
-              <FontAwesomeIcon icon={contact.contact_icon} size={24} color={contact.contact_color} />
-              <Text style={styles.contactText}>{contact.contact_name}</Text>
-            </TouchableOpacity>
+            <View key={contact.id} style={styles.contactContainer}>
+              <TouchableOpacity style={styles.contact} onPress={() => openlink(contact.contact_link)}>
+                <FontAwesomeIcon icon={contact.contact_icon} size={24} color={contact.contact_color} />
+                <Text style={styles.contactText}>{contact.contact_name}</Text>
+              </TouchableOpacity>
+              {isEditing && (
+                <View style={styles.contactActions}>
+                  <TouchableOpacity onPress={() => {
+                    setContactName(contact.contact_name);
+                    setContactLink(contact.contact_link);
+                    setIsEditingContactItem(true);
+                  }}>
+                    <FontAwesomeIcon icon={faEdit} size={16} color="#1E1E1E" />
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => deleteContact(contact.id)}>
+                    <FontAwesomeIcon icon={faTrash} size={16} color="#8F3F3F" />
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
           ))}
         </View>
+
+
+{/* ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- */}
+
+
+
+
     </View>
               <Text style={{ fontSize: 14, marginBottom: 15 }}>เรทราคา</Text>
               <View style={styles.contact}>
@@ -852,6 +904,19 @@ const PhotoProfile = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+
+  contactContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 2,
+    // borderBottomWidth: 1,
+    // borderBottomColor: "#ddd",
+  },
+  contactActions: {
+    flexDirection: "row",
+    gap: 10,
+  },
   container: {
     // padding: 20,
   },
