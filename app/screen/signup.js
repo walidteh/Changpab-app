@@ -193,28 +193,28 @@ export default function LoginForm({ navigation }) {
 
               {role === "PG" && (
                 <>
-                  <Text style={styles.intoinput}>First name</Text>
+                  <Text style={styles.intoinput}>ชื่อ</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="Enter your first name"
+                    placeholder="กรุณากรอกชื่อของคุณ"
                     value={firstname}
                     onChangeText={setFirstname}
                     autoCorrect={false}
                     autoCapitalize="none"
                   />
-                  <Text style={styles.intoinput}>Last name</Text>
+                  <Text style={styles.intoinput}>นามสกุล</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="Enter your username"
+                    placeholder="กรุณากรอกนามสกุลของคุณ"
                     value={lastname}
                     onChangeText={setLastname}
                     autoCorrect={false}
                     autoCapitalize="none"
                   />
-                  <Text style={styles.intoinput}>Page Facebook</Text>
+                  <Text style={styles.intoinput}>เพจเฟซบุ๊ก</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="Enter your name Page Facebook"
+                    placeholder="กรุณากรอกชื่อเพจเฟซบุ๊กของคุณ"
                     value={lastname}
                     onChangeText={setLastname}
                     autoCorrect={false}
@@ -223,62 +223,62 @@ export default function LoginForm({ navigation }) {
                   <Text style={styles.intoinput}>E-mail</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="Enter your E-mail"
+                    placeholder="กรุณากรอก E-mail"
                     value={email}
                     onChangeText={setemail}
                     autoCorrect={false}
                     autoCapitalize="none"
                   />
-                  <Text style={styles.intoinput}>Password</Text>
+                  <Text style={styles.intoinput}>ชื่อผู้ใช้</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="Type a password"
-                    secureTextEntry
-                    value={password}
-                    onChangeText={setPassword}
-                    autoCorrect={false}
-                    autoCapitalize="none"
-                  />
-                  <Text style={styles.intoinput}>Username</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Username"
+                    placeholder="กรุณากรอกชื่อผู้ใช้ของคุณ"
                     secureTextEntry
                     value={username}
                     onChangeText={setUsername}
                     autoCorrect={false}
                     autoCapitalize="none"
                   />
+                  <Text style={styles.intoinput}>รหัสผ่าน</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="กรุณากรอกรหัสผ่าน"
+                    secureTextEntry
+                    value={password}
+                    onChangeText={setPassword}
+                    autoCorrect={false}
+                    autoCapitalize="none"
+                  />
 
                   <View style={styles.buttonView}>
                     <Pressable style={styles.button} onPress={handleSubmit}>
-                      <Text style={styles.buttonText}>Next</Text>
+                      <Text style={styles.buttonText}>สมัคร</Text>
                     </Pressable>
                   </View>
 
                   <Text style={styles.footerText}>
-                    Already have an account?{" "}
+                    มีบัญชีอยู่แล้ว ?{" "}
                     <Text style={styles.signup} onPress={onPress}>
-                      Login
+                      เข้าสู่ระบบ
                     </Text>
                   </Text>
                 </>
               )}
               {role === "CTM" && (
                 <>
-                  <Text style={styles.intoinput}>First name</Text>
+                  <Text style={styles.intoinput}>ชื่อ</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="Enter your first name"
+                    placeholder="กรุณากรอกชื่อของคุณ"
                     value={firstname}
                     onChangeText={setFirstname}
                     autoCorrect={false}
                     autoCapitalize="none"
                   />
-                  <Text style={styles.intoinput}>Last name</Text>
+                  <Text style={styles.intoinput}>นามสกุล</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="Enter your username"
+                    placeholder="กรุณากรอกนามสกุลของคุณ"
                     value={lastname}
                     onChangeText={setLastname}
                     autoCorrect={false}
@@ -287,43 +287,43 @@ export default function LoginForm({ navigation }) {
                   <Text style={styles.intoinput}>E-mail</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="Enter your E-mail"
+                    placeholder="กรุณากรอก E-mail"
                     value={email}
                     onChangeText={setemail}
                     autoCorrect={false}
                     autoCapitalize="none"
                   />
-                  <Text style={styles.intoinput}>Password</Text>
+                  <Text style={styles.intoinput}>ชื่อผู้ใช้</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="Type a password"
-                    secureTextEntry
-                    value={password}
-                    onChangeText={setPassword}
-                    autoCorrect={false}
-                    autoCapitalize="none"
-                  />
-                  <Text style={styles.intoinput}>Username</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Username"
+                    placeholder="กรุณากรอกชื่อผู้ใช้ของคุณ"
                     secureTextEntry
                     value={username}
                     onChangeText={setUsername}
                     autoCorrect={false}
                     autoCapitalize="none"
                   />
+                  <Text style={styles.intoinput}>รหัสผ่าน</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="กรุณากรอกรหัสผ่านของคุณ"
+                    secureTextEntry
+                    value={password}
+                    onChangeText={setPassword}
+                    autoCorrect={false}
+                    autoCapitalize="none"
+                  />
 
                   <View style={styles.buttonView}>
                     <Pressable style={styles.button} onPress={handleSubmit}>
-                      <Text style={styles.buttonText}>Next</Text>
+                      <Text style={styles.buttonText}>สมัคร</Text>
                     </Pressable>
                   </View>
 
                   <Text style={styles.footerText}>
-                    Already have an account?{" "}
+                    มีบัญชีอยู่แล้ว ?{" "}
                     <Text style={styles.signup} onPress={onPress}>
-                      Login
+                      เข้าสู่ระบบ
                     </Text>
                   </Text>
                 </>

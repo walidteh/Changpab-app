@@ -62,7 +62,6 @@ export default function LoginForm({ navigation }) {
       return; // หยุดการทำงานของฟังก์ชันถ้าไม่มีข้อมูล
     }
 
-    
     const response = await fetch("http://" + app_var.api_host + "/login", {
       method: "POST",
       headers: {
@@ -78,11 +77,6 @@ export default function LoginForm({ navigation }) {
       setEmail("");
       setPassword("");
       navigation.navigate(data.role === "PG" ? "PhotoIndex" : "Userindex");
-      // if(data.role === 'PG'){
-      //     navigation.navigate('PhotoIndex');
-      // }else {
-      //     navigation.navigate('Userindex');
-      // }
 
       await AsyncStorage.setItem("@token", data.token);
       await AsyncStorage.setItem("@userRole", data.role);
@@ -96,7 +90,6 @@ export default function LoginForm({ navigation }) {
       ]);
     }
   };
-
 
   return (
     <SafeAreaView style={styles.container}>
@@ -123,19 +116,19 @@ export default function LoginForm({ navigation }) {
           </LinearGradient>
 
           <View style={styles.inputView}>
-            <Text style={styles.intoinput}>E-mail</Text>
+            <Text style={styles.intoinput}>ชื่อผู้ใช้</Text>
             <TextInput
               style={styles.input}
-              placeholder="Enter your username"
+              placeholder="กรุณากรอกชื่อผู้ใช้ของคุณ"
               value={email} // ใช้ค่าจาก state email
               onChangeText={setEmail} // อัปเดตค่าจาก TextInput
               autoCorrect={false}
               autoCapitalize="none"
             />
-            <Text style={styles.intoinput}>Password</Text>
+            <Text style={styles.intoinput}>รหัสผ่าน</Text>
             <TextInput
               style={styles.input}
-              placeholder="Enter your password"
+              placeholder="กรุณากรอกรหัสผ่านของคุณ"
               secureTextEntry
               value={password} // ใช้ค่าจาก state password
               onChangeText={setPassword} // อัปเดตค่าจาก TextInput
@@ -145,29 +138,29 @@ export default function LoginForm({ navigation }) {
           </View>
 
           <View style={styles.rememberView}>
-            <View style={styles.checkboxContainer}>
+            {/* <View style={styles.checkboxContainer}>
               <Checkbox
                 value={click}
                 onValueChange={setClick}
                 color={click ? "#063B52" : "gray"}
               />
               <Text style={styles.rememberText}>Remember me</Text>
-            </View>
+            </View> */}
 
             <View>
               <Pressable onPress={() => Alert.alert("ลืมรหัส")}>
-                <Text style={styles.forgetText}>Forgot Password ?</Text>
+                <Text style={styles.forgetText}>ลืมรหัสผ่าน ?</Text>
               </Pressable>
             </View>
           </View>
 
           <View style={styles.buttonView}>
             <Pressable style={styles.button} onPress={handleSubmit}>
-              <Text style={styles.buttonText}>Sign in</Text>
+              <Text style={styles.buttonText}>เข้าสู่ระบบ</Text>
             </Pressable>
-            <Text style={styles.optionsText}>OR</Text>
+            {/* <Text style={styles.optionsText}>OR</Text> */}
 
-            <Pressable
+            {/* <Pressable
               style={styles.googleButton}
               onPress={() => Alert.alert("Continue with Google")}
             >
@@ -180,13 +173,13 @@ export default function LoginForm({ navigation }) {
                   Continue with Google
                 </Text>
               </View>
-            </Pressable>
+            </Pressable> */}
           </View>
 
           <Text style={styles.footerText}>
-            Don't have an account?{" "}
+          ยังไม่มีบัญชี ?{" "}
             <Text style={styles.signup} onPress={onPress}>
-              Sign Up
+              สมัครสมาชิก
             </Text>
           </Text>
         </>
@@ -275,7 +268,7 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: "#063B52",
     height: 45,
-    width: 350,
+    width: 320,
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
@@ -286,8 +279,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   buttonView: {
-    width: "100%",
-    paddingHorizontal: 30,
+    width: "80%",
+    // paddingHorizontal: 30,
   },
   optionsText: {
     textAlign: "center",
@@ -322,6 +315,7 @@ const styles = StyleSheet.create({
   footerText: {
     textAlign: "center",
     color: "gray",
+    marginTop: 15,
   },
   signup: {
     textDecorationLine: "underline",
