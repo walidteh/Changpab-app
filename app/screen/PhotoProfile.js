@@ -177,10 +177,12 @@ const PhotoProfile = ({ navigation }) => {
         alert("Token not found. Please log in again.");
         return;
       }
-      if (!contactName || !contactLink) {
+      if (!contactName || (!contactLink && !(contactName.includes("@") || /^\d{10}$/.test(contactName)))) {
         alert("กรุณากรอกชื่อและลิงก์ให้ครบ");
         return;
       }
+      
+      
       let formData = new FormData();
       formData.append("Name", contactName);
       formData.append("Link", contactLink);
@@ -426,14 +428,21 @@ const PhotoProfile = ({ navigation }) => {
             placeholder="Enter your name"
             style={styles.input}
             value={contactName}
-            onChangeText={setContactName}
+            onChangeText={(text) => {
+              setContactName(text);
+              if (text.includes('@') || (/^\d{10}$/.test(text))) {
+                setContactLink('');
+              }
+            }}
           />
-          <TextInput
-            placeholder="Enter your link"
-            style={styles.input}
-            value={contactLink}
-            onChangeText={setContactLink}
-          />
+          {!(contactName.includes('@') || /^\d{10}$/.test(contactName)) && (
+            <TextInput
+              placeholder="Enter your link"
+              style={styles.input}
+              value={contactLink}
+              onChangeText={setContactLink}
+            />
+          )}
           <View style={{display: 'flex', flexDirection: 'row', flexGrow: '1', justifyContent: 'space-around', gap: 10}}>
             {isEditingContactItem &&(<TouchableOpacity style={[styles.saveButton, {flex: 1}]} onPress={() => {
                 setContactName('');
@@ -443,7 +452,6 @@ const PhotoProfile = ({ navigation }) => {
               <Text style={styles.saveButtonText}>ยกเลิก</Text>
             </TouchableOpacity>)}
             <TouchableOpacity style={[styles.saveButton, {flex: 1}]} onPress={() => {
-              // console.log(isEditing)
               if(isEditingContactItem){
                 console.log("edit")
                 setContactName('');
