@@ -9,9 +9,10 @@ import {
   Button
 } from "react-native";
 import React, { useState, useEffect } from "react";
+import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import app_var from "./public";
-import { useNavigation } from "@react-navigation/native";
+import styles from "./styles";
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
@@ -20,14 +21,18 @@ import {
   faMagnifyingGlass,
   faBell,
   faUser,
+  faSquarePlus,
 } from "@fortawesome/free-solid-svg-icons";
 
-const Allpicture = () => {
-  const [refreshing, setRefreshing] = useState(false);
+const UserAllpicture = () => {
+  const navigation = useNavigation();
   const [user, setUser] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [userAll, setUserAll] = useState([]);
+  const [post, setPost] = useState([]);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+
+  const [refreshing, setRefreshing] = useState(false); // Declare refreshing state
 
   const handlePress = () => {
     navigation.navigate("Profile");
@@ -102,16 +107,50 @@ const Allpicture = () => {
   useEffect(() => {
     fetchUser();
     fetchAllUser();
+    fetchPostRandom();
   }, []);
 
-  const navigation = useNavigation();
+  const fetchPostRandom = async (keyword) => {
+    try {
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        alert("Token not found. Please log in again.");
+        return;
+      }
 
-  const UserIdex = () => {
+      // กำหนด URL ที่ส่ง parameter keyword ไปกับ GET request
+      const response = await fetch(
+        "http://" +
+        app_var.api_host +
+        "/users/get_post_random?limit=" +
+        encodeURIComponent(8),
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+      if (data.status === "OK") {
+        setPost(data.post);
+        // console.log(data.post);
+      } else {
+        alert("Failed to fetch user data");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("An error occurred while searching.");
+    }
+  };
+
+  const UserIndex = () => {
     navigation.navigate("UserIndex");
   };
 
   const UserSearce = () => {
-    navigation.navigate("UserSearce");
+    navigation.navigate("UserSearch");
   };
 
   const UserNotify = () => {
@@ -122,9 +161,34 @@ const Allpicture = () => {
     navigation.navigate("UserProfile");
   };
 
+  const UserDetailPost = () => {
+    navigation.navigate("UserIndex");
+  }
+
   const toggleDropdown = () => {
     setIsDropdownVisible(!isDropdownVisible);
   };
+
+  const handleLogout = async () => {
+    try {
+      // ลบ token ออกจาก AsyncStorage
+      await AsyncStorage.removeItem("@token");
+
+      // ตรวจสอบว่า token ถูกลบออกจริง ๆ
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        console.log("Token removed successfully");
+      }
+
+      // รีเซ็ตการนำทางไปยังหน้า login
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "login" }], // เปลี่ยน 'Login' เป็นชื่อของหน้า Login ที่คุณใช้
+      });
+    } catch (error) {
+      console.error("Error clearing token:", error);
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -133,7 +197,7 @@ const Allpicture = () => {
         <View style={styles.leftBox}>
           <Text style={styles.titleTop}>CHANGPAB</Text>
         </View>
-        <View style={styles.profileContainer}>
+        <View style={styles.rightBox}>
           {/* กดที่รูปโปรไฟล์เพื่อแสดง dropdown */}
           <TouchableOpacity onPress={toggleDropdown}>
             <Image
@@ -147,36 +211,31 @@ const Allpicture = () => {
           {/* แสดง dropdown */}
           {isDropdownVisible && (
             <View style={styles.dropdown}>
-              <Text style={styles.infoText}>
-                {user.Fullname || "No Fullname Available"}{" "}
-                {user.Lastname || "No Lastname Available"}
-              </Text>
-              <Text style={styles.infoText}>
-                {user.Email || "No Email Available"}
-              </Text>
-              <Text style={styles.infoText}>
-                Username: {user.Username || "No Username Available"}
-              </Text>
-              <Button
-                title="Logout"
-                onPress={async () => {
-                  try {
-                    // ลบ token ออกจาก AsyncStorage
-                    await AsyncStorage.removeItem("@token");
-
-                    // ตรวจสอบว่า token ถูกลบออกจริง ๆ
-                    const token = await AsyncStorage.getItem("@token");
-                    if (!token) {
-                      console.log("Token removed successfully");
-                    }
-
-                    // นำทางไปยังหน้า login
-                    navigation.navigate("login");
-                  } catch (error) {
-                    console.error("Error clearing token:", error);
-                  }
-                }}
-              />
+              <View style={{ flexDirection: 'row' }}>
+                <Image
+                  source={{
+                    uri: user.Img_profile,
+                  }}
+                  style={styles.profileImage}
+                />
+                <View style={{ marginLeft: 10 }}>
+                  <Text style={styles.infoText}>
+                    {user.Fullname || "No Fullname Available"}{" "}
+                    {user.Lastname || "No Lastname Available"}
+                  </Text>
+                  <Text style={styles.emailText}>
+                    {user.Email || "No Email Available"}
+                  </Text>
+                  <Text style={styles.infoText}>
+                    Username : {user.Username || "No Username Available"}
+                  </Text>
+                </View>
+              </View>
+              <View style={{ alignItems: 'center', marginTop: 15 }}>
+                <TouchableOpacity style={styles.button} onPress={handleLogout}>
+                  <Text style={styles.buttonText}>Logout</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           )}
         </View>
@@ -196,9 +255,9 @@ const Allpicture = () => {
       {/* รูป */}
       <ScrollView>
         <View style={styles.body}>
-          {userAll.map((user) => (
+          {/* {userAll.map((user, i) => (
             <TouchableOpacity
-              key={user.userId}
+              key={i}
               style={styles.item}
               onPress={() => onPress("")}
             >
@@ -210,13 +269,34 @@ const Allpicture = () => {
                 {user.Fullname || "No Fullname Available"}
               </Text>
             </TouchableOpacity>
-          ))}
+          ))} */}
+          {post && post.length > 0 ? (
+            post.map((post, i) => (
+              <TouchableOpacity
+                key={i}
+                style={styles.item}
+                onPress={UserDetailPost}
+              >
+                <Image
+                  source={{ uri: post.image_url }}
+                  style={styles.image_body}
+                />
+                <Text style={styles.name}>
+                  {post.fullname || "No Fullname Available"}
+                </Text>
+              </TouchableOpacity>
+            ))
+          ) : (
+            <Text style={{ textAlign: "center", marginTop: 20 }}>
+              ไม่มีโพสต์
+            </Text>
+          )}
         </View>
       </ScrollView>
 
       {/* เมนูด้านล่าง */}
       <View style={styles.menu}>
-        <TouchableOpacity style={styles.menuItem} onPress={UserIdex}>
+        <TouchableOpacity style={styles.menuItem} onPress={UserIndex}>
           <FontAwesomeIcon icon={faHouse} size={24} color="#000" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem} onPress={UserSearce}>
@@ -233,149 +313,4 @@ const Allpicture = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    paddingTop: 80, // ชดเชยความสูงของ Navbar
-  },
-  profileContainer: {
-    alignItems: "center",
-    top: 5,
-  },
-  profileImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 25,
-    borderWidth: 2,
-  },
-  dropdown: {
-    position: "absolute",
-    borderColor: "red",
-    borderWidth: 1,
-    top: 60,
-    backgroundColor: "#ffffff",
-    borderRadius: 8,
-    elevation: 5,
-    padding: 10,
-    alignItems: "center",
-    width: 220,
-    right: 0,
-    zIndex: 100,
-  },
-  navbar: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 90, // ความสูงของ Navbar
-    backgroundColor: "#fff",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingTop: 30, // เพิ่มระยะด้านบนสำหรับ SafeArea
-    paddingBottom: 10,
-    zIndex: 1000,
-  },
-  leftBox: {
-    flex: 1,
-  },
-  rightBox: {
-    flex: 1,
-    alignItems: "flex-end",
-  },
-  logo_user: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-  },
-  titleTop: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  exit: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 16,
-    backgroundColor: "#fff",
-  },
-  exitIcon: {
-    marginRight: 8,
-    marginLeft: 10,
-  },
-  exitText: {
-    fontSize: 15,
-    fontWeight: "bold",
-    color: "#000",
-  },
-  content: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 16,
-  },
-  // ตัวอย่างรูปภาพ
-  body: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: "#fff",
-    flexDirection: "row",
-    flexWrap: "wrap", // จัดเรียงหลายคอลัมน์
-    justifyContent: "space-between",
-  },
-  item: {
-    width: "48%", // ขนาดกล่อง 48% เพื่อให้มีระยะห่างระหว่างกล่อง
-    aspectRatio: 1, // ทำให้กล่องเป็นสี่เหลี่ยมจัตุรัส
-    marginBottom: 16,
-    backgroundColor: "#f5f5f5",
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 3, // สำหรับ Android
-  },
-  image_body: {
-    width: "70%",
-    height: "70%",
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  name: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#333",
-    textAlign: "center",
-  },
-
-  // เมนูด้านล่าง
-  menu: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    transform: [{ translateY: -10 }], // ดันขึ้นครึ่งหนึ่งของความสูงเมนู
-    height: 60,
-    backgroundColor: "#fff",
-    flexDirection: "row",
-    justifyContent: "space-around", // จัดวางไอเท็มให้มีระยะห่างเท่ากัน
-    alignItems: "center",
-    borderRadius: 100,
-    marginHorizontal: 16, // เพิ่มขอบซ้ายขวา
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 5, // สำหรับ Android
-  },
-  menuItem: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
-
-export default Allpicture;
+export default UserAllpicture;

@@ -35,7 +35,7 @@ import {
   faEdit,
   faTrash
 } from "@fortawesome/free-solid-svg-icons";
-import { faFacebook, faInstagram,} from "@fortawesome/free-brands-svg-icons";
+import { faFacebook, faInstagram, } from "@fortawesome/free-brands-svg-icons";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 
 const PhotoProfile = ({ navigation }) => {
@@ -50,11 +50,11 @@ const PhotoProfile = ({ navigation }) => {
   const [contactName, setContactName] = useState("");
   const [contactLink, setContactLink] = useState("");
   const HostInfo = [
-    {platform : "facebook", icon: faFacebook, color: "#1877f2"},
-    {platform : "instagram", icon: faInstagram, color: "#f56949"},
-    {platform : "phone", icon: faPhone, color: "#34A853"},
-    {platform : "email", icon: faEnvelope, color: "#d44638"},
-    {platform : "default", icon: faEnvelope, color: "#000000"}
+    { platform: "facebook", icon: faFacebook, color: "#1877f2" },
+    { platform: "instagram", icon: faInstagram, color: "#f56949" },
+    { platform: "phone", icon: faPhone, color: "#34A853" },
+    { platform: "email", icon: faEnvelope, color: "#d44638" },
+    { platform: "default", icon: faEnvelope, color: "#000000" }
   ];
   const [contactInfo, setContactInfo] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
@@ -168,7 +168,7 @@ const PhotoProfile = ({ navigation }) => {
     }
   };
 
-  
+
 
   const CreateContact = async (contactName, contactLink, setContactName, setContactLink) => {
     try {
@@ -181,8 +181,8 @@ const PhotoProfile = ({ navigation }) => {
         alert("กรุณากรอกชื่อและลิงก์ให้ครบ");
         return;
       }
-      
-      
+
+
       let formData = new FormData();
       formData.append("Name", contactName);
       formData.append("Link", contactLink);
@@ -194,16 +194,16 @@ const PhotoProfile = ({ navigation }) => {
         },
         body: formData,
       });
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
         console.log("บันทึกแล้ว:", data);
         fetchContact();
         alert("บันทึกข้อมูลเรียบร้อย!");
         setContactName("");
         setContactLink("");
-  
+
         return data;
       } else {
         alert(`เกิดข้อผิดพลาด: ${data.error}`);
@@ -212,9 +212,9 @@ const PhotoProfile = ({ navigation }) => {
       console.error("Error:", error);
       alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
     }
-    
+
   };
-  
+
   const fetchContact = async () => {
     try {
       const token = await AsyncStorage.getItem("@token");
@@ -237,11 +237,11 @@ const PhotoProfile = ({ navigation }) => {
       } else {
         alert("Failed to fetch user data");
       }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        alert("Error fetching user data");
-      } finally {
-        setIsLoading(false);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      alert("Error fetching user data");
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -309,9 +309,9 @@ const PhotoProfile = ({ navigation }) => {
             // กำหนด URL ที่ส่ง parameter keyword ไปกับ GET request
             const response = await fetch(
               "http://" +
-                app_var.api_host +
-                "/users/delete_post?postId=" +
-                encodeURIComponent(post_id),
+              app_var.api_host +
+              "/users/delete_post?postId=" +
+              encodeURIComponent(post_id),
               {
                 method: "DELETE",
                 headers: {
@@ -364,7 +364,7 @@ const PhotoProfile = ({ navigation }) => {
     //   .catch((err) => console.error("เกิดข้อผิดพลาดในการเปิดลิงก์:", err));
   };
 
-  
+
 
 
   const renderContent = () => {
@@ -381,14 +381,14 @@ const PhotoProfile = ({ navigation }) => {
         })),
       });
     });
-    contactInfo.forEach((item)=> {
+    contactInfo.forEach((item) => {
       var temp = {}
       for (let i of HostInfo) {
         if (i.platform == item.Contact_host) {
-          temp = i 
+          temp = i
         }
       }
-      if(temp !== undefined){
+      if (temp !== undefined) {
         contactData.push({
           id: item.ID,
           contact_name: item.Contact_name,
@@ -409,95 +409,95 @@ const PhotoProfile = ({ navigation }) => {
 
               <View style={styles.container}>
 
-{/* ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- */}
+                {/* ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- */}
 
 
-      <View style={styles.header}>
-        <Text>ช่องทางการติดต่อ</Text>
-        <TouchableOpacity onPress={() => {
-          setContact(!contact);
-          setIsEditing(!isEditing);
-        }}> 
-          <Text style={{ fontSize: 12 }}>{isEditing ? "เสร็จสิ้น" : "แก้ไข"}</Text>
-        </TouchableOpacity>
-      </View>
-
-      {contact && (
-        <View style={styles.form}>
-          <TextInput
-            placeholder="Enter your name"
-            style={styles.input}
-            value={contactName}
-            onChangeText={(text) => {
-              setContactName(text);
-              if (text.includes('@') || (/^\d{10}$/.test(text))) {
-                setContactLink('');
-              }
-            }}
-          />
-          {!(contactName.includes('@') || /^\d{10}$/.test(contactName)) && (
-            <TextInput
-              placeholder="Enter your link"
-              style={styles.input}
-              value={contactLink}
-              onChangeText={setContactLink}
-            />
-          )}
-          <View style={{display: 'flex', flexDirection: 'row', flexGrow: '1', justifyContent: 'space-around', gap: 10}}>
-            {isEditingContactItem &&(<TouchableOpacity style={[styles.saveButton, {flex: 1}]} onPress={() => {
-                setContactName('');
-                setContactLink('')
-              setIsEditingContactItem(false);
-              }}>
-              <Text style={styles.saveButtonText}>ยกเลิก</Text>
-            </TouchableOpacity>)}
-            <TouchableOpacity style={[styles.saveButton, {flex: 1}]} onPress={() => {
-              if(isEditingContactItem){
-                console.log("edit")
-                setContactName('');
-                setContactLink('');
-              }else {
-                CreateContact(contactName, contactLink, setContactName, setContactLink, navigation)
-              }
-              setIsEditingContactItem(false);
-              }}>
-              <Text style={styles.saveButtonText}>{isEditingContactItem ? "แก้ไข" : "บันทึก"}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
-        <View style={{ paddingTop: 10 }}>
-          {contactData.map((contact) => (
-            <View key={contact.id} style={styles.contactContainer}>
-              <TouchableOpacity style={styles.contact} onPress={() => openlink(contact.contact_link)}>
-                <FontAwesomeIcon icon={contact.contact_icon} size={24} color={contact.contact_color} />
-                <Text style={styles.contactText}>{contact.contact_name}</Text>
-              </TouchableOpacity>
-              {isEditing && (
-                <View style={styles.contactActions}>
+                <View style={styles.header}>
+                  <Text>ช่องทางการติดต่อ</Text>
                   <TouchableOpacity onPress={() => {
-                    setContactName(contact.contact_name);
-                    setContactLink(contact.contact_link);
-                    setIsEditingContactItem(true);
+                    setContact(!contact);
+                    setIsEditing(!isEditing);
                   }}>
-                    <FontAwesomeIcon icon={faEdit} size={16} color="#1E1E1E" />
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => deleteContact(contact.id)}>
-                    <FontAwesomeIcon icon={faTrash} size={16} color="#8F3F3F" />
+                    <Text style={{ fontSize: 12 }}>{isEditing ? "เสร็จสิ้น" : "แก้ไข"}</Text>
                   </TouchableOpacity>
                 </View>
-              )}
-            </View>
-          ))}
-        </View>
+
+                {contact && (
+                  <View style={styles.form}>
+                    <TextInput
+                      placeholder="Enter your name"
+                      style={styles.input}
+                      value={contactName}
+                      onChangeText={(text) => {
+                        setContactName(text);
+                        if (text.includes('@') || (/^\d{10}$/.test(text))) {
+                          setContactLink('');
+                        }
+                      }}
+                    />
+                    {!(contactName.includes('@') || /^\d{10}$/.test(contactName)) && (
+                      <TextInput
+                        placeholder="Enter your link"
+                        style={styles.input}
+                        value={contactLink}
+                        onChangeText={setContactLink}
+                      />
+                    )}
+                    <View style={{ display: 'flex', flexDirection: 'row', flexGrow: '1', justifyContent: 'space-around', gap: 10 }}>
+                      {isEditingContactItem && (<TouchableOpacity style={[styles.saveButton, { flex: 1 }]} onPress={() => {
+                        setContactName('');
+                        setContactLink('')
+                        setIsEditingContactItem(false);
+                      }}>
+                        <Text style={styles.saveButtonText}>ยกเลิก</Text>
+                      </TouchableOpacity>)}
+                      <TouchableOpacity style={[styles.saveButton, { flex: 1 }]} onPress={() => {
+                        if (isEditingContactItem) {
+                          console.log("edit")
+                          setContactName('');
+                          setContactLink('');
+                        } else {
+                          CreateContact(contactName, contactLink, setContactName, setContactLink, navigation)
+                        }
+                        setIsEditingContactItem(false);
+                      }}>
+                        <Text style={styles.saveButtonText}>{isEditingContactItem ? "แก้ไข" : "บันทึก"}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                )}
+                <View style={{ paddingTop: 10 }}>
+                  {contactData.map((contact) => (
+                    <View key={contact.id} style={styles.contactContainer}>
+                      <TouchableOpacity style={styles.contact} onPress={() => openlink(contact.contact_link)}>
+                        <FontAwesomeIcon icon={contact.contact_icon} size={24} color={contact.contact_color} />
+                        <Text style={styles.contactText}>{contact.contact_name}</Text>
+                      </TouchableOpacity>
+                      {isEditing && (
+                        <View style={styles.contactActions}>
+                          <TouchableOpacity onPress={() => {
+                            setContactName(contact.contact_name);
+                            setContactLink(contact.contact_link);
+                            setIsEditingContactItem(true);
+                          }}>
+                            <FontAwesomeIcon icon={faEdit} size={16} color="#1E1E1E" />
+                          </TouchableOpacity>
+                          <TouchableOpacity onPress={() => deleteContact(contact.id)}>
+                            <FontAwesomeIcon icon={faTrash} size={16} color="#8F3F3F" />
+                          </TouchableOpacity>
+                        </View>
+                      )}
+                    </View>
+                  ))}
+                </View>
 
 
-{/* ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- */}
+                {/* ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- */}
 
 
 
 
-    </View>
+              </View>
               <Text style={{ fontSize: 14, marginBottom: 15 }}>เรทราคา</Text>
               <View style={styles.contact}>
                 <Text style={styles.textcontact}>ปริญญา</Text>
@@ -851,9 +851,8 @@ const PhotoProfile = ({ navigation }) => {
           <View style={styles.info}>
             <View style={styles.info_top}>
               <Text style={styles.name}>
-                {`${user.Fullname || "No Fullname Available"} ${
-                  user.Lastname || ""
-                }`.trim()}
+                {`${user.Fullname || "No Fullname Available"} ${user.Lastname || ""
+                  }`.trim()}
               </Text>
               <TouchableOpacity style={styles.btt_info} onPress={ProfileEdit}>
                 <Text style={{ fontSize: 12 }}>แก้ไขข้อมูล</Text>
