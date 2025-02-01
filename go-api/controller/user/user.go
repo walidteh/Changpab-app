@@ -194,10 +194,12 @@ func CreateContact(c *gin.Context) {
 	Contact_name := c.DefaultPostForm("Name", "")
 	Contact_link := c.DefaultPostForm("Link", "")
 
-	if Contact_name == "" || Contact_link == "" {
-		c.JSON(400, gin.H{"error": "Name and Link are required"})
-		return
-	}
+	// phoneRegex := regexp.MustCompile(`^\d{10}$`)
+
+	// if Contact_name == "" || (Contact_link == "" && !strings.Contains(Contact_name, "@gmail.com") && !phoneRegex.MatchString(Contact_name)) {
+	// 	c.JSON(400, gin.H{"error": "Name and Link are required"})
+	// 	return
+	// }
 
 	var host_found string = "default"
 	if isValidPhoneNumber(Contact_name) {
