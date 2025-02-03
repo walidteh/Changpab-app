@@ -59,6 +59,7 @@ const PhotoProfile = ({ navigation }) => {
   const [contactInfo, setContactInfo] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingContactItem, setIsEditingContactItem] = useState(false);
+  const [EditContactId, setEditContactId] = useState(null);
 
 
 
@@ -170,7 +171,7 @@ const PhotoProfile = ({ navigation }) => {
 
   
 
-  const CreateContact = async (contactName, contactLink, setContactName, setContactLink) => {
+  const CreateContact = async (contactName, contactLink) => {
     try {
       const token = await AsyncStorage.getItem("@token");
       if (!token) {
@@ -215,8 +216,10 @@ const PhotoProfile = ({ navigation }) => {
     
   };
 
+  
 
-  const EditContact = async (contactId, contactName, contactLink, setContactName, setContactLink) => {
+  const EditContact = async (contactId, contactName, contactLink) => {
+    console.log("asdasd", contactId)
     try {
         const token = await AsyncStorage.getItem("@token");
         if (!token) {
@@ -236,7 +239,7 @@ const PhotoProfile = ({ navigation }) => {
         const response = await fetch(
           "http://" +
             app_var.api_host +
-            "/users/edit_contact?contactId=" +
+            "/users/edit_contact?contactID=" +
             encodeURIComponent(contactId),
           {
             method: "PUT",
@@ -264,6 +267,50 @@ const PhotoProfile = ({ navigation }) => {
         alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
     }
 };
+
+
+const DeleteContact = async (contactId) => {
+    Alert.alert("ระบบ", "ต้องการลบโพสต์หรือไม่", [
+      {
+        text: "ยกเลิก",
+        onPress: () => {
+          return;
+        },
+      },
+      {
+        text: "ตกลง",
+        onPress: async () => {
+          try {
+            const token = await AsyncStorage.getItem("@token");
+            if (!token) {
+              alert("Token not found. Please log in again.");
+              return;
+            }
+            const response = await fetch(
+              "http://" +
+                app_var.api_host +
+                "/users/delete_contact?contactId=" +
+                encodeURIComponent(contactId),
+              {
+                method: "DELETE",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+
+            const data = await response.json();
+            console.log(data.status);
+            fetchContact();
+          } catch (error) {
+            console.error("Error:", error);
+            alert("An error occurred while searching.");
+          }
+        },
+      },
+    ]);
+    console.log(contactId);
+  };
 
   
   const fetchContact = async () => {
@@ -458,12 +505,12 @@ const PhotoProfile = ({ navigation }) => {
             </TouchableOpacity>)}
             <TouchableOpacity style={[styles.saveButton, {flex: 1}]} onPress={() => {
               if(isEditingContactItem){
-                EditContact(contactName, contactLink, setContactName, setContactLink, navigation)
-                console.log("edit")
+                EditContact(EditContactId,contactName, contactLink)
                 setContactName('');
                 setContactLink('');
+                
               }else {
-                CreateContact(contactName, contactLink, setContactName, setContactLink, navigation)
+                CreateContact(contactName, contactLink)
               }
               setIsEditingContactItem(false);
               }}>
@@ -482,13 +529,16 @@ const PhotoProfile = ({ navigation }) => {
               {isEditing && (
                 <View style={styles.contactActions}>
                   <TouchableOpacity onPress={() => {
+                    setEditContactId(contact.id);
+                    // console.log(EditContactId)
+                    // console.log(EditContactId)
                     setContactName(contact.contact_name);
                     setContactLink(contact.contact_link);
                     setIsEditingContactItem(true);
                   }}>
                     <FontAwesomeIcon icon={faEdit} size={16} color="#1E1E1E" />
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => deleteContact(contact.id)}>
+                  <TouchableOpacity onPress={() => DeleteContact(contact.id)}>
                     <FontAwesomeIcon icon={faTrash} size={16} color="#8F3F3F" />
                   </TouchableOpacity>
                 </View>

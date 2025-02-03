@@ -76,7 +76,7 @@ export default function LoginForm({ navigation }) {
     if (data.status === "ok") {
       setEmail("");
       setPassword("");
-      navigation.navigate(data.role === "PG" ? "PhotoIndex" : "Userindex");
+      navigation.navigate(data.role === "PG" ? "PhotoIndex" : "UserIndex");
 
       await AsyncStorage.setItem("@token", data.token);
       await AsyncStorage.setItem("@userRole", data.role);
