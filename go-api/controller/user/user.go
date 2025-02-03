@@ -194,13 +194,6 @@ func CreateContact(c *gin.Context) {
 	Contact_name := c.DefaultPostForm("Name", "")
 	Contact_link := c.DefaultPostForm("Link", "")
 
-	// phoneRegex := regexp.MustCompile(`^\d{10}$`)
-
-	// if Contact_name == "" || (Contact_link == "" && !strings.Contains(Contact_name, "@gmail.com") && !phoneRegex.MatchString(Contact_name)) {
-	// 	c.JSON(400, gin.H{"error": "Name and Link are required"})
-	// 	return
-	// }
-
 	var host_found string = "default"
 	if isValidPhoneNumber(Contact_name) {
 		host_found = "phone"
@@ -281,4 +274,31 @@ func UpdateContact(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{"status": "OK", "contact": contact})
+}
+
+func DeleteContact(c *gin.Context) {
+	userId := c.MustGet("userId").(float64)
+
+	contactId := c.DefaultQuery("contactId", "")
+	if contactId == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Missing contactId"})
+		return
+	}
+
+	var contact orm.Contact
+	result := orm.Db.Where("id = ? AND user_id = ?", contactId, userId).First(&contact)
+	if result.Error != nil {
+		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "Contact not found"})
+		return
+	}
+
+	if err := orm.Db.Unscoped().Delete(&contact).Error; err != nil {
+		fmt.Println("Error deleting contact:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete contact"})
+		return
+	}
+
+	orm.Db.Delete(&contact)
+
+	c.JSON(http.StatusOK, gin.H{"status": "ok", "message": "Contact deleted successfully"})
 }
