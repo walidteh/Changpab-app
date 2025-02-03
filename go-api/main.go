@@ -44,6 +44,7 @@ func main() {
 	authorized.GET("/get_post_visitors", UserController.GetUserInfo_Visitors)
 	authorized.POST("/create_contact", UserController.CreateContact)
 	authorized.GET("/get_contact", UserController.GetContact)
+	authorized.PUT("/edit_contact", UserController.UpdateContact)
 
 	device_host := os.Getenv("DEVICE_HOST")
 

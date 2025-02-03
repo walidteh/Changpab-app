@@ -240,3 +240,45 @@ func GetContact(c *gin.Context) {
 	orm.Db.Where("user_id = ?", userId).Find(&contact)
 	c.JSON(http.StatusOK, gin.H{"status": "ok", "message": "User Read Success", "userContact": contact})
 }
+
+func UpdateContact(c *gin.Context) {
+	userId := c.MustGet("userId").(float64)
+	contactID := c.DefaultQuery("contactID", "")
+
+	var contact orm.Contact
+	if err := orm.Db.Where("id = ? AND user_id = ?", contactID, uint(userId)).First(&contact).Error; err != nil {
+		c.JSON(404, gin.H{"error": "Contact not found"})
+		return
+	}
+
+	Contact_name := c.DefaultPostForm("Name", "")
+	Contact_link := c.DefaultPostForm("Link", "")
+
+	var host_found = contact.Contact_host
+	if Contact_name != contact.Contact_name || Contact_link != contact.Contact_link {
+		if isValidPhoneNumber(Contact_name) {
+			host_found = "phone"
+		} else if isValidEmail(Contact_name) {
+			host_found = "email"
+		} else {
+			hosts := [...]string{"facebook", "tiktok", "instagram"}
+			for _, host := range hosts {
+				if strings.Contains(Contact_link, host) {
+					host_found = host
+					break
+				}
+			}
+		}
+	}
+
+	contact.Contact_name = Contact_name
+	contact.Contact_link = Contact_link
+	contact.Contact_host = host_found
+
+	if err := orm.Db.Save(&contact).Error; err != nil {
+		c.JSON(500, gin.H{"error": "Failed to update contact"})
+		return
+	}
+
+	c.JSON(200, gin.H{"status": "OK", "contact": contact})
+}
