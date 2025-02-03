@@ -214,6 +214,57 @@ const PhotoProfile = ({ navigation }) => {
     }
     
   };
+
+
+  const EditContact = async (contactId, contactName, contactLink, setContactName, setContactLink) => {
+    try {
+        const token = await AsyncStorage.getItem("@token");
+        if (!token) {
+            alert("Token not found. Please log in again.");
+            return;
+        }
+
+        if (!contactName || (!contactLink && !(contactName.includes("@") || /^\d{10}$/.test(contactName)))) {
+            alert("กรุณากรอกชื่อและลิงก์ให้ครบ");
+            return;
+        }
+
+        let formData = new FormData();
+        formData.append("Name", contactName);
+        formData.append("Link", contactLink);
+
+        const response = await fetch(
+          "http://" +
+            app_var.api_host +
+            "/users/edit_contact?contactId=" +
+            encodeURIComponent(contactId),
+          {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log("แก้ไขข้อมูลแล้ว:", data);
+            fetchContact();
+            alert("แก้ไขข้อมูลเรียบร้อย!");
+            setContactName("");
+            setContactLink("");
+            return data;
+        } else {
+            alert(`เกิดข้อผิดพลาด: ${data.error}`);
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+    }
+};
+
   
   const fetchContact = async () => {
     try {
@@ -233,7 +284,6 @@ const PhotoProfile = ({ navigation }) => {
       const data = await response.json();
       if (response.ok) {
         setContactInfo(data.userContact);
-        // console.log(contactInfo)
       } else {
         alert("Failed to fetch user data");
       }
@@ -246,35 +296,7 @@ const PhotoProfile = ({ navigation }) => {
   }
 
 
-  var contactData = [
-    // {
-    //   id: 1,
-    //   contact_name: "walid",
-    //   contact_link: "https://www.facebook.com/Waris058/",
-    //   contact_icon: faFacebook,
-    //   contact_color: "#1877f2",
-    // },
-    // {
-    //   id: 2,
-    //   contact_name: "waris_04",
-    //   contact_link: "https://www.google.co.th/",
-    //   contact_icon: faInstagram,
-    //   contact_color: "#f56949",
-    // },
-  ];
-
-  // useEffect(() => {
-  //   console.log("cccccc", contactInfo)
-  //   contactInfo.forEach((item)=> {
-  //     contactData.push({
-  //       id: item.ID,
-  //       contact_name: item.Contact_name,
-  //       contact_link: item.Contact_link,
-  //       contact_icon: faFacebook,
-  //       contact_color: "#1877f2",
-  //     })
-  //   })
-  // }, [contactInfo])
+  var contactData = [ ];
 
   useEffect(() => {
     fetchUser();
@@ -285,7 +307,6 @@ const PhotoProfile = ({ navigation }) => {
 
   const [selectedMenu, setSelectedMenu] = useState("หน้าหลัก"); // เก็บสถานะของเมนูที่เลือก
 
-  // ตัวอย่างรูป
   const PostUser = [];
 
   const DeletePost = async (post_id) => {
@@ -305,8 +326,6 @@ const PhotoProfile = ({ navigation }) => {
               alert("Token not found. Please log in again.");
               return;
             }
-
-            // กำหนด URL ที่ส่ง parameter keyword ไปกับ GET request
             const response = await fetch(
               "http://" +
                 app_var.api_host +
@@ -336,20 +355,6 @@ const PhotoProfile = ({ navigation }) => {
     console.log(post_id);
   };
 
-  // const contactData = [
-  //   { icon: faFacebook, text: "Facebook", key: "facebook" },
-  //   { icon: faFontAwesome, color: "#ffa500", text: "Page Facebook", key: "page" },
-  //   { icon: faInstagram, color: "#f56949", text: "Instagram", key: "instagram" },
-  //   { icon: faPhone, color: "#34A853", text: "Phone Number", key: "phone" },
-  //   { icon: faEnvelope, color: "#d44638", text: "E-mail", key: "email" }
-  // ];
-
-  // const userContacts = {
-  //   facebook: "https://facebook.com/user",
-  //   instagram: "https://instagram.com/user",
-  //   // phone: "0123456789",
-  //   email: "walid.123377az@gmial.com"
-  // };
 
   const openlink = (url) => {
     console.log(url)
@@ -453,6 +458,7 @@ const PhotoProfile = ({ navigation }) => {
             </TouchableOpacity>)}
             <TouchableOpacity style={[styles.saveButton, {flex: 1}]} onPress={() => {
               if(isEditingContactItem){
+                EditContact(contactName, contactLink, setContactName, setContactLink, navigation)
                 console.log("edit")
                 setContactName('');
                 setContactLink('');
