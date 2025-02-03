@@ -69,7 +69,7 @@ const GetStart = ({ navigation }) => {
     if (isLoggedIn && cooldown) {
       const navigateToIndex = async () => {
         const role = await AsyncStorage.getItem("@userRole");
-        navigation.navigate(role === "PG" ? "PhotoIndex" : "Userindex");
+        navigation.navigate(role === "PG" ? "PhotoIndex" : "UserIndex");
       };
       navigateToIndex();
     }

@@ -82,7 +82,7 @@ const UserProfile = ({ navigation }) => {
   };
 
   const UserIdex = () => {
-    navigation.navigate("Userindex");
+    navigation.navigate("UserIndex");
   };
 
   const UserSearce = () => {

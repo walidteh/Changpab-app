@@ -19,12 +19,14 @@ import PhotoProfileEdit from './screen/PhotoProfileEdit.js';
 import PhotoDetailUser from './screen/PhotoDetailUser.js';
 import PhotoPostEdit from './screen/PhotoPostEdit.js'
 
-import Userindex from './screen/UserIndex.js'
+import UserIndex from './screen/UserIndex.js';
 import UserProfile from './screen/UserProfile.js'
 import UserAllphotographer from './screen/UserAllpicture.js'
 import UserAllpicture from './screen/UserAllpicture.js'
 import UserSearch from './screen/UserSearce.js'
 import UserNotify from './screen/UserNotify.js'
+import UserDetailPost from './screen/UserDetailPost.js';
+import UserDetailUser from './screen/UserDetailUser.js';
 
 const Stack = createNativeStackNavigator();
 
@@ -49,13 +51,15 @@ const App = () => {
         <Stack.Screen name="PhotoProfileEdit" component={PhotoProfileEdit} options={{ headerShown: false, animation: 'none' }} />
         <Stack.Screen name="PhotoDetailPost" component={PhotoDetailPost} options={{ headerShown: false, animation: 'none' }} />
         <Stack.Screen name="PhotoDetailUser" component={PhotoDetailUser} options={{ headerShown: false, animation: 'none'}} />
-        <Stack.Screen name="Userindex" component={Userindex} options={{ headerShown: false, animation: 'none' }} />
+        <Stack.Screen name="PhotoPostEdit" component={PhotoPostEdit} options={{ headerShown: false, animation: 'none' }} />
+        <Stack.Screen name="UserIndex" component={UserIndex} options={{ headerShown: false, animation: 'none' }} />
         <Stack.Screen name="UserProfile" component={UserProfile} options={{ headerShown: false, animation: 'none' }} />
-        <Stack.Screen name="Allphotographer" component={UserAllphotographer} options={{ headerShown: false, animation: 'none' }} />
-        <Stack.Screen name="Allpicture" component={UserAllpicture} options={{ headerShown: false, animation: 'none' }} />
+        <Stack.Screen name="UserAllphotographer" component={UserAllphotographer} options={{ headerShown: false, animation: 'none' }} />
+        <Stack.Screen name="UserAllpicture" component={UserAllpicture} options={{ headerShown: false, animation: 'none' }} />
         <Stack.Screen name="UserSearch" component={UserSearch} options={{ headerShown: false, animation: 'none' }} />
         <Stack.Screen name="UserNotify" component={UserNotify} options={{ headerShown: false, animation: 'none' }} />
-        <Stack.Screen name="PhotoPostEdit" component={PhotoPostEdit} options={{ headerShown: false, animation: 'none' }} />
+        <Stack.Screen name="UserDetailPost" component={UserDetailPost} options={{ headerShown: false, animation: 'none' }} />
+        <Stack.Screen name="UserDetailUser" component={UserDetailUser} options={{ headerShown: false, animation: 'none' }} />
       </Stack.Navigator>
     </NavigationContainer>
   )
