@@ -219,13 +219,13 @@ const PhotoDetailUser = ({ navigation }) => {
     if (PostUser.length > 0) {
       return (
         PostUser.map((user, i) => (
-          <View key={i} style={styles.item}>
-            <View style={styles.profile_header}>
+          <View key={i} style={stylesIn.item}>
+            <View style={stylesIn.profile_header}>
               <Image
                 source={{
                   uri: user.Img_profile,
                 }}
-                style={styles.profile_post}
+                style={stylesIn.profile_post}
               />
               <View>
                 <Text style={{ fontSize: 16, fontWeight: "bold" }}>
@@ -237,7 +237,7 @@ const PhotoDetailUser = ({ navigation }) => {
               </View>
             </View>
             <Swiper
-              style={styles.swiper}
+              style={stylesIn.swiper}
               showsPagination={true}
               loop={false}
             >
@@ -245,11 +245,11 @@ const PhotoDetailUser = ({ navigation }) => {
                 <Image
                   key={index}
                   source={{ uri: img.url }}
-                  style={styles.image_body}
+                  style={stylesIn.image_body}
                 />
               ))}
             </Swiper>
-            <Text style={styles.name_body}>
+            <Text style={stylesIn.name_body}>
               {user.Detail || "No Details Available"}
             </Text>
           </View>
@@ -538,6 +538,18 @@ const stylesIn = StyleSheet.create({
     color: "#333",
     paddingHorizontal: 10,
     // textAlign: "center",
+  },
+
+  profile_header: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 5,
+  },
+  profile_post: {
+    width: 45, // ขนาดโลโก้
+    height: 45,
+    borderRadius: 50, // รูปทรงกลม
+    marginRight: 10,
   },
 
   profile_header: {
