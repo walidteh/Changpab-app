@@ -10,6 +10,7 @@ import {
   Button,
   Alert,
   TextInput,
+  ActivityIndicator 
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -47,8 +48,11 @@ const PhotoProfile = ({ navigation }) => {
   const [selectedDropdown, setSelectedDropdown] = useState(null);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [contact, setContact] = useState(false);
+  const [rate, setRate] = useState(false);
   const [contactName, setContactName] = useState("");
   const [contactLink, setContactLink] = useState("");
+  const [typename, setTypeName] = useState("");
+  const [rateprice, setRatePrice] = useState("");
   const HostInfo = [
     {platform : "facebook", icon: faFacebook, color: "#1877f2"},
     {platform : "instagram", icon: faInstagram, color: "#f56949"},
@@ -60,7 +64,9 @@ const PhotoProfile = ({ navigation }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingContactItem, setIsEditingContactItem] = useState(false);
   const [EditContactId, setEditContactId] = useState(null);
-
+  const [isEditingRate, setIsEditingRate] = useState(false);
+  
+  const [rateInfo, setRateInfo] = useState([]);
 
 
   const handleDropdownToggle = (index) => {
@@ -342,6 +348,42 @@ const DeleteContact = async (contactId) => {
     }
   }
 
+  const fetchRate = async () => {
+    try {
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        alert("Token not found. Please log in again.");
+        return;
+      }
+  
+      const response = await fetch(`http://${app_var.api_host}/users/get_rate`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
+      const data = await response.json();
+      console.log("API Response:", data); 
+  
+      if (response.ok) {
+        if (Array.isArray(data.userRate)) {
+          setRateInfo(data.userRate); 
+        } else {
+          console.error("userRate is not an array:", data.userRate);
+          setRateInfo([]); 
+        }
+      } else {
+        alert("Failed to fetch user data");
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      alert("Error fetching user data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+
+
 
   var contactData = [ ];
 
@@ -350,6 +392,7 @@ const DeleteContact = async (contactId) => {
     fetchAllUser();
     fetchAllPost();
     fetchContact();
+    fetchRate();
   }, []);
 
   const [selectedMenu, setSelectedMenu] = useState("หน้าหลัก"); // เก็บสถานะของเมนูที่เลือก
@@ -552,18 +595,90 @@ const DeleteContact = async (contactId) => {
 
 
 
+{/* *********************************************************************************************************************************************************************** */}
+          </View>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+            <Text style={{ fontSize: 14, marginBottom: 15 }}>เรทราคา</Text>
+            <TouchableOpacity onPress={() => {
+              setRate(!rate);
+              setIsEditingRate(!isEditingRate);
+            }}> 
+              <Text style={{ fontSize: 12 }}>{isEditingRate ? "เสร็จสิ้น" : "แก้ไข"}</Text>
+            </TouchableOpacity>
+          </View>
 
-    </View>
-              <Text style={{ fontSize: 14, marginBottom: 15 }}>เรทราคา</Text>
-              <View style={styles.contact}>
-                <Text style={styles.textcontact}>ปริญญา</Text>
-                <Text style={styles.textcontact}>3000 - 5000</Text>
+          {rate && (
+        <View style={styles.form}>
+          <TextInput
+            placeholder="Type Name"
+            style={styles.input}
+            value={typename}
+            onChangeText={(text) => {
+              setTypeName(text);
+            }}
+          />
+            <TextInput
+              placeholder="Rate Price"
+              style={styles.input}
+              value={rateprice}
+              onChangeText={setRatePrice}
+            />
+          <View style={{display: 'flex', flexDirection: 'row', flexGrow: '1', justifyContent: 'space-around', gap: 10}}>
+            {isEditingContactItem &&(<TouchableOpacity style={[styles.saveButton, {flex: 1}]} onPress={() => {
+                setTypeName('');
+                setRatePrice('')
+              setIsEditingContactItem(false);
+              }}>
+              <Text style={styles.saveButtonText}>ยกเลิก</Text>
+            </TouchableOpacity>)}
+            <TouchableOpacity style={[styles.saveButton, {flex: 1}]} onPress={() => {
+              if(isEditingContactItem){
+                // EditContact(EditContactId,contactName, contactLink)
+                setTypeName('');
+                setRatePrice('');
+                
+              }else {
+                CreateContact(typename, rateprice)
+              }
+              setIsEditingContactItem(false);
+              }}>
+              <Text style={styles.saveButtonText}>{isEditingContactItem ? "แก้ไข" : "บันทึก"}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+
+
+
+
+
+
+
+
+
+
+    {/* <View style={styles.contact}>
+          {isLoading ? (
+            <ActivityIndicator size="large" color="blue" /> // แสดงโหลดถ้ายังโหลดอยู่
+          ) : (
+            (rate).map((item, index) => (
+              <View key={index} style={styles.contactContainer}>
+                <TouchableOpacity 
+                  style={styles.contact} 
+                  onPress={() => openlink(item.contact_link)}
+                >
+                  <Text style={styles.contactText}>{item.Type}</Text>
+                  <Text style={styles.contactText}>{item.Price}</Text>
+                </TouchableOpacity>
               </View>
-              <View style={styles.contact}>
-                <Text style={styles.textcontact}>งานแต่ง</Text>
-                <Text style={styles.textcontact}>3000 - 8000</Text>
-              </View>
-            </View>
+            ))
+          )}
+        </View> */}
+
+
+          
+   </View>
+{/* *********************************************************************************************************************************************************************** */}
 
             <Text style={styles.titlecontent}>ผลงาน</Text>
             <View style={styles.body}>
