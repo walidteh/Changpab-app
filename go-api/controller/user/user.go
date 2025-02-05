@@ -11,15 +11,40 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func UpdateName(c *gin.Context) {
+	userId := c.MustGet("userId").(float64)
+
+	fullname := c.DefaultPostForm("fullname", "")
+	lastname := c.DefaultPostForm("lastname", "")
+
+	if fullname == "" || lastname == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Fullname and Lastname are required"})
+		return
+	}
+
+	var user orm.User
+	if err := orm.Db.First(&user, userId).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "User not found"})
+		return
+	}
+
+	user.Fullname = fullname
+	user.Lastname = lastname
+	if err := orm.Db.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Update failed"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "ok", "name": user})
+}
+
 func GetAllUser(c *gin.Context) {
 	device_host := os.Getenv("DEVICE_HOST")
 	var imageHost = "http://" + device_host + ":8080/get_image/user_profile/"
 	var users []orm.User
-	// orm.Db.Where("Role = ?", "PG").Find(&users)
 	orm.Db.Find(&users, "Role = ?", "PG")
 	for i := range users {
 		users[i].Img_profile = imageHost + users[i].Img_profile
-		// fmt.Println("%s", users[i].Img_profile)
 	}
 	c.JSON(http.StatusOK, gin.H{"status": "ok", "message": "User Read Success", "userId": users})
 }
@@ -301,4 +326,32 @@ func DeleteContact(c *gin.Context) {
 	orm.Db.Delete(&contact)
 
 	c.JSON(http.StatusOK, gin.H{"status": "ok", "message": "Contact deleted successfully"})
+}
+
+func CreateRate(c *gin.Context) {
+	userId := c.MustGet("userId").(float64)
+
+	Type_name := c.DefaultPostForm("Type", "")
+	Rate_price := c.DefaultPostForm("Price", "")
+
+	rate := orm.Rate{
+		User_ID: uint(userId),
+		Type:    Type_name,
+		Price:   Rate_price,
+	}
+
+	if err := orm.Db.Create(&rate).Error; err != nil {
+		c.JSON(500, gin.H{"error": "Failed to create Rate"})
+		return
+	}
+
+	c.JSON(200, gin.H{"status": "OK"})
+}
+
+func GetRate(c *gin.Context) {
+	userId := c.MustGet("userId").(float64)
+
+	var rate []orm.Rate
+	orm.Db.Where("user_id = ?", userId).Find(&rate)
+	c.JSON(http.StatusOK, gin.H{"status": "ok", "message": "User Read Success", "userRate": rate})
 }

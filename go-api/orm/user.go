@@ -14,7 +14,7 @@ type User struct {
 	Img_profile string
 	Role        string
 	Detail      string
-	Rate        string
 	Posts       []Post  `gorm:"foreignKey:User_ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Contacts    Contact `gorm:"foreignKey:User_ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Rate        Rate    `gorm:"foreignKey:User_ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
