@@ -6,6 +6,7 @@ import * as ImagePicker from "expo-image-picker";
 import Swiper from "react-native-swiper";
 import moment from "moment";
 import styles from "./styles";
+import { useRoute } from "@react-navigation/native";
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
@@ -25,14 +26,13 @@ const PhotoDetailPost = ({ navigation }) => {
   const [post, setPost] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [profileImage, setProfileImage] = useState(null);
-  const [selectedDropdown, setSelectedDropdown] = useState(null);
+  const [userVisitors, setUserVisitors] = useState({});
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const route = useRoute();
+  const { userId } = route.params;
+  
+  const fetchUserVisitors = async () => {
 
-  const handleDropdownToggle = (index) => {
-    setSelectedDropdown(selectedDropdown === index ? null : index); // เปิด/ปิดเมนู
-  };
-
-  const fetchAllUser = async () => {
     try {
       const token = await AsyncStorage.getItem("@token");
       if (!token) {
@@ -41,41 +41,7 @@ const PhotoDetailPost = ({ navigation }) => {
       }
 
       const response = await fetch(
-        "http://" + app_var.api_host + "/users/get_all_user",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const data = await response.json();
-      if (data.status === "ok") {
-        setUserAll(data.userId);
-        // console.log(data.userId[0].Img_profile);
-      } else {
-        alert("Failed to fetch user data");
-      }
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-      alert("Error fetching user data");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchAllPost = async () => {
-    try {
-      const token = await AsyncStorage.getItem("@token");
-      if (!token) {
-        alert("Token not found. Please log in again.");
-        return;
-      }
-
-      const response = await fetch(
-        "http://" + app_var.api_host + "/users/get_post_info",
+        `http://${app_var.api_host}/users/get_post_visitors?userId=${encodeURIComponent(userId)}`,
         {
           method: "GET",
           headers: {
@@ -87,8 +53,8 @@ const PhotoDetailPost = ({ navigation }) => {
 
       const data = await response.json();
       if (data.status === "OK") {
-        setPost(data.post);
-        console.log(post);
+        setUserVisitors(data.user);
+        setPost(data.posts);
       } else {
         alert("Failed to fetch user data");
       }
@@ -99,6 +65,7 @@ const PhotoDetailPost = ({ navigation }) => {
       setIsLoading(false);
     }
   };
+  const ImageProfile = "";
 
   const [refreshing, setRefreshing] = useState(false); // Declare refreshing state
   const fetchUser = async () => {
@@ -123,6 +90,7 @@ const PhotoDetailPost = ({ navigation }) => {
       const data = await response.json();
       if (data.status === "ok") {
         setUser(data.userId);
+        // console.log("User Dataaa:", user); 
       } else {
         alert("Failed to fetch user data");
       }
@@ -134,72 +102,13 @@ const PhotoDetailPost = ({ navigation }) => {
     }
   };
   useEffect(() => {
+    console.log("Received userId:", userId);
     fetchUser();
-    fetchAllUser();
-    fetchAllPost();
+    fetchUserVisitors();
   }, []);
 
   const [selectedMenu, setSelectedMenu] = useState("หน้าหลัก"); // เก็บสถานะของเมนูที่เลือก
-
-  const PostUser = [
-    {
-      Img_profile: "https://via.placeholder.com/45",
-      Fullname: "Test User",
-      Date: moment().format("DD/MM/YYYY"),
-      Img_Post: ["https://via.placeholder.com/200", "https://via.placeholder.com/200"],
-      Detail: "This is a test post",
-      PostId: "1",
-    },
-  ];
   
-
-  const DeletePost = async (post_id) => {
-    Alert.alert("ระบบ", "ต้องการลบโพสต์หรือไม่", [
-      {
-        text: "ยกเลิก",
-        onPress: () => {
-          return
-        },
-      },
-      {
-        text: "ตกลง",
-        onPress: async () => {
-          try {
-            const token = await AsyncStorage.getItem("@token");
-            if (!token) {
-              alert("Token not found. Please log in again.");
-              return;
-            }
-
-            // กำหนด URL ที่ส่ง parameter keyword ไปกับ GET request
-            const response = await fetch(
-              "http://" +
-              app_var.api_host +
-              "/users/delete_post?postId=" +
-              encodeURIComponent(post_id),
-              {
-                method: "DELETE",
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              }
-            );
-
-            const data = await response.json();
-            console.log(data.status)
-            navigation.reset({
-              index: 0,
-              routes: [{ name: "PhotoProfile" }],
-            });
-          } catch (error) {
-            console.error("Error:", error);
-            alert("An error occurred while searching.");
-          }
-        },
-      },
-    ]);
-    console.log(post_id)
-  }
 
   const PhotoIdex = () => {
     navigation.navigate("PhotoIndex");
@@ -220,14 +129,6 @@ const PhotoDetailPost = ({ navigation }) => {
   const PhotoPost = () => {
     navigation.navigate("PhotoPost");
   };
-
-  const images = [
-    { uri: require("../assets/fb.png") },
-    { uri: require("../assets/photographer/kasut buruk.png") },
-    { uri: require("../assets/photographer/mee suhaimi photo.jpg") },
-    { uri: require("../assets/photographer/miniphotographer.jpg") },
-    { uri: require("../assets/photographer/hilmee photographer.jpg") },
-  ];
 
   const toggleDropdown = () => {
     setIsDropdownVisible(!isDropdownVisible);
@@ -254,6 +155,71 @@ const PhotoDetailPost = ({ navigation }) => {
     }
   }
 
+  const PostUser = [];
+  
+    const renderContent = () => {
+      post.forEach((item) => {
+        PostUser.push({
+          PostId: item.post_id,
+          Fullname: userVisitors.fullname,
+          Img_profile: userVisitors.img_profile,
+          Detail: item.post_detail,
+          Date: moment(item.post_date).format("D-M-YYYY HH:mm"),
+          Img_Post: item.images.map((image) => ({
+            url: image.url,
+            img_id: image.image_id
+          })),
+        });
+      });
+      console.log("asdasdasd", post.images)
+      
+      if (PostUser.length > 0) {
+        return (
+          PostUser.map((user, i) => (
+            <View key={i} style={stylesIn.item}>
+              <View style={stylesIn.profile_header}>
+                <Image
+                  source={{
+                    uri: user.Img_profile,
+                  }}
+                  style={stylesIn.profile_post}
+                />
+                <View>
+                  <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+                    {user.Fullname}
+                  </Text>
+                  <Text style={{ fontSize: 10, color: "#888888" }}>
+                    {user.Date}
+                  </Text>
+                </View>
+              </View>
+              <Swiper
+                style={stylesIn.swiper}
+                showsPagination={true}
+                loop={false}
+              >
+                {user.Img_Post.map((img, index) => (
+                  <Image
+                    key={index}
+                    source={{ uri: img.url }}
+                    style={stylesIn.image_body}
+                  />
+                ))}
+              </Swiper>
+              <Text style={stylesIn.name_body}>
+                {user.Detail || "No Details Available"}
+              </Text>
+            </View>
+          ))
+        )
+      } else {
+        (
+          <Text style={{ textAlign: "center", marginTop: 20 }}>
+            ไม่มีโพสต์
+          </Text>
+        )
+      }
+    };
   return (
     <SafeAreaView style={styles.container}>
       {/* Navbar */}
@@ -317,68 +283,7 @@ const PhotoDetailPost = ({ navigation }) => {
       </View>
 
       <View style={stylesIn.body}>
-        {PostUser.map((user, i) => (
-          <View key={i} style={stylesIn.item}>
-            <View style={stylesIn.profile_header}>
-              <Image
-                source={{
-                  uri: user.Img_profile,
-                }}
-                style={stylesIn.profile_post}
-              />
-              <View>
-                <Text style={{ fontSize: 16, fontWeight: "bold" }}>
-                  {user.Fullname}
-                </Text>
-                <Text style={{ fontSize: 10, color: "#888888" }}>
-                  {user.Date}
-                </Text>
-              </View>
-            </View>
-
-            <View style={stylesIn.dropdownMenu}>
-              <TouchableOpacity
-                onPress={() => handleDropdownToggle(i)}
-              >
-                <Text style={stylesIn.dropdownIcon}>⋯</Text>
-              </TouchableOpacity>
-              {selectedDropdown === i && (
-                <View style={stylesIn.dropdownPost}>
-                  <TouchableOpacity onPress={() => (i)}>
-                    <Text style={stylesIn.dropdownItem}>Edit</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => DeletePost(user.PostId)}>
-                    <Text
-                      style={[
-                        stylesIn.dropdownItem,
-                        stylesIn.dropdownItemLast,
-                      ]}
-                    >
-                      Delete
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-            </View>
-
-            <Swiper
-              style={styles.swiper}
-              showsPagination={true}
-              loop={false}
-            >
-              {user.Img_Post.map((img, index) => (
-                <Image
-                  key={index}
-                  source={{ uri: img }}
-                  style={styles.image_body}
-                />
-              ))}
-            </Swiper>
-            <Text style={styles.name_body}>
-              {user.Detail || "No Fullname Available"}
-            </Text>
-          </View>
-        ))}
+        {renderContent()}
       </View>
 
       {/* เมนูด้านล่าง */}
