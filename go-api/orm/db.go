@@ -17,7 +17,6 @@ func InitDB() {
 		panic("failed to connect database")
 	}
 
-	// Migrate the schema
 	Db.AutoMigrate(&User{})
 	Db.AutoMigrate(&Image{})
 	Db.AutoMigrate(&Post{})

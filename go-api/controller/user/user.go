@@ -130,7 +130,6 @@ func Search(c *gin.Context) {
 }
 
 func GetUserInfo_Visitors(c *gin.Context) {
-	// เปลี่ยนจาก DefaultPostForm เป็น DefaultQuery เพื่อดึงข้อมูลจาก query parameters
 	userId := c.DefaultQuery("userId", "")
 	if userId == "" {
 		c.JSON(400, gin.H{"error": "Missing or invalid userId"})
@@ -148,6 +147,12 @@ func GetUserInfo_Visitors(c *gin.Context) {
 	}
 
 	user.Img_profile = fmt.Sprintf("%s%s", imageHostProfile, user.Img_profile)
+
+	var contact []orm.Contact
+	orm.Db.Where("user_id = ?", userId).Find(&contact)
+
+	var rate []orm.Rate
+	orm.Db.Where("user_id = ?", userId).Find(&rate)
 
 	var rows_get_user_post []struct {
 		PostID     uint    `json:"post_id"`
@@ -209,7 +214,9 @@ func GetUserInfo_Visitors(c *gin.Context) {
 			"img_profile": user.Img_profile,
 			"email":       user.Email,
 		},
-		"posts": result,
+		"userContact": contact,
+		"userRate":    rate,
+		"posts":       result,
 	})
 }
 
