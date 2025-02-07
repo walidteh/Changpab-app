@@ -347,6 +347,7 @@ const DeleteContact = async (contactId) => {
         setIsLoading(false);
     }
   }
+  
 
   const fetchRate = async () => {
     try {
@@ -367,6 +368,7 @@ const DeleteContact = async (contactId) => {
       if (response.ok) {
         if (Array.isArray(data.userRate)) {
           setRateInfo(data.userRate); 
+          console.log("Rate",data.userRate)
         } else {
           console.error("userRate is not an array:", data.userRate);
           setRateInfo([]); 
@@ -598,7 +600,7 @@ const DeleteContact = async (contactId) => {
 {/* *********************************************************************************************************************************************************************** */}
           </View>
           <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-            <Text style={{ fontSize: 14, marginBottom: 15 }}>เรทราคา</Text>
+            <Text style={{ fontSize: 14, marginBottom: 10 }}>เรทราคา</Text>
             <TouchableOpacity onPress={() => {
               setRate(!rate);
               setIsEditingRate(!isEditingRate);
@@ -648,32 +650,29 @@ const DeleteContact = async (contactId) => {
         </View>
       )}
 
-
-
-
-
-
-
-
-
-
-    {/* <View style={styles.contact}>
-          {isLoading ? (
-            <ActivityIndicator size="large" color="blue" /> // แสดงโหลดถ้ายังโหลดอยู่
-          ) : (
-            (rate).map((item, index) => (
-              <View key={index} style={styles.contactContainer}>
-                <TouchableOpacity 
-                  style={styles.contact} 
-                  onPress={() => openlink(item.contact_link)}
-                >
-                  <Text style={styles.contactText}>{item.Type}</Text>
-                  <Text style={styles.contactText}>{item.Price}</Text>
+    <View>
+          {rateInfo.map((item, index) => (
+            <View key={rate.id} style={styles.rateContainer}>
+              <Text style={styles.textcontact}>{item.Type}    {item.Price}</Text>
+              {isEditingRate && (
+              <View style={styles.contactActions}>
+                <TouchableOpacity onPress={() => {
+                  setEditContactId(item.id);  
+                  setTypeName(item.Type);  
+                  setRatePrice(item.Price);  
+                  setIsEditingContactItem(true);
+                }}>
+                  <FontAwesomeIcon icon={faEdit} size={16} color="#1E1E1E" />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => DeleteContact(item.id)}> 
+                  <FontAwesomeIcon icon={faTrash} size={16} color="#8F3F3F" />
                 </TouchableOpacity>
               </View>
-            ))
-          )}
-        </View> */}
+            )}
+            </View>
+          ))}
+        </View>
+
 
 
           
@@ -1098,6 +1097,14 @@ const styles = StyleSheet.create({
   },
   container: {
     // padding: 20,
+  },
+  rateContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 5,
+    // borderBottomWidth: 1,
+    // borderBottomColor: "#ddd",
   },
   header: {
     flexDirection: "row",

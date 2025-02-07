@@ -37,9 +37,16 @@ const PhotoDetailUser = ({ navigation }) => {
   const [user, setUser] = useState({});
   const [userVisitors, setUserVisitors] = useState({});
   const [post, setPost] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [profileImage, setProfileImage] = useState(null);
+  const HostInfo = [
+    { platform: "facebook", icon: faFacebook, color: "#1877f2" },
+    { platform: "instagram", icon: faInstagram, color: "#f56949" },
+    { platform: "phone", icon: faPhone, color: "#34A853" },
+    { platform: "email", icon: faEnvelope, color: "#d44638" },
+    { platform: "default", icon: faEnvelope, color: "#000000" },
+  ];
+  const [contactInfo, setContactInfo] = useState([]);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const [rateInfo, setRateInfo] = useState([]);
   const route = useRoute();
   const { userId } = route.params;
 
@@ -65,7 +72,7 @@ const PhotoDetailUser = ({ navigation }) => {
       const data = await response.json();
       if (data.status === "ok") {
         setUser(data.userId);
-        // console.log("User Dataaa:", user); 
+        // console.log("User Dataaa:", user);
       } else {
         alert("Failed to fetch user data");
       }
@@ -78,12 +85,6 @@ const PhotoDetailUser = ({ navigation }) => {
   };
 
   const fetchUserVisitors = async () => {
-    // ImageProfile = await AsyncStorage.getItem("@uesr_img_profile");
-    //   if (!ImageProfile) {
-    //     alert("Token not found. Please log in again.");
-    //   }
-    //   console.log(ImageProfile)
-
     try {
       const token = await AsyncStorage.getItem("@token");
       if (!token) {
@@ -92,7 +93,9 @@ const PhotoDetailUser = ({ navigation }) => {
       }
 
       const response = await fetch(
-        `http://${app_var.api_host}/users/get_post_visitors?userId=${encodeURIComponent(userId)}`,
+        `http://${
+          app_var.api_host
+        }/users/get_post_visitors?userId=${encodeURIComponent(userId)}`,
         {
           method: "GET",
           headers: {
@@ -106,6 +109,8 @@ const PhotoDetailUser = ({ navigation }) => {
       if (data.status === "OK") {
         setUserVisitors(data.user);
         setPost(data.posts);
+        setRateInfo(data.userRate);
+        setContactInfo(data.userContact);
       } else {
         alert("Failed to fetch user data");
       }
@@ -117,6 +122,8 @@ const PhotoDetailUser = ({ navigation }) => {
     }
   };
 
+  var contactData = [];
+
   const ImageProfile = "";
 
   useEffect(() => {
@@ -124,35 +131,6 @@ const PhotoDetailUser = ({ navigation }) => {
     fetchUserVisitors();
     fetchUser();
   }, []);
-
-  const handleImagePicker = async () => {
-    // ขออนุญาตเข้าถึง Media Library
-    const permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    if (!permissionResult.granted) {
-      Alert.alert(
-        "Permission Denied",
-        "You need to allow access to your gallery to upload an image."
-      );
-      return;
-    }
-
-    // เปิดแกลเลอรีเพื่อเลือกภาพ
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1], // ตัดรูปให้เป็นสี่เหลี่ยมจัตุรัส
-      quality: 1, // คุณภาพของรูป (0 ถึง 1)
-    });
-
-    if (!result.canceled) {
-      const selectedImage = result.assets[0].uri; // URI ของรูปที่เลือก
-      setProfileImage(selectedImage); // เก็บ URI ของรูปที่เลือกไว้ใน state
-      await SaveImageProfile(selectedImage); // บันทึกภาพที่เลือกทันที
-    }
-  };
-
 
   const PhotoIdex = () => {
     navigation.navigate("PhotoIndex");
@@ -197,7 +175,7 @@ const PhotoDetailUser = ({ navigation }) => {
     } catch (error) {
       console.error("Error clearing token:", error);
     }
-  }
+  };
 
   const PostUser = [];
 
@@ -211,56 +189,63 @@ const PhotoDetailUser = ({ navigation }) => {
         Date: moment(item.post_date).format("D-M-YYYY HH:mm"),
         Img_Post: item.images.map((image) => ({
           url: image.url,
-          img_id: image.image_id
+          img_id: image.image_id,
         })),
       });
     });
-    console.log(PostUser[0])
+    contactInfo.forEach((item) => {
+      var temp = {};
+      for (let i of HostInfo) {
+        if (i.platform == item.Contact_host) {
+          temp = i;
+        }
+      }
+      if (temp !== undefined) {
+        contactData.push({
+          id: item.ID,
+          contact_name: item.Contact_name,
+          contact_link: item.Contact_link,
+          contact_icon: temp.icon,
+          contact_color: temp.color,
+        });
+      }
+    });
+    console.log(PostUser[0]);
     if (PostUser.length > 0) {
-      return (
-        PostUser.map((user, i) => (
-          <View key={i} style={stylesIn.item}>
-            <View style={stylesIn.profile_header}>
-              <Image
-                source={{
-                  uri: user.Img_profile,
-                }}
-                style={stylesIn.profile_post}
-              />
-              <View>
-                <Text style={{ fontSize: 16, fontWeight: "bold" }}>
-                  {user.Fullname}
-                </Text>
-                <Text style={{ fontSize: 10, color: "#888888" }}>
-                  {user.Date}
-                </Text>
-              </View>
+      return PostUser.map((user, i) => (
+        <View key={i} style={stylesIn.item}>
+          <View style={stylesIn.profile_header}>
+            <Image
+              source={{
+                uri: user.Img_profile,
+              }}
+              style={stylesIn.profile_post}
+            />
+            <View>
+              <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+                {user.Fullname}
+              </Text>
+              <Text style={{ fontSize: 10, color: "#888888" }}>
+                {user.Date}
+              </Text>
             </View>
-            <Swiper
-              style={stylesIn.swiper}
-              showsPagination={true}
-              loop={false}
-            >
-              {user.Img_Post.map((img, index) => (
-                <Image
-                  key={index}
-                  source={{ uri: img.url }}
-                  style={stylesIn.image_body}
-                />
-              ))}
-            </Swiper>
-            <Text style={stylesIn.name_body}>
-              {user.Detail || "No Details Available"}
-            </Text>
           </View>
-        ))
-      )
+          <Swiper style={stylesIn.swiper} showsPagination={true} loop={false}>
+            {user.Img_Post.map((img, index) => (
+              <Image
+                key={index}
+                source={{ uri: img.url }}
+                style={stylesIn.image_body}
+              />
+            ))}
+          </Swiper>
+          <Text style={stylesIn.name_body}>
+            {user.Detail || "No Details Available"}
+          </Text>
+        </View>
+      ));
     } else {
-      (
-        <Text style={{ textAlign: "center", marginTop: 20 }}>
-          ไม่มีโพสต์
-        </Text>
-      )
+      <Text style={{ textAlign: "center", marginTop: 20 }}>ไม่มีโพสต์</Text>;
     }
   };
 
@@ -285,7 +270,7 @@ const PhotoDetailUser = ({ navigation }) => {
           {/* แสดง dropdown */}
           {isDropdownVisible && (
             <View style={styles.dropdown}>
-              <View style={{ flexDirection: 'row' }}>
+              <View style={{ flexDirection: "row" }}>
                 <Image
                   source={{
                     uri: user.Img_profile,
@@ -305,7 +290,7 @@ const PhotoDetailUser = ({ navigation }) => {
                   </Text>
                 </View>
               </View>
-              <View style={{ alignItems: 'center', marginTop: 15 }}>
+              <View style={{ alignItems: "center", marginTop: 15 }}>
                 <TouchableOpacity style={styles.button} onPress={handleLogout}>
                   <Text style={styles.buttonText}>Logout</Text>
                 </TouchableOpacity>
@@ -340,9 +325,7 @@ const PhotoDetailUser = ({ navigation }) => {
           {/* ชื่อ และ เมนู */}
           <View style={stylesIn.info}>
             <View style={stylesIn.info_top}>
-              <Text style={stylesIn.name}>
-                {userVisitors.fullname}
-              </Text>
+              <Text style={stylesIn.name}>{userVisitors.fullname}</Text>
             </View>
           </View>
 
@@ -356,46 +339,41 @@ const PhotoDetailUser = ({ navigation }) => {
               <Text style={{ fontSize: 14, marginBottom: 15 }}>
                 ช่องทางการติดต่อ
               </Text>
-              <TouchableOpacity style={stylesIn.contact}>
-                <FontAwesomeIcon icon={faFacebook} size={24} color="#1877f2" />
-                <Text style={stylesIn.textcontact}>Facebook</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={stylesIn.contact}>
-                <FontAwesomeIcon
-                  icon={faFontAwesome}
-                  size={24}
-                  color="#ffa500"
-                />
-                <Text style={stylesIn.textcontact}>Page Facebook</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={stylesIn.contact}>
-                <FontAwesomeIcon icon={faInstagram} size={24} color="#f56949" />
-                <Text style={stylesIn.textcontact}>Instagram</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={stylesIn.contact}>
-                <FontAwesomeIcon icon={faPhone} size={24} color="#34A853" />
-                <Text style={stylesIn.textcontact}>Phone Number</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={stylesIn.contact}>
-                <FontAwesomeIcon icon={faEnvelope} size={24} color="#d44638" />
-                <Text style={stylesIn.textcontact}>E-mail</Text>
-              </TouchableOpacity>
+              <View style={{ paddingTop: 10 }}>
+                {contactData.map((contact) => (
+                  <View key={contact.id} style={styles.contactContainer}>
+                    <TouchableOpacity
+                      style={styles.contact}
+                      onPress={() => openlink(contact.contact_link)}
+                    >
+                      <FontAwesomeIcon
+                        icon={contact.contact_icon}
+                        size={24}
+                        color={contact.contact_color}
+                      />
+                      <Text style={styles.contactText}>
+                        {contact.contact_name}
+                      </Text>
+                    </TouchableOpacity>
 
-              <Text style={{ fontSize: 14, marginBottom: 15 }}>เรทราคา</Text>
-              <View style={stylesIn.contact}>
-                <Text style={stylesIn.textcontact}>ปริญญา</Text>
-                <Text style={stylesIn.textcontact}>3000 - 5000</Text>
+                  </View>
+                ))}
               </View>
-              <View style={stylesIn.contact}>
-                <Text style={stylesIn.textcontact}>งานแต่ง</Text>
-                <Text style={stylesIn.textcontact}>3000 - 8000</Text>
+
+              <Text style={{ fontSize: 14, marginBottom: 10 }}>เรทราคา</Text>
+              <View style={stylesIn.rate}>
+                {rateInfo.map((item, index) => (
+                  <View style={{ paddingVertical: 6 }}>
+                    <Text style={styles.textrate}>
+                      {item.Type} {item.Price}
+                    </Text>
+                  </View>
+                ))}
               </View>
             </View>
 
             <Text style={stylesIn.titlecontent}>ผลงาน</Text>
-            <View style={stylesIn.body}>
-              {renderContent()}
-            </View>
+            <View style={stylesIn.body}>{renderContent()}</View>
           </View>
         </View>
       </ScrollView>
@@ -497,8 +475,16 @@ const stylesIn = StyleSheet.create({
     marginBottom: 10,
     paddingHorizontal: 10,
   },
+  rate: {
+    marginBottom: 10,
+    paddingHorizontal: 10,
+  },
   textcontact: {
     paddingHorizontal: 10,
+  },
+  textrate: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
   },
   caption: {
     marginBottom: 20,

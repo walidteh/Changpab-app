@@ -1,7 +1,7 @@
 import { View, Text, Image, StyleSheet } from "react-native";
 import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import app_var from "./public";
+import app_var from "../public";
 import { useRoute } from "@react-navigation/native";
 const route = useRoute();
 const { userId } = route.params;
