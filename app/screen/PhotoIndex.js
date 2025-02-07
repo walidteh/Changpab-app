@@ -170,10 +170,6 @@ const PhotoIndex = ({ navigation }) => {
     navigation.navigate("PhotoPost");
   };
 
-  const DetailPost = () => {
-    navigation.navigate("PhotoDetailPost");
-  };
-
   const DetailUser = () => {
     navigation.navigate("PhotoDetailUser");
   };
@@ -376,7 +372,9 @@ const PhotoIndex = ({ navigation }) => {
                 <TouchableOpacity
                   key={i}
                   style={styles.item}
-                  onPress={DetailPost}
+                  onPress={() => {
+                    navigation.navigate("PhotoDetailPost", { userId: user.ID })
+                  }}
                 >
                   <Image
                     source={{ uri: post.image_url }}
