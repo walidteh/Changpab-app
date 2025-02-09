@@ -24,6 +24,8 @@ import {
   faInstagram,
 } from "@fortawesome/free-brands-svg-icons";
 
+import { useRoute } from "@react-navigation/native";
+
 
 const PhotoProfileEdit = ({ navigation }) => {
   const [user, setUser] = useState({});
@@ -33,6 +35,14 @@ const PhotoProfileEdit = ({ navigation }) => {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [fullname, setFullname] = useState("");
   const [lastname, setLastname] = useState("");
+  const [textdetail, setTextDetail] = useState(""); 
+  const [textfullname, setTextFullname] = useState(""); 
+  const [textLastname, setTextLastname] = useState(""); 
+
+  const route = useRoute();
+    const { fullnameedit } = route.params;
+    const { lastnameedit } = route.params;
+    const { detailedit } = route.params;
 
   const PhotoIdex = () => {
     navigation.navigate("PhotoIndex");
@@ -170,6 +180,9 @@ const PhotoProfileEdit = ({ navigation }) => {
   useEffect(() => {
     fetchUser();
     fetchAllUser();
+    setTextDetail(detailedit);
+    setTextFullname(fullnameedit);
+    setTextLastname(lastnameedit);
   }, []);
 
   const handleImagePicker = async () => {
@@ -298,6 +311,14 @@ const PhotoProfileEdit = ({ navigation }) => {
     }
   }
 
+  // const handleTextChange = (input) => {
+  //   if (input.length > maxChars) return; // ถ้าเกิน maxChars ไม่ต้องทำอะไร
+  
+  //   const words = input.trim().split(/\s+/); // ตัดช่องว่างหัวท้าย & แยกคำ
+  //   setTextFullname(input);
+  // };
+  
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Navbar */}
@@ -376,16 +397,18 @@ const PhotoProfileEdit = ({ navigation }) => {
             <TextInput
               style={stylesIn.input}
               placeholder="กรุณาป้อนชื่อ"
-              value={fullname}
-              onChangeText={setFullname}
+              value={textfullname}
+              // onChangeText={handleTextChange}
               autoCorrect={false}
               autoCapitalize="none"
+              multiline
+              textAlignVertical="top"
             />
             <Text style={stylesIn.intoinput}>นามสกุล</Text>
             <TextInput
               style={stylesIn.input}
               placeholder="กรุณาป้อนนามสกุล"
-              value={lastname}
+              value={textLastname}
               onChangeText={setLastname}
               autoCorrect={false}
               autoCapitalize="none"
@@ -394,7 +417,7 @@ const PhotoProfileEdit = ({ navigation }) => {
             <TextInput
               style={stylesIn.inputBio}
               placeholder="เขียนอะไรสักหน่อย"
-              // value={text}
+              value={textdetail}
               // onChangeText={handleTextChange}
               autoCorrect={false}
               autoCapitalize="none"

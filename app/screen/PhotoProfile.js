@@ -47,12 +47,6 @@ const PhotoProfile = ({ navigation }) => {
   const [profileImage, setProfileImage] = useState(null);
   const [selectedDropdown, setSelectedDropdown] = useState(null);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-  const [contact, setContact] = useState(false);
-  const [rate, setRate] = useState(false);
-  const [contactName, setContactName] = useState("");
-  const [contactLink, setContactLink] = useState("");
-  const [typename, setTypeName] = useState("");
-  const [rateprice, setRatePrice] = useState("");
   const HostInfo = [
     {platform : "facebook", icon: faFacebook, color: "#1877f2"},
     {platform : "instagram", icon: faInstagram, color: "#f56949"},
@@ -60,17 +54,27 @@ const PhotoProfile = ({ navigation }) => {
     {platform : "email", icon: faEnvelope, color: "#d44638"},
     {platform : "default", icon: faEnvelope, color: "#000000"}
   ];
+  
+  
+  const [contact, setContact] = useState(false);
+  const [contactName, setContactName] = useState("");
+  const [contactLink, setContactLink] = useState("");
   const [contactInfo, setContactInfo] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingContactItem, setIsEditingContactItem] = useState(false);
   const [EditContactId, setEditContactId] = useState(null);
-  const [isEditingRate, setIsEditingRate] = useState(false);
   
+  const [rate, setRate] = useState(false);
+  const [ratetype, setRateType] = useState("");
+  const [rateprice, setRatePrice] = useState("");
   const [rateInfo, setRateInfo] = useState([]);
+  const [isEditingRate, setIsEditingRate] = useState(false);
+  const [isEditingRateItem , setIsEditingRateItem] = useState(false);
+  const [EditRateId, setEditRateId] = useState(null);
 
 
   const handleDropdownToggle = (index) => {
-    setSelectedDropdown(selectedDropdown === index ? null : index); // เปิด/ปิดเมนู
+    setSelectedDropdown(selectedDropdown === index ? null : index); 
   };
 
   const fetchAllUser = async () => {
@@ -95,7 +99,6 @@ const PhotoProfile = ({ navigation }) => {
       const data = await response.json();
       if (data.status === "ok") {
         setUserAll(data.userId);
-        // console.log(data.userId[0].Img_profile);
       } else {
         alert("Failed to fetch user data");
       }
@@ -318,6 +321,147 @@ const DeleteContact = async (contactId) => {
     console.log(contactId);
   };
 
+
+
+  const CreateRate = async (ratetype, rateprice) => {
+    try {
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        alert("Token not found. Please log in again.");
+        return;
+      }
+      if (!ratetype || (!rateprice )) {
+        alert("กรุณากรอกชื่อและลิงก์ให้ครบ");
+        return;
+      }
+      
+      
+      let formData = new FormData();
+      formData.append("Type", ratetype);
+      formData.append("Price", rateprice);
+
+      const response = await fetch(`http://${app_var.api_host}/users/create_rate`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        console.log("บันทึกแล้ว:", data);
+        fetchRate();
+        alert("เพิ่มข้อมูลเรียบร้อย!");
+        setRateType("");
+        setRatePrice("");
+  
+        return data;
+      } else {
+        alert(`เกิดข้อผิดพลาด: ${data.error}`);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+    }
+    
+  };
+
+  const EditRate = async (RateID, ratetype, rateprice) => {
+    console.log("asdasd", RateID)
+    try {
+        const token = await AsyncStorage.getItem("@token");
+        if (!token) {
+            alert("Token not found. Please log in again.");
+            return;
+        }
+
+        if (!ratetype || (!rateprice )) {
+          alert("กรุณากรอกชื่อและลิงก์ให้ครบ");
+          return;
+        }
+
+        let formData = new FormData();
+        formData.append("Type", ratetype);
+        formData.append("Price", rateprice);
+
+        const response = await fetch(
+          "http://" +
+            app_var.api_host +
+            "/users/edit_rate?RateID=" +
+            encodeURIComponent(RateID),
+          {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log("แก้ไขข้อมูลแล้ว:", data);
+            fetchRate();
+            alert("แก้ไขข้อมูลเรียบร้อย!");
+            setRateType("");
+            setRatePrice("");
+            return data;
+        } else {
+            alert(`เกิดข้อผิดพลาด: ${data.error}`);
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+    }
+};
+
+const DeleteRate = async (ID) => {
+    Alert.alert("ระบบ", "ต้องการลบโพสต์หรือไม่", [
+      {
+        text: "ยกเลิก",
+        onPress: () => {
+          return;
+        },
+      },
+      {
+        text: "ตกลง",
+        onPress: async () => {
+          try {
+            const token = await AsyncStorage.getItem("@token");
+            if (!token) {
+              alert("Token not found. Please log in again.");
+              return;
+            }
+            const response = await fetch(
+              "http://" +
+                app_var.api_host +
+                "/users/delete_rate?RateID=" +
+                encodeURIComponent(ID),
+              {
+                method: "DELETE",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+
+            const data = await response.json();
+
+            console.log(data.status);
+            fetchRate();
+          } catch (error) {
+            console.error("Error:", error);
+            alert("An error occurred while searching.");
+          }
+        },
+      },
+    ]);
+    console.log(contactId);
+  };
+
   
   const fetchContact = async () => {
     try {
@@ -447,18 +591,18 @@ const DeleteContact = async (contactId) => {
     console.log(post_id);
   };
 
-
+  
   const openlink = (url) => {
     console.log(url)
-    // Linking.canOpenURL(url)
-    //   .then((supported) => {
-    //     if (supported) {
-    //       Linking.openURL(url);
-    //     } else {
-    //       console.log("ไม่สามารถเปิดลิงก์นี้ได้");
-    //     }
-    //   })
-    //   .catch((err) => console.error("เกิดข้อผิดพลาดในการเปิดลิงก์:", err));
+    Linking.canOpenURL(url)
+      .then((supported) => {
+        if (supported) {
+          Linking.openURL(url);
+        } else {
+          console.log("ไม่สามารถเปิดลิงก์นี้ได้");
+        }
+      })
+      .catch((err) => console.error("เกิดข้อผิดพลาดในการเปิดลิงก์:", err));
   };
 
   
@@ -502,8 +646,7 @@ const DeleteContact = async (contactId) => {
             <Text style={styles.titlecontent}>รายละเอียด</Text>
 
             <View style={styles.detials}>
-              <Text style={styles.caption}>ข้อมูล ประวัตื caption </Text>
-
+              <Text style={styles.caption}>{user.Detail || "ข้อมูล ประวัตื caption"} </Text>
               <View style={styles.container}>
 
 {/* ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- */}
@@ -614,9 +757,9 @@ const DeleteContact = async (contactId) => {
           <TextInput
             placeholder="Type Name"
             style={styles.input}
-            value={typename}
+            value={ratetype}
             onChangeText={(text) => {
-              setTypeName(text);
+              setRateType(text);
             }}
           />
             <TextInput
@@ -626,47 +769,50 @@ const DeleteContact = async (contactId) => {
               onChangeText={setRatePrice}
             />
           <View style={{display: 'flex', flexDirection: 'row', flexGrow: '1', justifyContent: 'space-around', gap: 10}}>
-            {isEditingContactItem &&(<TouchableOpacity style={[styles.saveButton, {flex: 1}]} onPress={() => {
-                setTypeName('');
+            {isEditingRateItem &&(<TouchableOpacity style={[styles.saveButton, {flex: 1}]} onPress={() => {
+                setRateType('');
                 setRatePrice('')
-              setIsEditingContactItem(false);
+                setIsEditingRateItem(false);
               }}>
               <Text style={styles.saveButtonText}>ยกเลิก</Text>
             </TouchableOpacity>)}
             <TouchableOpacity style={[styles.saveButton, {flex: 1}]} onPress={() => {
-              if(isEditingContactItem){
-                // EditContact(EditContactId,contactName, contactLink)
-                setTypeName('');
+              if(isEditingRateItem){
+                EditRate(EditRateId,ratetype, rateprice);
+                setRateType('');
                 setRatePrice('');
                 
               }else {
-                CreateContact(typename, rateprice)
+                CreateRate(ratetype, rateprice)
               }
-              setIsEditingContactItem(false);
+              setIsEditingRateItem(false);
               }}>
-              <Text style={styles.saveButtonText}>{isEditingContactItem ? "แก้ไข" : "บันทึก"}</Text>
+              <Text style={styles.saveButtonText}>{isEditingRateItem ? "แก้ไข" : "บันทึก"}</Text>
             </TouchableOpacity>
           </View>
         </View>
       )}
 
-    <View>
-          {rateInfo.map((item, index) => (
-            <View key={rate.id} style={styles.rateContainer}>
+      <View>
+          {rateInfo.map((item, i) => (
+            <View key={i} style={styles.rateContainer}>
               <Text style={styles.textcontact}>{item.Type}    {item.Price}</Text>
               {isEditingRate && (
               <View style={styles.contactActions}>
                 <TouchableOpacity onPress={() => {
-                  setEditContactId(item.id);  
-                  setTypeName(item.Type);  
+                  setEditRateId(item.ID);  
+                  setRateType(item.Type);  
                   setRatePrice(item.Price);  
-                  setIsEditingContactItem(true);
+                  setIsEditingRateItem(true);
                 }}>
                   <FontAwesomeIcon icon={faEdit} size={16} color="#1E1E1E" />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => DeleteContact(item.id)}> 
+                <TouchableOpacity onPress={() => {
+                  DeleteRate(item.ID);
+                }}> 
                   <FontAwesomeIcon icon={faTrash} size={16} color="#8F3F3F" />
                 </TouchableOpacity>
+
               </View>
             )}
             </View>
@@ -1025,9 +1171,21 @@ const DeleteContact = async (contactId) => {
                   user.Lastname || ""
                 }`.trim()}
               </Text>
-              <TouchableOpacity style={styles.btt_info} onPress={ProfileEdit}>
+
+              <TouchableOpacity
+                style={styles.btt_info}
+                onPress={() => {
+                  navigation.navigate("PhotoProfileEdit", {
+                    fullnameedit: user.Fullname,
+                    lastnameedit: user.Lastname,
+                    detailedit: user.Detail,
+                  });
+                }}
+              >
                 <Text style={{ fontSize: 12 }}>แก้ไขข้อมูล</Text>
               </TouchableOpacity>
+
+
             </View>
 
             <View style={styles.menuInfo}>
