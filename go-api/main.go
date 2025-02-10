@@ -46,11 +46,12 @@ func main() {
 	authorized.GET("/get_contact", UserController.GetContact)
 	authorized.PUT("/edit_contact", UserController.UpdateContact)
 	authorized.DELETE("/delete_contact", UserController.DeleteContact)
-	authorized.POST("/edit_name", UserController.UpdateName)
+	authorized.POST("/edit_user", UserController.UpdateUser)
 	authorized.POST("/create_rate", UserController.CreateRate)
 	authorized.GET("/get_rate", UserController.GetRate)
 	authorized.PUT("/edit_rate", UserController.UpdateRate)
 	authorized.DELETE("/delete_rate", UserController.DeleteRate)
+	authorized.POST("/create_detail", UserController.InsertDetail)
 
 	device_host := os.Getenv("DEVICE_HOST")
 

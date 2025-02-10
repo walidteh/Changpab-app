@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func UpdateName(c *gin.Context) {
+func UpdateUser(c *gin.Context) {
 	userId := c.MustGet("userId").(float64)
 
 	fullname := c.DefaultPostForm("fullname", "")
@@ -217,4 +217,19 @@ func GetUserInfo_Visitors(c *gin.Context) {
 		"userRate":    rate,
 		"posts":       result,
 	})
+}
+
+func InsertDetail(c *gin.Context) {
+	detail := c.DefaultPostForm("Detail", "")
+
+	userDetail := orm.User{
+		Detail: detail,
+	}
+
+	if err := orm.Db.Create(&userDetail).Error; err != nil {
+		c.JSON(500, gin.H{"error": "Failed to create Detail"})
+		return
+	}
+
+	c.JSON(200, gin.H{"status": "OK"})
 }
