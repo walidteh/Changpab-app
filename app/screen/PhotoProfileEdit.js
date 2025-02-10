@@ -38,6 +38,7 @@ const PhotoProfileEdit = ({ navigation }) => {
   const [textdetail, setTextDetail] = useState(""); 
   const [textfullname, setTextFullname] = useState(""); 
   const [textLastname, setTextLastname] = useState(""); 
+  const maxChars = 200;
 
   const route = useRoute();
     const { fullnameedit } = route.params;
@@ -142,8 +143,8 @@ const PhotoProfileEdit = ({ navigation }) => {
       }
 
       let formData = new FormData();
-      formData.append("fullname", fullname);
-      formData.append("lastname", lastname);
+      formData.append("fullname", textfullname);
+      formData.append("lastname", textLastname);
 
       const response = await fetch(
         "http://" + app_var.api_host + "/users/edit_name",
@@ -311,12 +312,24 @@ const PhotoProfileEdit = ({ navigation }) => {
     }
   }
 
-  // const handleTextChange = (input) => {
-  //   if (input.length > maxChars) return; // ถ้าเกิน maxChars ไม่ต้องทำอะไร
-  
-  //   const words = input.trim().split(/\s+/); // ตัดช่องว่างหัวท้าย & แยกคำ
-  //   setTextFullname(input);
-  // };
+  const FullName = (input) => {
+    const words = input.split(/\s+/).filter(Boolean);
+    if (input.length <= maxChars) {
+      setTextFullname(input);
+    }
+  };
+  const LastName = (input) => {
+    const words = input.split(/\s+/).filter(Boolean);
+    if (input.length <= maxChars) {
+      setTextLastname(input);
+    }
+  };
+  const DetailEdit = (input) => {
+    const words = input.split(/\s+/).filter(Boolean);
+    if (input.length <= maxChars) {
+      setTextDetail(input);
+    }
+  };
   
 
   return (
@@ -398,7 +411,7 @@ const PhotoProfileEdit = ({ navigation }) => {
               style={stylesIn.input}
               placeholder="กรุณาป้อนชื่อ"
               value={textfullname}
-              // onChangeText={handleTextChange}
+              onChangeText={FullName}
               autoCorrect={false}
               autoCapitalize="none"
               multiline
@@ -409,7 +422,7 @@ const PhotoProfileEdit = ({ navigation }) => {
               style={stylesIn.input}
               placeholder="กรุณาป้อนนามสกุล"
               value={textLastname}
-              onChangeText={setLastname}
+              onChangeText={LastName}
               autoCorrect={false}
               autoCapitalize="none"
             />
@@ -418,7 +431,7 @@ const PhotoProfileEdit = ({ navigation }) => {
               style={stylesIn.inputBio}
               placeholder="เขียนอะไรสักหน่อย"
               value={textdetail}
-              // onChangeText={handleTextChange}
+              onChangeText={DetailEdit}
               autoCorrect={false}
               autoCapitalize="none"
               multiline
