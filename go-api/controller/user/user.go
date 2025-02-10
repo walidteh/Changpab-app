@@ -212,6 +212,7 @@ func GetUserInfo_Visitors(c *gin.Context) {
 			"fullname":    user.Fullname,
 			"img_profile": user.Img_profile,
 			"email":       user.Email,
+			"detail":      user.Detail,
 		},
 		"userContact": contact,
 		"userRate":    rate,
@@ -219,17 +220,26 @@ func GetUserInfo_Visitors(c *gin.Context) {
 	})
 }
 
-func InsertDetail(c *gin.Context) {
+func UpdateDetail(c *gin.Context) {
+	userId := c.MustGet("userId").(float64)
 	detail := c.DefaultPostForm("Detail", "")
 
-	userDetail := orm.User{
-		Detail: detail,
-	}
-
-	if err := orm.Db.Create(&userDetail).Error; err != nil {
-		c.JSON(500, gin.H{"error": "Failed to create Detail"})
+	if detail == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Detail is required"})
 		return
 	}
 
-	c.JSON(200, gin.H{"status": "OK"})
+	var user orm.User
+	if err := orm.Db.First(&user, userId).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "User not found"})
+		return
+	}
+
+	user.Detail = detail
+	if err := orm.Db.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Update failed"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "ok", "user": user})
 }

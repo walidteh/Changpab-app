@@ -51,7 +51,7 @@ func main() {
 	authorized.GET("/get_rate", UserController.GetRate)
 	authorized.PUT("/edit_rate", UserController.UpdateRate)
 	authorized.DELETE("/delete_rate", UserController.DeleteRate)
-	authorized.POST("/create_detail", UserController.InsertDetail)
+	authorized.POST("/update_detail", UserController.UpdateDetail)
 
 	device_host := os.Getenv("DEVICE_HOST")
 
