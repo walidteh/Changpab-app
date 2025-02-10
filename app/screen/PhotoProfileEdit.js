@@ -39,7 +39,8 @@ const PhotoProfileEdit = ({ navigation }) => {
   const [textfullname, setTextFullname] = useState(""); 
   const [textLastname, setTextLastname] = useState(""); 
   const maxChars = 200;
-
+  const [selectedImage, setSelectImage] = useState(""); 
+  
   const route = useRoute();
     const { fullnameedit } = route.params;
     const { lastnameedit } = route.params;
@@ -135,7 +136,11 @@ const PhotoProfileEdit = ({ navigation }) => {
 
 
   const save = async () => {
+    console.log("asdasdsad")
     try {
+      if(profileImage){
+         await SaveImageProfile(profileImage); 
+      }
       const token = await AsyncStorage.getItem("@token");
       if (!token) {
         alert("Token not found. Please log in again.");
@@ -147,7 +152,7 @@ const PhotoProfileEdit = ({ navigation }) => {
       formData.append("lastname", textLastname);
 
       const response = await fetch(
-        "http://" + app_var.api_host + "/users/edit_name",
+        "http://" + app_var.api_host + "/users/edit_user",
         {
           method: "POST",
           headers: {
@@ -162,6 +167,47 @@ const PhotoProfileEdit = ({ navigation }) => {
       const data = await response.json();
 
       if (response.ok) {
+        
+        // alert("แก้ไขข้อมูลเรียบร้อย!");
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "PhotoProfile" }],
+        });
+        return data;
+      } else {
+        alert("กรุณากรอกทั้งชื่อและนามสกุล");
+      }
+    } catch (error) {
+        console.error("Error:", error);
+        alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+    }
+};
+  const saveDetail = async () => {
+    try {
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        alert("Token not found. Please log in again.");
+        return;
+      }
+
+      let formData = new FormData();
+      formData.append("Detail", textdetail);
+
+      const response = await fetch(
+        "http://" + app_var.api_host + "/users/update_detail",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        
         // alert("แก้ไขข้อมูลเรียบร้อย!");
         navigation.reset({
           index: 0,
@@ -208,12 +254,13 @@ const PhotoProfileEdit = ({ navigation }) => {
 
     if (!result.canceled) {
       const selectedImage = result.assets[0].uri; // URI ของรูปที่เลือก
-      setProfileImage(selectedImage); // เก็บ URI ของรูปที่เลือกไว้ใน state
-      await SaveImageProfile(selectedImage); // บันทึกภาพที่เลือกทันที
+      setProfileImage(selectedImage); 
     }
   };
 
   const SaveImageProfile = async (imageUri) => {
+    console.log("asdasdsad")
+
     if (!imageUri) {
       Alert.alert("Error", "Please select an image before uploading.", [{ text: "OK" }]);
       return;
@@ -261,21 +308,9 @@ const PhotoProfileEdit = ({ navigation }) => {
       const result = await response.json();
 
       // ตรวจสอบผลลัพธ์
-      if (response.ok && result.status === "ok") {
-        Alert.alert("สำเร็จ", "เปลี่ยนรูปโปรไฟล์สำเร็จ!", [
-          {
-            text: "OK",
-            onPress: () => {
-              navigation.reset({
-                index: 0,
-                routes: [{ name: "PhotoProfileEdit" }],
-              });
-            },
-          },
-        ]);
-      } else {
+      if (response.ok && result.status !== "ok") {
         Alert.alert("Error", result.message || "Failed to upload the image.", [{ text: "OK" }]);
-      }
+      } 
     } catch (error) {
       console.error("Error uploading image:", error);
       Alert.alert("Error", "An unexpected error occurred.", [{ text: "OK" }]);
@@ -394,7 +429,7 @@ const PhotoProfileEdit = ({ navigation }) => {
           <View style={stylesIn.logoContainer}>
             <Image
               source={{
-                uri: user.Img_profile,
+                uri: !profileImage ? user.Img_profile:profileImage,
               }}
               style={stylesIn.logo}
             />
@@ -438,7 +473,7 @@ const PhotoProfileEdit = ({ navigation }) => {
               textAlignVertical="top"
             />
           </View>
-          <TouchableOpacity style={stylesIn.bottom} onPress={save}>
+          <TouchableOpacity style={stylesIn.bottom} onPress={() => { save(); saveDetail(); }}>
             <Text style={stylesIn.buttonText}>บันทึก</Text>
           </TouchableOpacity>
         </View>

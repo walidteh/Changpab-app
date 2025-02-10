@@ -210,7 +210,6 @@ const PhotoProfile = ({ navigation }) => {
       if (response.ok) {
         console.log("บันทึกแล้ว:", data);
         fetchContact();
-        alert("บันทึกข้อมูลเรียบร้อย!");
         setContactName("");
         setContactLink("");
   

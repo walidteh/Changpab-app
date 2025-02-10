@@ -334,7 +334,7 @@ const PhotoDetailUser = ({ navigation }) => {
             <Text style={stylesIn.titlecontent}>รายละเอียด</Text>
 
             <View style={stylesIn.detials}>
-              <Text style={stylesIn.caption}>ข้อมูล ประวัตื caption </Text>
+              <Text style={stylesIn.caption}>{userVisitors.detail || "ข้อมูล ประวัตื caption"}</Text>
 
               <Text style={{ fontSize: 14, marginBottom: 15 }}>
                 ช่องทางการติดต่อ
@@ -362,8 +362,8 @@ const PhotoDetailUser = ({ navigation }) => {
 
               <Text style={{ fontSize: 14, marginBottom: 10 }}>เรทราคา</Text>
               <View style={stylesIn.rate}>
-                {rateInfo.map((item, index) => (
-                  <View style={{ paddingVertical: 6 }}>
+                {rateInfo.map((item, i) => (
+                  <View key={i} style={{ paddingVertical: 6 }}>
                     <Text style={styles.textrate}>
                       {item.Type} {item.Price}
                     </Text>
