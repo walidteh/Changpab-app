@@ -373,7 +373,7 @@ const PhotoIndex = ({ navigation }) => {
                   key={i}
                   style={styles.item}
                   onPress={() => {
-                    navigation.navigate("PhotoDetailPost", { userId: user.ID })
+                    navigation.navigate("PhotoDetailPost", { postuser: post.post_id})
                   }}
                 >
                   <Image

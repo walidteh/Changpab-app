@@ -249,6 +249,43 @@ const PhotoDetailUser = ({ navigation }) => {
     }
   };
 
+  const renderContact = () => {
+    contactInfo.forEach((item)=> {
+      var temp = {}
+      for (let i of HostInfo) {
+        if (i.platform == item.Contact_host) {
+          temp = i 
+        }
+      }
+      if(temp !== undefined){
+        contactData.push({
+          id: item.ID,
+          contact_name: item.Contact_name,
+          contact_link: item.Contact_link,
+          contact_icon: temp.icon,
+          contact_color: temp.color,
+        })
+      }
+    })
+    return contactData.map((item, i) => (
+      <View key={i} style={stylesIn.contactContainer}>
+        <TouchableOpacity
+          style={stylesIn.contact}
+          onPress={() => console.log("test")} 
+        >
+          <FontAwesomeIcon
+            icon={item.contact_icon}
+            size={24}
+            color={item.contact_color}
+          />
+          <Text style={stylesIn.contactText}>
+            {item.contact_name}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    ));
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Navbar */}
@@ -339,25 +376,8 @@ const PhotoDetailUser = ({ navigation }) => {
               <Text style={{ fontSize: 14, marginBottom: 15 }}>
                 ช่องทางการติดต่อ
               </Text>
-              <View style={{ paddingTop: 10 }}>
-                {contactData.map((contact) => (
-                  <View key={contact.id} style={styles.contactContainer}>
-                    <TouchableOpacity
-                      style={styles.contact}
-                      onPress={() => openlink(contact.contact_link)}
-                    >
-                      <FontAwesomeIcon
-                        icon={contact.contact_icon}
-                        size={24}
-                        color={contact.contact_color}
-                      />
-                      <Text style={styles.contactText}>
-                        {contact.contact_name}
-                      </Text>
-                    </TouchableOpacity>
-
-                  </View>
-                ))}
+              <View style={{ paddingTop: 8 }}>
+                {renderContact()}
               </View>
 
               <Text style={{ fontSize: 14, marginBottom: 10 }}>เรทราคา</Text>

@@ -1,73 +1,72 @@
-import { View, Text, Image, StyleSheet, TouchableOpacity, SafeAreaView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  SafeAreaView,
+  ImageBackground,
+  Image,
+} from "react-native";
 import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import app_var from "./public";
 import * as ImagePicker from "expo-image-picker";
 import Swiper from "react-native-swiper";
 import moment from "moment";
-import styles from "./styles";
 import { useRoute } from "@react-navigation/native";
-
+import styles from "./styles";
+import { Modal, TouchableWithoutFeedback, FlatList } from "react-native";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
-  faBars,
-  faTimes,
-  faMagnifyingGlass,
-  faArrowLeft,
   faHouse,
+  faMagnifyingGlass,
   faBell,
   faUser,
+  faBars,
+  faArrowLeft,
   faSquarePlus,
+  faCamera,
+  faFontAwesome,
+  faPhone,
+  faEnvelope,
 } from "@fortawesome/free-solid-svg-icons";
+import { faFacebook, faInstagram } from "@fortawesome/free-brands-svg-icons";
 
 const PhotoDetailPost = ({ navigation }) => {
   const [user, setUser] = useState({});
-  const [userAll, setUserAll] = useState([]);
-  const [post, setPost] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [profileImage, setProfileImage] = useState(null);
   const [userVisitors, setUserVisitors] = useState({});
+  const [post, setPost] = useState([]);
+  const HostInfo = [
+    { platform: "facebook", icon: faFacebook, color: "#1877f2" },
+    { platform: "instagram", icon: faInstagram, color: "#f56949" },
+    { platform: "phone", icon: faPhone, color: "#34A853" },
+    { platform: "email", icon: faEnvelope, color: "#d44638" },
+    { platform: "default", icon: faEnvelope, color: "#000000" },
+  ];
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const route = useRoute();
-  const { userId } = route.params;
-  
-  const fetchUserVisitors = async () => {
+  const { postuser } = route.params;
+  const [selectedDropdown, setSelectedDropdown] = useState(null);
 
-    try {
-      const token = await AsyncStorage.getItem("@token");
-      if (!token) {
-        alert("Token not found. Please log in again.");
-        return;
-      }
+  const [isFullView, setIsFullView] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0); // เก็บ index ของภาพที่เลือก
+  const [selectedImages, setSelectedImages] = useState([]); // เก็บรูปทั้งหมดในโพสต์
 
-      const response = await fetch(
-        `http://${app_var.api_host}/users/get_post_visitors?userId=${encodeURIComponent(userId)}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const data = await response.json();
-      if (data.status === "OK") {
-        setUserVisitors(data.user);
-        setPost(data.posts);
-      } else {
-        alert("Failed to fetch user data");
-      }
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-      alert("Error fetching user data");
-    } finally {
-      setIsLoading(false);
-    }
+  // ฟังก์ชันเปิด FullView
+  const openFullView = (imgList, index) => {
+    setSelectedImages(imgList);
+    setSelectedIndex(index);
+    setIsFullView(true);
   };
-  const ImageProfile = "";
 
-  const [refreshing, setRefreshing] = useState(false); // Declare refreshing state
+  // ฟังก์ชันปิด FullView
+  const closeFullView = () => {
+    setIsFullView(false);
+    setSelectedImages([]);
+    setSelectedIndex(0);
+  };
+
   const fetchUser = async () => {
     try {
       const token = await AsyncStorage.getItem("@token");
@@ -90,7 +89,7 @@ const PhotoDetailPost = ({ navigation }) => {
       const data = await response.json();
       if (data.status === "ok") {
         setUser(data.userId);
-        // console.log("User Dataaa:", user); 
+        // console.log("User Dataaa:", user);
       } else {
         alert("Failed to fetch user data");
       }
@@ -101,14 +100,67 @@ const PhotoDetailPost = ({ navigation }) => {
       setIsLoading(false);
     }
   };
-  useEffect(() => {
-    console.log("Received userId:", userId);
-    fetchUser();
-    fetchUserVisitors();
-  }, []);
 
-  const [selectedMenu, setSelectedMenu] = useState("หน้าหลัก"); // เก็บสถานะของเมนูที่เลือก
-  
+  const fetchUserVisitors = async () => {
+    try {
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        alert("Token not found. Please log in again.");
+        return;
+      }
+
+      const response = await fetch(
+        `http://${
+          app_var.api_host
+        }/users/post_visitor?postId=${encodeURIComponent(postuser)}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+      if (data.status === "OK") {
+        setUserVisitors(data.user);
+        setPost(data.post);
+      } else {
+        alert("Failed to fetch user data");
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      alert("Error fetching user data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const PostUser = [
+    {
+      Img_profile:
+        "https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/893a0a85-2cab-4d8b-b711-5fc8a1db90da/23aafe6f-878d-4131-b0af-34c43140d64a.png",
+      Fullname: "Test User",
+      Date: moment().format("DD/MM/YYYY"),
+      Img_Post: [
+        "https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/893a0a85-2cab-4d8b-b711-5fc8a1db90da/23aafe6f-878d-4131-b0af-34c43140d64a.png",
+        "https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/846a2783-f3df-488d-8d04-19bc0ffa44c1/81c971bb-a5eb-4f0d-8716-67c23a93f895.png",
+        "https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/846a2783-f3df-488d-8d04-19bc0ffa44c1/81c971bb-a5eb-4f0d-8716-67c23a93f895.png",
+        "https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/846a2783-f3df-488d-8d04-19bc0ffa44c1/81c971bb-a5eb-4f0d-8716-67c23a93f895.png",
+      ],
+      Details: "This is a test post",
+      PostId: "1",
+    },
+  ];
+
+  var contactData = [];
+
+  useEffect(() => {
+    console.log(">>> :", postuser);
+    fetchUserVisitors();
+    fetchUser();
+  }, []);
 
   const PhotoIdex = () => {
     navigation.navigate("PhotoIndex");
@@ -153,73 +205,50 @@ const PhotoDetailPost = ({ navigation }) => {
     } catch (error) {
       console.error("Error clearing token:", error);
     }
+  };
+
+  const renderPost = () => {
+    // PostUser.push({
+    //   PostId: post.post_id,
+    //   Fullname: "userVisitors.fullname",
+    //   Img_profile: "",
+    //   Detail: post.post_detail,
+    //   Date: moment(post.post_date).format("D-M-YYYY HH:mm"),
+    //   Img_Post: post.images.map((image) => ({
+    //     url: image.url,
+    //     img_id: image.image_id,
+    //   })),
+    // });
+    console.log(post)
+    return PostUser.length > 0 ? (
+      PostUser.map((user, i) => (
+        <View key={i} style={stylesIn.item}>
+          <Swiper
+            style={stylesIn.swiper}
+            showsPagination={true}
+            loop={false}
+          >
+            {user.Img_Post.map((img, index) => (
+              <TouchableOpacity
+                key={index}
+                onPress={() => openFullView(user.Img_Post, index)} // ส่ง index และรูปทั้งหมด
+              >
+                <Image
+                  source={{ uri: img }}
+                  style={stylesIn.image_body}
+                />
+              </TouchableOpacity>
+            ))}
+          </Swiper>
+        </View>
+      ))
+    ) : (
+      <Text style={{ textAlign: "center", marginTop: 20 }}>
+        ไม่มีโพสต์
+      </Text>
+    )
   }
 
-  const PostUser = [];
-  
-    const renderContent = () => {
-      post.forEach((item) => {
-        PostUser.push({
-          PostId: item.post_id,
-          Fullname: userVisitors.fullname,
-          Img_profile: userVisitors.img_profile,
-          Detail: item.post_detail,
-          Date: moment(item.post_date).format("D-M-YYYY HH:mm"),
-          Img_Post: item.images.map((image) => ({
-            url: image.url,
-            img_id: image.image_id
-          })),
-        });
-      });
-      console.log("asdasdasd", post.images)
-      
-      if (PostUser.length > 0) {
-        return (
-          PostUser.map((user, i) => (
-            <View key={i} style={stylesIn.item}>
-              <View style={stylesIn.profile_header}>
-                <Image
-                  source={{
-                    uri: user.Img_profile,
-                  }}
-                  style={stylesIn.profile_post}
-                />
-                <View>
-                  <Text style={{ fontSize: 16, fontWeight: "bold" }}>
-                    {user.Fullname}
-                  </Text>
-                  <Text style={{ fontSize: 10, color: "#888888" }}>
-                    {user.Date}
-                  </Text>
-                </View>
-              </View>
-              <Swiper
-                style={stylesIn.swiper}
-                showsPagination={true}
-                loop={false}
-              >
-                {user.Img_Post.map((img, index) => (
-                  <Image
-                    key={index}
-                    source={{ uri: img.url }}
-                    style={stylesIn.image_body}
-                  />
-                ))}
-              </Swiper>
-              <Text style={stylesIn.name_body}>
-                {user.Detail || "No Details Available"}
-              </Text>
-            </View>
-          ))
-        )
-      } else {
-        (
-          <Text style={{ textAlign: "center", marginTop: 20 }}>
-            ไม่มีโพสต์
-          </Text>
-        )
-      }
-    };
   return (
     <SafeAreaView style={styles.container}>
       {/* Navbar */}
@@ -241,7 +270,7 @@ const PhotoDetailPost = ({ navigation }) => {
           {/* แสดง dropdown */}
           {isDropdownVisible && (
             <View style={styles.dropdown}>
-              <View style={{ flexDirection: 'row' }}>
+              <View style={{ flexDirection: "row" }}>
                 <Image
                   source={{
                     uri: user.Img_profile,
@@ -261,7 +290,7 @@ const PhotoDetailPost = ({ navigation }) => {
                   </Text>
                 </View>
               </View>
-              <View style={{ alignItems: 'center', marginTop: 15 }}>
+              <View style={{ alignItems: "center", marginTop: 15 }}>
                 <TouchableOpacity style={styles.button} onPress={handleLogout}>
                   <Text style={styles.buttonText}>Logout</Text>
                 </TouchableOpacity>
@@ -271,20 +300,50 @@ const PhotoDetailPost = ({ navigation }) => {
         </View>
       </View>
 
-      {/* ย้อนกลับ */}
-      <View style={styles.exit}>
-        <TouchableOpacity
-          style={styles.exitIcon}
-          onPress={() => navigation.goBack()}
-        >
-          <FontAwesomeIcon icon={faArrowLeft} size={18} color="#000" />
-        </TouchableOpacity>
-        <Text style={styles.exitText}>รายละเอียดโพสต์</Text>
-      </View>
+      <ScrollView>
+        <View style={stylesIn.content}>
+          <View style={styles.exit}>
+            <TouchableOpacity
+              style={styles.exitIcon}
+              onPress={() => navigation.goBack()}
+            >
+              <FontAwesomeIcon icon={faArrowLeft} size={18} color="#000" />
+            </TouchableOpacity>
+            <Text style={styles.exitText}>รายละเอียดโพสต์</Text>
+          </View>
+          <View style={stylesIn.body}>
+          {renderPost()}
+          </View>
+        </View>
+      </ScrollView>
 
-      <View style={stylesIn.body}>
-        {renderContent()}
-      </View>
+      <Modal visible={isFullView} transparent={true} animationType="fade">
+        <TouchableWithoutFeedback onPress={closeFullView}>
+          <View style={stylesIn.fullViewContainer}>
+            <View style={stylesIn.swiperContainer}>
+              <Swiper
+                index={selectedIndex} // ให้เริ่มที่รูปที่เลือก
+                loop={false}
+                showsPagination={true} // แสดงตัวเลขหรือจุด pagination
+                onIndexChanged={(index) => setSelectedIndex(index)} // อัปเดต index เมื่อสไลด์
+              >
+                {selectedImages.map((img, index) => (
+                  <View key={index} style={stylesIn.fullViewSlide}>
+                    <Image
+                      source={{ uri: img }}
+                      style={stylesIn.fullViewImage}
+                    />
+                  </View>
+                ))}
+              </Swiper>
+              {/* แสดงตำแหน่งของรูปที่กำลังแสดง */}
+              <Text style={stylesIn.imagePositionText}>
+                {`Image ${selectedIndex + 1} of ${selectedImages.length}`}
+              </Text>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
 
       {/* เมนูด้านล่าง */}
       <View style={styles.menu}>
@@ -314,56 +373,80 @@ const stylesIn = StyleSheet.create({
     padding: 10,
   },
   item: {
-    width: "100%", // ใช้ 100% เพื่อให้เต็มความกว้างของ container
+    width: "100%",
+    height: "150%",
     marginBottom: 16,
     backgroundColor: "#fff",
-    borderRadius: 8,
-    // alignItems: "center",
-    justifyContent: "center",
+    borderRadius: 12,
+    padding: 15,
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 3, // เฉพาะ Android
-    padding: 10,
+    shadowRadius: 5,
+    elevation: 4,
   },
-
   profile_header: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 5,
+    marginBottom: 10,
   },
   profile_post: {
-    width: 45, // ขนาดโลโก้
-    height: 45,
-    borderRadius: 50, // รูปทรงกลม
-    marginRight: 10,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 12,
+    borderWidth: 2,
+    borderColor: "#ddd",
   },
-
-  dropdownMenu: {
-    position: 'absolute',
-    right: 20,
-    top: 10,
-    zIndex: 1,
+  name_text: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
   },
-  dropdownIcon: {
-    fontSize: 24,
-    color: '#888888',
+  date_text: {
+    fontSize: 12,
+    color: "#888",
   },
-  dropdownPost: {
-    backgroundColor: '#ffffff',
-    borderRadius: 5,
-    padding: 10,
-    position: 'absolute',
-    right: 0,
-    top: 30,
-    elevation: 5,
-    width: 120,
+  swiper: {
+    height: 250,
+    borderRadius: 10,
+    overflow: "hidden",
   },
-  dropdownItem: {
-    padding: 10,
-    fontSize: 14,
-    color: '#333333',
+  image_body: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+  },
+  name_body: {
+    fontSize: 15,
+    fontWeight: "500",
+    color: "#444",
+    marginTop: 10,
+  },
+  fullViewContainer: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.9)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  fullViewSlide: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  fullViewImage: {
+    width: "90%",
+    height: "80%",
+    resizeMode: "contain",
+  },
+  imagePositionText: {
+    position: "absolute",
+    top: 20, // ระยะห่างจากขอบบน
+    left: "50%", // จัดกลาง
+    // transform: [{ translateX: -50% }], // ทำให้ข้อความอยู่กลางจริงๆ
+    color: "white", // สีตัวอักษร
+    fontSize: 18, // ขนาดตัวอักษร
+    zIndex: 1, // ให้ข้อความอยู่ข้างหน้าภาพ
   },
 });
 
