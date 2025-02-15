@@ -275,3 +275,78 @@ func EditPost(c *gin.Context) {
 		"postId": postId,
 	})
 }
+
+func GetPostVisitor(c *gin.Context) {
+	postId := c.DefaultQuery("postId", "")
+
+	if postId == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "postId is required"})
+		return
+	}
+
+	var rows_get_user_post []struct {
+		PostID     uint    `json:"post_id"`
+		PostDetail string  `json:"post_detail"`
+		PostDate   string  `json:"post_date"`
+		ImageID    *uint   `json:"image_id"`
+		ImageURL   *string `json:"image_url"`
+	}
+
+	err := orm.Db.Raw(`
+        SELECT 
+            posts.id AS post_id,
+            posts.detail AS post_detail,
+            posts.created_at AS post_date,
+            images.id AS image_id,
+            images.img_url AS image_url
+        FROM 
+            posts
+        LEFT JOIN 
+            images 
+        ON 
+            posts.id = images.post_id
+        WHERE 
+            posts.id = ?;
+    `, postId).Scan(&rows_get_user_post).Error
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// เช็กว่าไม่มีโพสต์นี้ในฐานข้อมูล
+	if len(rows_get_user_post) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Post not found"})
+		return
+	}
+
+	device_host := os.Getenv("DEVICE_HOST")
+	imageHost := "http://" + device_host + ":8080/get_image/image_post/"
+
+	// แปลง URL ของรูปภาพ
+	for i := range rows_get_user_post {
+		if rows_get_user_post[i].ImageURL != nil {
+			*rows_get_user_post[i].ImageURL = imageHost + *rows_get_user_post[i].ImageURL
+		}
+	}
+
+	// จัดการข้อมูล post หลัก
+	result := map[string]interface{}{
+		"post_id":     rows_get_user_post[0].PostID,
+		"post_detail": rows_get_user_post[0].PostDetail,
+		"post_date":   rows_get_user_post[0].PostDate,
+		"images":      []map[string]interface{}{},
+	}
+
+	// เพิ่มข้อมูลรูปภาพเข้าไปใน result
+	for _, row := range rows_get_user_post {
+		if row.ImageID != nil && row.ImageURL != nil {
+			result["images"] = append(result["images"].([]map[string]interface{}), map[string]interface{}{
+				"image_id": *row.ImageID,
+				"url":      *row.ImageURL,
+			})
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "OK", "post": result})
+}
