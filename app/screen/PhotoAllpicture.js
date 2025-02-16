@@ -280,7 +280,10 @@ const PhotoAllpicture = () => {
                 key={i}
                 style={styles.item}
                 onPress={() => {
-                  navigation.navigate("PhotoDetailPost", { userId: user.ID })
+                  navigation.navigate("PhotoDetailPost", {
+                    postId: post.post_id,
+                    userId: post.user_id,
+                  });
                 }}
               >
                 <Image

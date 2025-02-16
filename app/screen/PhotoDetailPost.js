@@ -46,7 +46,8 @@ const PhotoDetailPost = ({ navigation }) => {
   ];
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const route = useRoute();
-  const { postuser } = route.params;
+  const { postId } = route.params;
+  const { userId } = route.params;
   const [selectedDropdown, setSelectedDropdown] = useState(null);
 
   const [isFullView, setIsFullView] = useState(false);
@@ -112,7 +113,43 @@ const PhotoDetailPost = ({ navigation }) => {
       const response = await fetch(
         `http://${
           app_var.api_host
-        }/users/post_visitor?postId=${encodeURIComponent(postuser)}`,
+        }/users/get_user_visitors?userId=${encodeURIComponent(userId)}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+      if (data.status === "OK") {
+        setUserVisitors(data.userVisitors);
+        // console.log("User Dataaa:", userVisitors.fullname);
+      } else {
+        alert("Failed to fetch user data");
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      alert("Error fetching user data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchPostVisitors = async () => {
+    try {
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        alert("Token not found. Please log in again.");
+        return;
+      }
+
+      const response = await fetch(
+        `http://${
+          app_var.api_host
+        }/users/post_visitor?postId=${encodeURIComponent(postId)}`,
         {
           method: "GET",
           headers: {
@@ -125,7 +162,6 @@ const PhotoDetailPost = ({ navigation }) => {
       console.log("Fetched Data:", data); // ดูข้อมูลทั้งหมดที่ได้รับจาก API
 
       if (data.status === "OK") {
-        setUserVisitors(data.user);
         setPost(data.post);
       } else {
         alert("Failed to fetch user data");
@@ -141,8 +177,10 @@ const PhotoDetailPost = ({ navigation }) => {
   var contactData = [];
 
   useEffect(() => {
-    console.log(">>> :", postuser);
+    console.log("postId >>> :", postId);
+    console.log("userId >>> :", userId);
     fetchUserVisitors();
+    fetchPostVisitors();
     fetchUser();
   }, []);
 
@@ -188,14 +226,14 @@ const PhotoDetailPost = ({ navigation }) => {
 
   const renderPost = () => {
     if (post && Array.isArray(post) && post.length > 0) {
-      const postDetails = post[0]; 
+      const postDetails = post[0];
       console.log("Post Details:", postDetails);
       console.log("Images Data:", postDetails.images);
 
       PostUser.push({
         PostId: postDetails.post_id,
-        // Fullname: userVisitors.fullname,
-        // Img_profile: userVisitors.img_profile,
+        Fullname: userVisitors.fullname,
+        Img_profile: userVisitors.img_profile,
         Detail: postDetails.post_detail,
         Date: moment(postDetails.post_date).format("D-M-YYYY ( HH:mm น.)"),
         Img_Post:
@@ -210,6 +248,30 @@ const PhotoDetailPost = ({ navigation }) => {
       return PostUser.length > 0 ? (
         PostUser.map((user, i) => (
           <View key={i} style={stylesIn.item}>
+            <View>
+              <TouchableOpacity
+                key={i}
+                style={stylesIn.profile_header}
+                onPress={() => {
+                  navigation.navigate("PhotoDetailUser", { userId: userVisitors.user_id });
+                }}
+              >
+                <Image
+                  source={{
+                    uri: user.Img_profile,
+                  }}
+                  style={stylesIn.profile_post}
+                />
+                <View>
+                  <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+                    {user.Fullname}
+                  </Text>
+                  <Text style={{ fontSize: 10, color: "#888888" }}>
+                    {user.Date}
+                  </Text>
+                </View>
+                </TouchableOpacity>
+            </View>
             <Swiper style={stylesIn.swiper} showsPagination={true} loop={false}>
               {user.Img_Post && user.Img_Post.length > 0 ? (
                 user.Img_Post.map((item, index) => (
@@ -226,14 +288,6 @@ const PhotoDetailPost = ({ navigation }) => {
                 </Text>
               )}
             </Swiper>
-            <View>
-              <Text style={{ fontSize: 16, fontWeight: "bold" }}>
-                {user.Fullname}
-              </Text>
-              <Text style={{ fontSize: 10, color: "#888888" }}>
-                {user.Date}
-              </Text>
-            </View>
             <Text style={stylesIn.name_body}>
               {user.Detail || "No Details Available"}
             </Text>
@@ -370,7 +424,7 @@ const stylesIn = StyleSheet.create({
   item: {
     width: "100%",
     height: "120%",
-    marginBottom: 16,
+    // marginBottom: 16,
     backgroundColor: "#fff",
     borderRadius: 12,
     padding: 15,
@@ -381,6 +435,7 @@ const stylesIn = StyleSheet.create({
     elevation: 4,
   },
   profile_header: {
+    width: 200,
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 10,
@@ -418,7 +473,7 @@ const stylesIn = StyleSheet.create({
     fontSize: 15,
     fontWeight: "500",
     color: "#444",
-    marginTop: 10,
+    // marginTop: 10,
   },
   fullViewContainer: {
     flex: 1,

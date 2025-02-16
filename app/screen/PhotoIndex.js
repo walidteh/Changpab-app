@@ -116,9 +116,9 @@ const PhotoIndex = ({ navigation }) => {
       // กำหนด URL ที่ส่ง parameter keyword ไปกับ GET request
       const response = await fetch(
         "http://" +
-        app_var.api_host +
-        "/users/get_post_random?limit=" +
-        encodeURIComponent(8),
+          app_var.api_host +
+          "/users/get_post_random?limit=" +
+          encodeURIComponent(8),
         {
           method: "GET",
           headers: {
@@ -220,8 +220,7 @@ const PhotoIndex = ({ navigation }) => {
     } catch (error) {
       console.error("Error clearing token:", error);
     }
-  }
-
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -250,7 +249,7 @@ const PhotoIndex = ({ navigation }) => {
             {/* แสดง dropdown */}
             {isDropdownVisible && (
               <View style={styles.dropdown}>
-                <View style={{ flexDirection: 'row' }}>
+                <View style={{ flexDirection: "row" }}>
                   <Image
                     source={{
                       uri: user.Img_profile,
@@ -270,8 +269,11 @@ const PhotoIndex = ({ navigation }) => {
                     </Text>
                   </View>
                 </View>
-                <View style={{ alignItems: 'center', marginTop: 15 }}>
-                  <TouchableOpacity style={styles.button} onPress={handleLogout}>
+                <View style={{ alignItems: "center", marginTop: 15 }}>
+                  <TouchableOpacity
+                    style={styles.button}
+                    onPress={handleLogout}
+                  >
                     <Text style={styles.buttonText}>Logout</Text>
                   </TouchableOpacity>
                 </View>
@@ -333,7 +335,7 @@ const PhotoIndex = ({ navigation }) => {
                   key={i}
                   style={stylesIn.item_top}
                   onPress={() => {
-                    navigation.navigate("PhotoDetailUser", { userId: user.ID })
+                    navigation.navigate("PhotoDetailUser", { userId: user.ID });
                   }}
                 >
                   <Image
@@ -361,28 +363,33 @@ const PhotoIndex = ({ navigation }) => {
           </View>
 
           <View style={styles.body}>
-            {/* {userAll.map((user) => (
-              <TouchableOpacity key={user.id} style={styles.item}>
-                <Image source={user.image} style={styles.image_body} />
-                <Text style={styles.name}>{user.name}</Text>
-              </TouchableOpacity>
-            ))} */}
             {post && post.length > 0 ? (
               post.map((post, i) => (
                 <TouchableOpacity
                   key={i}
                   style={styles.item}
                   onPress={() => {
-                    navigation.navigate("PhotoDetailPost", { postuser: post.post_id})
+                    navigation.navigate("PhotoDetailPost", {
+                      postId: post.post_id,
+                      userId: post.user_id,
+                    });
                   }}
                 >
-                  <Image
-                    source={{ uri: post.image_url }}
-                    style={styles.image_body}
-                  />
-                  <Text style={styles.name}>
-                    {post.fullname || "No Fullname Available"}
-                  </Text>
+                    <Image
+                      source={{ uri: post.image_url }}
+                      style={styles.image_body}
+                    />
+                  <View style={stylesIn.detailPost}>
+                    <Image
+                      source={{
+                        uri: post.profile,
+                      }}
+                      style={stylesIn.profileImagePost}
+                    />
+                    <Text style={stylesIn.NamePost}>
+                      {post.fullname || "No Fullname Available"}
+                    </Text>
+                  </View>
                 </TouchableOpacity>
               ))
             ) : (
@@ -417,7 +424,25 @@ const PhotoIndex = ({ navigation }) => {
 };
 
 const stylesIn = StyleSheet.create({
-  /********** background blue **********/ 
+  detailPost: {
+    flexDirection: "row",
+    alignItems: "center",
+    // padding: 10
+    // alignContent: 'center'
+  },
+  profileImagePost: {
+    width: 25,
+    height: 25,
+    borderRadius: 30,
+  },
+  NamePost: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#333",
+    textAlign: "center",
+    marginLeft: 4,
+  },
+  /********** background blue **********/
   background: {
     position: "absolute",
     top: 0,
@@ -428,7 +453,7 @@ const stylesIn = StyleSheet.create({
     opacity: 0.8,
   },
 
-  /********** card image background **********/ 
+  /********** card image background **********/
   card_top: {
     width: "100%",
     backgroundColor: "#fff",
@@ -470,7 +495,7 @@ const stylesIn = StyleSheet.create({
     height: 80,
   },
 
-  /********** card content bottom **********/ 
+  /********** card content bottom **********/
   card_bottom: {
     width: "100%",
     backgroundColor: "#fff",

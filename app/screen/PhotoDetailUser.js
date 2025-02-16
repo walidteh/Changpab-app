@@ -15,6 +15,7 @@ import Swiper from "react-native-swiper";
 import moment from "moment";
 import { useRoute } from "@react-navigation/native";
 import styles from "./styles";
+import Icon from 'react-native-vector-icons/AntDesign';
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
@@ -45,6 +46,18 @@ const PhotoDetailUser = ({ navigation }) => {
   const [rateInfo, setRateInfo] = useState([]);
   const route = useRoute();
   const { userId } = route.params;
+
+  const [likedPosts, setLikedPosts] = useState([]);
+
+const toggleLike = (postId) => {
+  if (likedPosts.includes(postId)) {
+    // ถ้ากดแล้ว (โพสต์ถูกใจอยู่แล้ว) ให้ลบออกจากรายการ
+    setLikedPosts(likedPosts.filter((id) => id !== postId));
+  } else {
+    // ถ้ายังไม่ได้กดถูกใจ ให้เพิ่มเข้าไป
+    setLikedPosts([...likedPosts, postId]);
+  }
+};
 
   const fetchUser = async () => {
     try {
@@ -331,6 +344,7 @@ const PhotoDetailUser = ({ navigation }) => {
               style={stylesIn.imageBackground}
               resizeMode="cover"
             >
+              
               <TouchableOpacity onPress={() => navigation.goBack()}>
                 <FontAwesomeIcon icon={faArrowLeft} size={20} color="#fff" />
               </TouchableOpacity>
@@ -350,6 +364,19 @@ const PhotoDetailUser = ({ navigation }) => {
               <Text style={stylesIn.name}>{userVisitors.fullname}</Text>
             </View>
           </View>
+          <TouchableOpacity
+        onPress={() => toggleLike(user.post_id)} // เมื่อกดปุ่มถูกใจ
+        style={stylesIn.likeButton}
+      >
+        <Icon
+          name={likedPosts.includes(user.post_id) ? 'heart' : 'hearto'} // ใช้ 'heart' ถ้าถูกใจแล้ว
+          size={24}
+          color={likedPosts.includes(user.post_id) ? 'red' : '#888'}
+        />
+        <Text style={{ color: likedPosts.includes(user.post_id) ? 'red' : '#888' }}>
+          {likedPosts.includes(user.post_id) ? 'ถูกใจแล้ว' : 'ถูกใจ'}
+        </Text>
+      </TouchableOpacity>
           <View style={stylesIn.content_home}>
             <Text style={stylesIn.titlecontent}>รายละเอียด</Text>
 

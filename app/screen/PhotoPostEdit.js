@@ -37,7 +37,7 @@ const PhotoPostEdit = ({ navigation }) => {
   const [imageSave, setImageSave] = useState([]);
   const [oldImagePost, setOldImagePost] = useState([]);
   const [imagePostDelete, setImagePostDelete] = useState([]);
-  const maxChars = 200;
+  const maxChars = 1000;
   const route = useRoute();
   const { postId } = route.params;
   const { imagePost } = route.params;
