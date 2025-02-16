@@ -277,20 +277,8 @@ func EditPost(c *gin.Context) {
 }
 
 func GetPostVisitor(c *gin.Context) {
+	rows_get_user_post = nil
 	postId := c.DefaultQuery("postId", "")
-
-	if postId == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "postId is required"})
-		return
-	}
-
-	var rows_get_user_post []struct {
-		PostID     uint    `json:"post_id"`
-		PostDetail string  `json:"post_detail"`
-		PostDate   string  `json:"post_date"`
-		ImageID    *uint   `json:"image_id"`
-		ImageURL   *string `json:"image_url"`
-	}
 
 	err := orm.Db.Raw(`
         SELECT 
@@ -310,43 +298,36 @@ func GetPostVisitor(c *gin.Context) {
     `, postId).Scan(&rows_get_user_post).Error
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	// เช็กว่าไม่มีโพสต์นี้ในฐานข้อมูล
-	if len(rows_get_user_post) == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Post not found"})
+		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 
 	device_host := os.Getenv("DEVICE_HOST")
-	imageHost := "http://" + device_host + ":8080/get_image/image_post/"
-
-	// แปลง URL ของรูปภาพ
+	var imageHost = "http://" + device_host + ":8080/get_image/image_post/"
 	for i := range rows_get_user_post {
-		if rows_get_user_post[i].ImageURL != nil {
-			*rows_get_user_post[i].ImageURL = imageHost + *rows_get_user_post[i].ImageURL
-		}
+		*rows_get_user_post[i].ImageURL = imageHost + *rows_get_user_post[i].ImageURL
 	}
+	result := make([]map[string]interface{}, 0)
+	postMap := make(map[uint]map[string]interface{})
 
-	// จัดการข้อมูล post หลัก
-	result := map[string]interface{}{
-		"post_id":     rows_get_user_post[0].PostID,
-		"post_detail": rows_get_user_post[0].PostDetail,
-		"post_date":   rows_get_user_post[0].PostDate,
-		"images":      []map[string]interface{}{},
-	}
-
-	// เพิ่มข้อมูลรูปภาพเข้าไปใน result
 	for _, row := range rows_get_user_post {
+		if _, exists := postMap[row.PostID]; !exists {
+			post := map[string]interface{}{
+				"post_id":     row.PostID,
+				"post_detail": row.PostDetail,
+				"post_date":   row.PostDate,
+				"images":      []map[string]interface{}{},
+			}
+			postMap[row.PostID] = post
+			result = append(result, post)
+		}
 		if row.ImageID != nil && row.ImageURL != nil {
-			result["images"] = append(result["images"].([]map[string]interface{}), map[string]interface{}{
+			image := map[string]interface{}{
 				"image_id": *row.ImageID,
 				"url":      *row.ImageURL,
-			})
+			}
+			postMap[row.PostID]["images"] = append(postMap[row.PostID]["images"].([]map[string]interface{}), image)
 		}
 	}
-
 	c.JSON(http.StatusOK, gin.H{"status": "OK", "post": result})
 }
