@@ -11,7 +11,6 @@ import {
 import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import app_var from "./public";
-import * as ImagePicker from "expo-image-picker";
 import Swiper from "react-native-swiper";
 import moment from "moment";
 import { useRoute } from "@react-navigation/native";
@@ -23,11 +22,8 @@ import {
   faMagnifyingGlass,
   faBell,
   faUser,
-  faBars,
   faArrowLeft,
   faSquarePlus,
-  faCamera,
-  faFontAwesome,
   faPhone,
   faEnvelope,
 } from "@fortawesome/free-solid-svg-icons";
@@ -72,7 +68,6 @@ const PhotoDetailUser = ({ navigation }) => {
       const data = await response.json();
       if (data.status === "ok") {
         setUser(data.userId);
-        // console.log("User Dataaa:", user);
       } else {
         alert("Failed to fetch user data");
       }
@@ -158,19 +153,14 @@ const PhotoDetailUser = ({ navigation }) => {
 
   const handleLogout = async () => {
     try {
-      // ลบ token ออกจาก AsyncStorage
       await AsyncStorage.removeItem("@token");
-
-      // ตรวจสอบว่า token ถูกลบออกจริง ๆ
       const token = await AsyncStorage.getItem("@token");
       if (!token) {
         console.log("Token removed successfully");
       }
-
-      // รีเซ็ตการนำทางไปยังหน้า login
       navigation.reset({
         index: 0,
-        routes: [{ name: "login" }], // เปลี่ยน 'Login' เป็นชื่อของหน้า Login ที่คุณใช้
+        routes: [{ name: "login" }],
       });
     } catch (error) {
       console.error("Error clearing token:", error);
@@ -288,13 +278,11 @@ const PhotoDetailUser = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Navbar */}
       <View style={styles.navbar}>
         <View style={styles.leftBox}>
           <Text style={styles.titleTop}>CHANGPAB</Text>
         </View>
         <View style={styles.rightBox}>
-          {/* กดที่รูปโปรไฟล์เพื่อแสดง dropdown */}
           <TouchableOpacity onPress={toggleDropdown}>
             <Image
               source={{
@@ -303,8 +291,6 @@ const PhotoDetailUser = ({ navigation }) => {
               style={styles.profileImage}
             />
           </TouchableOpacity>
-
-          {/* แสดง dropdown */}
           {isDropdownVisible && (
             <View style={styles.dropdown}>
               <View style={{ flexDirection: "row" }}>
@@ -359,14 +345,11 @@ const PhotoDetailUser = ({ navigation }) => {
             </ImageBackground>
           </View>
 
-          {/* ชื่อ และ เมนู */}
           <View style={stylesIn.info}>
             <View style={stylesIn.info_top}>
               <Text style={stylesIn.name}>{userVisitors.fullname}</Text>
             </View>
           </View>
-
-          {/* ส่วนเนื้อหาที่จะเปลี่ยน */}
           <View style={stylesIn.content_home}>
             <Text style={stylesIn.titlecontent}>รายละเอียด</Text>
 
@@ -438,14 +421,14 @@ const stylesIn = StyleSheet.create({
     justifyContent: "space-between",
   },
   logoContainer: {
-    position: "relative", // ทำให้ปุ่มสามารถวางซ้อนบนโลโก้ได้
+    position: "relative", 
     alignItems: "center",
     justifyContent: "center",
   },
   logo: {
-    width: 120, // ขนาดโลโก้
+    width: 120, 
     height: 120,
-    borderRadius: 100, // รูปทรงกลม
+    borderRadius: 100,
   },
 
   info: {

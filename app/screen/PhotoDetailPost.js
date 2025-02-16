@@ -121,8 +121,9 @@ const PhotoDetailPost = ({ navigation }) => {
           },
         }
       );
-
       const data = await response.json();
+      console.log("Fetched Data:", data); // ดูข้อมูลทั้งหมดที่ได้รับจาก API
+
       if (data.status === "OK") {
         setUserVisitors(data.user);
         setPost(data.post);
@@ -132,27 +133,10 @@ const PhotoDetailPost = ({ navigation }) => {
     } catch (error) {
       console.error("Error fetching user data:", error);
       alert("Error fetching user data");
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  const PostUser = [
-    {
-      Img_profile:
-        "https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/893a0a85-2cab-4d8b-b711-5fc8a1db90da/23aafe6f-878d-4131-b0af-34c43140d64a.png",
-      Fullname: "Test User",
-      Date: moment().format("DD/MM/YYYY"),
-      Img_Post: [
-        "https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/893a0a85-2cab-4d8b-b711-5fc8a1db90da/23aafe6f-878d-4131-b0af-34c43140d64a.png",
-        "https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/846a2783-f3df-488d-8d04-19bc0ffa44c1/81c971bb-a5eb-4f0d-8716-67c23a93f895.png",
-        "https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/846a2783-f3df-488d-8d04-19bc0ffa44c1/81c971bb-a5eb-4f0d-8716-67c23a93f895.png",
-        "https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://media.easy-peasy.ai/846a2783-f3df-488d-8d04-19bc0ffa44c1/81c971bb-a5eb-4f0d-8716-67c23a93f895.png",
-      ],
-      Details: "This is a test post",
-      PostId: "1",
-    },
-  ];
+  const PostUser = [];
 
   var contactData = [];
 
@@ -188,19 +172,14 @@ const PhotoDetailPost = ({ navigation }) => {
 
   const handleLogout = async () => {
     try {
-      // ลบ token ออกจาก AsyncStorage
       await AsyncStorage.removeItem("@token");
-
-      // ตรวจสอบว่า token ถูกลบออกจริง ๆ
       const token = await AsyncStorage.getItem("@token");
       if (!token) {
         console.log("Token removed successfully");
       }
-
-      // รีเซ็ตการนำทางไปยังหน้า login
       navigation.reset({
         index: 0,
-        routes: [{ name: "login" }], // เปลี่ยน 'Login' เป็นชื่อของหน้า Login ที่คุณใช้
+        routes: [{ name: "login" }],
       });
     } catch (error) {
       console.error("Error clearing token:", error);
@@ -208,56 +187,75 @@ const PhotoDetailPost = ({ navigation }) => {
   };
 
   const renderPost = () => {
-    // PostUser.push({
-    //   PostId: post.post_id,
-    //   Fullname: "userVisitors.fullname",
-    //   Img_profile: "",
-    //   Detail: post.post_detail,
-    //   Date: moment(post.post_date).format("D-M-YYYY HH:mm"),
-    //   Img_Post: post.images.map((image) => ({
-    //     url: image.url,
-    //     img_id: image.image_id,
-    //   })),
-    // });
-    console.log(post)
-    return PostUser.length > 0 ? (
-      PostUser.map((user, i) => (
-        <View key={i} style={stylesIn.item}>
-          <Swiper
-            style={stylesIn.swiper}
-            showsPagination={true}
-            loop={false}
-          >
-            {user.Img_Post.map((img, index) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() => openFullView(user.Img_Post, index)} // ส่ง index และรูปทั้งหมด
-              >
-                <Image
-                  source={{ uri: img }}
-                  style={stylesIn.image_body}
-                />
-              </TouchableOpacity>
-            ))}
-          </Swiper>
-        </View>
-      ))
-    ) : (
-      <Text style={{ textAlign: "center", marginTop: 20 }}>
-        ไม่มีโพสต์
-      </Text>
-    )
-  }
+    if (post && Array.isArray(post) && post.length > 0) {
+      const postDetails = post[0]; 
+      console.log("Post Details:", postDetails);
+      console.log("Images Data:", postDetails.images);
+
+      PostUser.push({
+        PostId: postDetails.post_id,
+        // Fullname: userVisitors.fullname,
+        // Img_profile: userVisitors.img_profile,
+        Detail: postDetails.post_detail,
+        Date: moment(postDetails.post_date).format("D-M-YYYY ( HH:mm น.)"),
+        Img_Post:
+          postDetails.images && Array.isArray(postDetails.images)
+            ? postDetails.images.map((image) => ({
+                url: image.url,
+                img_id: image.image_id,
+              }))
+            : [],
+      });
+
+      return PostUser.length > 0 ? (
+        PostUser.map((user, i) => (
+          <View key={i} style={stylesIn.item}>
+            <Swiper style={stylesIn.swiper} showsPagination={true} loop={false}>
+              {user.Img_Post && user.Img_Post.length > 0 ? (
+                user.Img_Post.map((item, index) => (
+                  <View key={index} style={stylesIn.item}>
+                    <Image
+                      source={{ uri: item.url }}
+                      style={stylesIn.image_body}
+                    />
+                  </View>
+                ))
+              ) : (
+                <Text style={{ textAlign: "center", marginTop: 20 }}>
+                  ไม่มีรูปภาพ
+                </Text>
+              )}
+            </Swiper>
+            <View>
+              <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+                {user.Fullname}
+              </Text>
+              <Text style={{ fontSize: 10, color: "#888888" }}>
+                {user.Date}
+              </Text>
+            </View>
+            <Text style={stylesIn.name_body}>
+              {user.Detail || "No Details Available"}
+            </Text>
+          </View>
+        ))
+      ) : (
+        <Text style={{ textAlign: "center", marginTop: 20 }}>ไม่มีโพสต์</Text>
+      );
+    } else {
+      return (
+        <Text style={{ textAlign: "center", marginTop: 20 }}>ไม่มีโพสต์</Text>
+      );
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Navbar */}
       <View style={styles.navbar}>
         <View style={styles.leftBox}>
           <Text style={styles.titleTop}>CHANGPAB</Text>
         </View>
         <View style={styles.rightBox}>
-          {/* กดที่รูปโปรไฟล์เพื่อแสดง dropdown */}
           <TouchableOpacity onPress={toggleDropdown}>
             <Image
               source={{
@@ -311,9 +309,7 @@ const PhotoDetailPost = ({ navigation }) => {
             </TouchableOpacity>
             <Text style={styles.exitText}>รายละเอียดโพสต์</Text>
           </View>
-          <View style={stylesIn.body}>
-          {renderPost()}
-          </View>
+          <View style={stylesIn.body}>{renderPost()}</View>
         </View>
       </ScrollView>
 
@@ -345,7 +341,6 @@ const PhotoDetailPost = ({ navigation }) => {
         </TouchableWithoutFeedback>
       </Modal>
 
-      {/* เมนูด้านล่าง */}
       <View style={styles.menu}>
         <TouchableOpacity style={styles.menuItem} onPress={PhotoIdex}>
           <FontAwesomeIcon icon={faHouse} size={24} color="#000" />
@@ -374,7 +369,7 @@ const stylesIn = StyleSheet.create({
   },
   item: {
     width: "100%",
-    height: "150%",
+    height: "120%",
     marginBottom: 16,
     backgroundColor: "#fff",
     borderRadius: 12,
@@ -413,9 +408,11 @@ const stylesIn = StyleSheet.create({
     overflow: "hidden",
   },
   image_body: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "cover",
+    width: "100%", // ปรับรูปให้เต็มความกว้างของกล่องg
+    aspectRatio: 1.5, // กำหนดอัตราส่วนภาพ เช่น 1.5 สำหรับภาพแนวนอน
+    borderRadius: 8,
+    marginBottom: 8,
+    resizeMode: "contain", // ปรับการแสดงผลของรูปภาพ
   },
   name_body: {
     fontSize: 15,
