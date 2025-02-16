@@ -243,3 +243,34 @@ func UpdateDetail(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"status": "ok", "user": user})
 }
+
+func UserVisitors(c *gin.Context) {
+
+	userId := c.DefaultQuery("userId", "")
+	if userId == "" {
+		c.JSON(400, gin.H{"error": "Missing or invalid userId"})
+		return
+	}
+
+	device_host := os.Getenv("DEVICE_HOST")
+	imageHostProfile := fmt.Sprintf("http://%s:8080/get_image/user_profile/", device_host)
+
+	var user orm.User
+	if err := orm.Db.First(&user, userId).Error; err != nil {
+		c.JSON(404, gin.H{"error": "User not found"})
+		return
+	}
+
+	user.Img_profile = fmt.Sprintf("%s%s", imageHostProfile, user.Img_profile)
+
+	c.JSON(http.StatusOK, gin.H{
+		"status": "OK",
+		"userVisitors": map[string]interface{}{
+			"user_id":     user.ID,
+			"fullname":    user.Fullname,
+			"img_profile": user.Img_profile,
+			"email":       user.Email,
+			"detail":      user.Detail,
+		},
+	})
+}

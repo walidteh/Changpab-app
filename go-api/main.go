@@ -53,6 +53,7 @@ func main() {
 	authorized.DELETE("/delete_rate", UserController.DeleteRate)
 	authorized.POST("/update_detail", UserController.UpdateDetail)
 	authorized.GET("/post_visitor", UserController.GetPostVisitor)
+	authorized.GET("/get_user_visitors", UserController.UserVisitors)
 
 	device_host := os.Getenv("DEVICE_HOST")
 
