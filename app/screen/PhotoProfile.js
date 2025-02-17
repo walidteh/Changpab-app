@@ -43,6 +43,7 @@ const PhotoProfile = ({ navigation }) => {
   const [user, setUser] = useState({});
   const [userAll, setUserAll] = useState([]);
   const [post, setPost] = useState([]);
+  const [usersLiked, setUsersLiked] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [profileImage, setProfileImage] = useState(null);
   const [selectedDropdown, setSelectedDropdown] = useState(null);
@@ -167,6 +168,8 @@ const PhotoProfile = ({ navigation }) => {
       const data = await response.json();
       if (data.status === "ok") {
         setUser(data.userId);
+        // console.log("user ID : ", data.userId.ID);
+        fetchUserLiked(data.userId.ID);
       } else {
         alert("Failed to fetch user data");
       }
@@ -178,7 +181,38 @@ const PhotoProfile = ({ navigation }) => {
     }
   };
 
-  
+  const fetchUserLiked = async (userId) => {
+
+    try {
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        alert("Token not found. Please log in again.");
+        return;
+      }
+    
+      // Correct way to pass query parameters in a GET request
+      const url = `http://${app_var.api_host}/users/get_users_liked?userId=${encodeURIComponent(userId)}`;
+    
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+    
+      const data = await response.json();
+      // console.log("API Response:", data);
+      setUsersLiked(data);
+    
+    } catch (error) {
+      console.error("Error fetching users like:", error);
+      // alert("Error fetching like data");
+    }
+  };
 
   const CreateContact = async (contactName, contactLink) => {
     try {
@@ -910,18 +944,17 @@ const DeleteRate = async (ID) => {
       return (
         <ScrollView>
           <View style={styles.body}>
-            {userAll.map((user, i) => (
+            {usersLiked.map((item, i) => (
               <TouchableOpacity
                 key={i}
                 style={styles.item}
-                onPress={DetailPost}
               >
                 <Image
-                  source={{ uri: user.Img_profile }}
+                  source={{ uri: item.img_profile }}
                   style={styles.image_body}
                 />
                 <Text style={styles.name_body}>
-                  {user.Fullname || "No Fullname Available"}
+                  {item.fullname || "No Fullname Available"}
                 </Text>
               </TouchableOpacity>
             ))}

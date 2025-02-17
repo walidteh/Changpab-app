@@ -33,6 +33,7 @@ const PhotoDetailUser = ({ navigation }) => {
   const [user, setUser] = useState({});
   const [userVisitors, setUserVisitors] = useState({});
   const [post, setPost] = useState([]);
+  const [liked, setLiked] = useState([]);
   const HostInfo = [
     { platform: "facebook", icon: faFacebook, color: "#1877f2" },
     { platform: "instagram", icon: faInstagram, color: "#f56949" },
@@ -45,6 +46,7 @@ const PhotoDetailUser = ({ navigation }) => {
   const [rateInfo, setRateInfo] = useState([]);
   const route = useRoute();
   const { userId } = route.params;
+  const { userLoginId } = route.params;
 
   const fetchUser = async () => {
     try {
@@ -78,6 +80,47 @@ const PhotoDetailUser = ({ navigation }) => {
       setIsLoading(false);
     }
   };
+
+  const fetchUserLike = async () => {
+    try {
+      const myId = userLoginId;
+      const visitorId = userId;
+    
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        alert("Token not found. Please log in again.");
+        return;
+      }
+    
+      // Correct way to pass query parameters in a GET request
+      const url = `http://${app_var.api_host}/users/check_like?userId=${encodeURIComponent(myId)}&likedUserId=${encodeURIComponent(visitorId)}`;
+    
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+    
+      const data = await response.json();
+      setLiked(data.liked);
+    
+    } catch (error) {
+      console.error("Error fetching like data:", error);
+      alert("Error fetching like data");
+    } finally {
+      setIsLoading(false);
+    }
+    
+  };
+
+  useEffect(() => {
+    console.log("Liked:", liked);
+  }, [liked]);
 
   const fetchUserVisitors = async () => {
     try {
@@ -122,7 +165,9 @@ const PhotoDetailUser = ({ navigation }) => {
   const ImageProfile = "";
 
   useEffect(() => {
-    console.log("Received userId:", userId);
+    // console.log("Received userId:", userId);
+    // console.log("LogInId userId:", userLoginId);
+    fetchUserLike();
     fetchUserVisitors();
     fetchUser();
   }, []);
@@ -276,6 +321,40 @@ const PhotoDetailUser = ({ navigation }) => {
     ));
   }
 
+  const userLikePress = async () => {
+    const myId = user.ID;
+    const visitorId = userVisitors.user_id;
+    // console.log("My ID : ", myId);
+    // console.log("Visitor ID : ", visitorId);
+
+    const token = await AsyncStorage.getItem("@token");
+    if (!token) {
+      alert("Token not found. Please log in again.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("userId", myId);
+    formData.append("likedUserId", visitorId);
+
+    const response = await fetch("http://" + app_var.api_host + "/users/like", {
+      method: "POST",
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    if (response.ok) {
+      // const result = await response.json();
+      // console.log("Like successful:", result);
+      fetchUserLike();
+    } else {
+      console.error("Like failed:", response.statusText);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.navbar}>
@@ -349,6 +428,9 @@ const PhotoDetailUser = ({ navigation }) => {
             <View style={stylesIn.info_top}>
               <Text style={stylesIn.name}>{userVisitors.fullname}</Text>
             </View>
+            <TouchableOpacity onPress={() => userLikePress()}>
+              <Text>{liked ? "Unlike" : "Like"}</Text>
+            </TouchableOpacity>
           </View>
           <View style={stylesIn.content_home}>
             <Text style={stylesIn.titlecontent}>รายละเอียด</Text>

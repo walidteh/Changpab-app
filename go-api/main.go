@@ -54,6 +54,10 @@ func main() {
 	authorized.POST("/update_detail", UserController.UpdateDetail)
 	authorized.GET("/post_visitor", UserController.GetPostVisitor)
 
+	authorized.POST("/like", UserController.LikeUser)
+	authorized.GET("/check_like", UserController.CheckLike)
+	authorized.GET("/get_users_liked", UserController.GetLikedUsers)
+
 	device_host := os.Getenv("DEVICE_HOST")
 
 	r.Run(device_host + ":8080")
