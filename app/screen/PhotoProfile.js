@@ -1045,7 +1045,7 @@ const PhotoProfile = ({ navigation }) => {
             <Image source={{ uri: item.img_profile }} style={styles.profileImage} />
             <View style={styles.textContainer}>
               <Text style={styles.name}>{item.fullname}</Text>
-              <Text style={styles.id}>ID: {item.id}</Text>
+              {/* <Text style={styles.id}>ID: {item.id}</Text> */}
             </View>
           </View>
         ))}
@@ -1709,9 +1709,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-  },
-  container: {
-    padding: 10,
   },
   card: {
     flexDirection: 'row',
