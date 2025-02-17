@@ -15,7 +15,7 @@ import Swiper from "react-native-swiper";
 import moment from "moment";
 import { useRoute } from "@react-navigation/native";
 import styles from "./styles";
-import Icon from 'react-native-vector-icons/AntDesign';
+import Icon from "react-native-vector-icons/AntDesign";
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
@@ -49,15 +49,15 @@ const PhotoDetailUser = ({ navigation }) => {
 
   const [likedPosts, setLikedPosts] = useState([]);
 
-const toggleLike = (postId) => {
-  if (likedPosts.includes(postId)) {
-    // ถ้ากดแล้ว (โพสต์ถูกใจอยู่แล้ว) ให้ลบออกจากรายการ
-    setLikedPosts(likedPosts.filter((id) => id !== postId));
-  } else {
-    // ถ้ายังไม่ได้กดถูกใจ ให้เพิ่มเข้าไป
-    setLikedPosts([...likedPosts, postId]);
-  }
-};
+  const toggleLike = (postId) => {
+    if (likedPosts.includes(postId)) {
+      // ถ้ากดแล้ว (โพสต์ถูกใจอยู่แล้ว) ให้ลบออกจากรายการ
+      setLikedPosts(likedPosts.filter((id) => id !== postId));
+    } else {
+      // ถ้ายังไม่ได้กดถูกใจ ให้เพิ่มเข้าไป
+      setLikedPosts([...likedPosts, postId]);
+    }
+  };
 
   const fetchUser = async () => {
     try {
@@ -253,41 +253,39 @@ const toggleLike = (postId) => {
   };
 
   const renderContact = () => {
-    contactInfo.forEach((item)=> {
-      var temp = {}
+    contactInfo.forEach((item) => {
+      var temp = {};
       for (let i of HostInfo) {
         if (i.platform == item.Contact_host) {
-          temp = i 
+          temp = i;
         }
       }
-      if(temp !== undefined){
+      if (temp !== undefined) {
         contactData.push({
           id: item.ID,
           contact_name: item.Contact_name,
           contact_link: item.Contact_link,
           contact_icon: temp.icon,
           contact_color: temp.color,
-        })
+        });
       }
-    })
+    });
     return contactData.map((item, i) => (
       <View key={i} style={stylesIn.contactContainer}>
         <TouchableOpacity
           style={stylesIn.contact}
-          onPress={() => console.log("test")} 
+          onPress={() => console.log("test")}
         >
           <FontAwesomeIcon
             icon={item.contact_icon}
             size={24}
             color={item.contact_color}
           />
-          <Text style={stylesIn.contactText}>
-            {item.contact_name}
-          </Text>
+          <Text style={stylesIn.contactText}>{item.contact_name}</Text>
         </TouchableOpacity>
       </View>
     ));
-  }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -344,7 +342,6 @@ const toggleLike = (postId) => {
               style={stylesIn.imageBackground}
               resizeMode="cover"
             >
-              
               <TouchableOpacity onPress={() => navigation.goBack()}>
                 <FontAwesomeIcon icon={faArrowLeft} size={20} color="#fff" />
               </TouchableOpacity>
@@ -361,34 +358,34 @@ const toggleLike = (postId) => {
 
           <View style={stylesIn.info}>
             <View style={stylesIn.info_top}>
-              <Text style={stylesIn.name}>{userVisitors.fullname}</Text>
+              <View style={stylesIn.centerContainer}>
+                <Text style={stylesIn.name}>{userVisitors.fullname}</Text>
+                <TouchableOpacity onPress={() => toggleLike(user.post_id)}>
+                  <Text
+                    style={[
+                      stylesIn.likeText,
+                      likedPosts.includes(user.post_id) && stylesIn.likedText,
+                    ]}
+                  >
+                    {likedPosts.includes(user.post_id) ? "ถูกใจแล้ว" : "ถูกใจ"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-          <TouchableOpacity
-        onPress={() => toggleLike(user.post_id)} // เมื่อกดปุ่มถูกใจ
-        style={stylesIn.likeButton}
-      >
-        <Icon
-          name={likedPosts.includes(user.post_id) ? 'heart' : 'hearto'} // ใช้ 'heart' ถ้าถูกใจแล้ว
-          size={24}
-          color={likedPosts.includes(user.post_id) ? 'red' : '#888'}
-        />
-        <Text style={{ color: likedPosts.includes(user.post_id) ? 'red' : '#888' }}>
-          {likedPosts.includes(user.post_id) ? 'ถูกใจแล้ว' : 'ถูกใจ'}
-        </Text>
-      </TouchableOpacity>
+
           <View style={stylesIn.content_home}>
             <Text style={stylesIn.titlecontent}>รายละเอียด</Text>
 
             <View style={stylesIn.detials}>
-              <Text style={stylesIn.caption}>{userVisitors.detail || "ข้อมูล ประวัตื caption"}</Text>
+              <Text style={stylesIn.caption}>
+                {userVisitors.detail || "ข้อมูล ประวัตื caption"}
+              </Text>
 
               <Text style={{ fontSize: 14, marginBottom: 15 }}>
                 ช่องทางการติดต่อ
               </Text>
-              <View style={{ paddingTop: 8 }}>
-                {renderContact()}
-              </View>
+              <View style={{ paddingTop: 8 }}>{renderContact()}</View>
 
               <Text style={{ fontSize: 14, marginBottom: 10 }}>เรทราคา</Text>
               <View style={stylesIn.rate}>
@@ -448,28 +445,40 @@ const stylesIn = StyleSheet.create({
     justifyContent: "space-between",
   },
   logoContainer: {
-    position: "relative", 
+    position: "relative",
     alignItems: "center",
     justifyContent: "center",
   },
   logo: {
-    width: 120, 
+    width: 120,
     height: 120,
     borderRadius: 100,
   },
 
   info: {
-    width: "100%",
     padding: 10,
-  },
-  name: {
-    fontSize: 20,
-    fontWeight: "bold",
   },
   info_top: {
     flexDirection: "row",
+    alignItems: "center",
+  },
+  centerContainer: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
     justifyContent: "center",
-    marginBottom: 15,
+  },
+  likeText: {
+    color: "#888",
+    marginLeft: 5,
+  },
+  likedText: {
+    color: "red",
+  },
+  name: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginRight: 8,
   },
   btt_info: {
     backgroundColor: "#d4d4d4",
@@ -504,6 +513,9 @@ const stylesIn = StyleSheet.create({
     flexDirection: "row",
     marginBottom: 10,
     paddingHorizontal: 10,
+  },
+  contactText: {
+    left : 10
   },
   rate: {
     marginBottom: 10,

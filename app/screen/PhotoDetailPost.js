@@ -458,7 +458,7 @@ const stylesIn = StyleSheet.create({
     color: "#888",
   },
   swiper: {
-    height: 250,
+    height: 200,
     borderRadius: 10,
     overflow: "hidden",
   },
