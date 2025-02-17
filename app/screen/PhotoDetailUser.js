@@ -46,15 +46,15 @@ const PhotoDetailUser = ({ navigation }) => {
   const [rateInfo, setRateInfo] = useState([]);
   const route = useRoute();
   const { userId } = route.params;
-
+  const { userLoginId } = route.params;
+  const [liked, setLiked] = useState([]);
+  
   const [likedPosts, setLikedPosts] = useState([]);
 
   const toggleLike = (postId) => {
     if (likedPosts.includes(postId)) {
-      // ถ้ากดแล้ว (โพสต์ถูกใจอยู่แล้ว) ให้ลบออกจากรายการ
       setLikedPosts(likedPosts.filter((id) => id !== postId));
     } else {
-      // ถ้ายังไม่ได้กดถูกใจ ให้เพิ่มเข้าไป
       setLikedPosts([...likedPosts, postId]);
     }
   };
@@ -130,14 +130,53 @@ const PhotoDetailUser = ({ navigation }) => {
     }
   };
 
+  const fetchUserLike = async () => {
+    try {
+      const myId = userLoginId;
+      const visitorId = userId;
+
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        alert("Token not found. Please log in again.");
+        return;
+      }
+
+      // Correct way to pass query parameters in a GET request
+      const url = `http://${app_var.api_host}/users/check_like?userId=${encodeURIComponent(myId)}&likedUserId=${encodeURIComponent(visitorId)}`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setLiked(data.liked);
+
+    } catch (error) {
+      console.error("Error fetching like data:", error);
+      alert("Error fetching like data");
+    } finally {
+      setIsLoading(false);
+    }
+
+  };
+
   var contactData = [];
 
   const ImageProfile = "";
 
   useEffect(() => {
     console.log("Received userId:", userId);
+    console.log("Received userLoginId:", userLoginId);
     fetchUserVisitors();
     fetchUser();
+    fetchUserLike();
   }, []);
 
   const PhotoIdex = () => {
@@ -162,6 +201,40 @@ const PhotoDetailUser = ({ navigation }) => {
 
   const toggleDropdown = () => {
     setIsDropdownVisible(!isDropdownVisible);
+  };
+
+  const userLikePress = async () => {
+    const myId = user.ID;
+    const visitorId = userVisitors.user_id;
+    // console.log("My ID : ", myId);
+    // console.log("Visitor ID : ", visitorId);
+
+    const token = await AsyncStorage.getItem("@token");
+    if (!token) {
+      alert("Token not found. Please log in again.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("userId", myId);
+    formData.append("likedUserId", visitorId);
+
+    const response = await fetch("http://" + app_var.api_host + "/users/like", {
+      method: "POST",
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    if (response.ok) {
+      // const result = await response.json();
+      // console.log("Like successful:", result);
+      fetchUserLike();
+    } else {
+      console.error("Like failed:", response.statusText);
+    }
   };
 
   const handleLogout = async () => {
@@ -360,16 +433,18 @@ const PhotoDetailUser = ({ navigation }) => {
             <View style={stylesIn.info_top}>
               <View style={stylesIn.centerContainer}>
                 <Text style={stylesIn.name}>{userVisitors.fullname}</Text>
-                <TouchableOpacity onPress={() => toggleLike(user.post_id)}>
+                {userId != userLoginId ? (
+                <TouchableOpacity onPress={userLikePress}>
                   <Text
                     style={[
                       stylesIn.likeText,
-                      likedPosts.includes(user.post_id) && stylesIn.likedText,
+                      liked && stylesIn.likedText,
                     ]}
                   >
-                    {likedPosts.includes(user.post_id) ? "ถูกใจแล้ว" : "ถูกใจ"}
+                    {liked ? "ถูกใจแล้ว" : "ถูกใจ"}
                   </Text>
                 </TouchableOpacity>
+                ):(<View></View>)}
               </View>
             </View>
           </View>

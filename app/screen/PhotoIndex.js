@@ -330,20 +330,20 @@ const PhotoIndex = ({ navigation }) => {
           >
             {userAll
               .slice(0, 15) // เลือกแค่ 15 อัน
-              .map((user, i) => (
+              .map((item, i) => (
                 <TouchableOpacity
                   key={i}
                   style={stylesIn.item_top}
                   onPress={() => {
-                    navigation.navigate("PhotoDetailUser", { userId: user.ID });
+                    navigation.navigate("PhotoDetailUser", { userId: item.ID , userLoginId: user.ID });
                   }}
                 >
                   <Image
-                    source={{ uri: user.Img_profile }}
+                    source={{ uri: item.Img_profile }}
                     style={stylesIn.image}
                   />
                   <Text style={stylesIn.name}>
-                    {user.Fullname || "No Fullname Available"}
+                    {item.Fullname || "No Fullname Available"}
                   </Text>
                 </TouchableOpacity>
               ))}
