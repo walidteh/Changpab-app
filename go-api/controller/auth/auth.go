@@ -19,7 +19,6 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	// Check if username exists
 	var userExist orm.User
 	orm.Db.Where("username = ?", json.Username).First(&userExist)
 	if userExist.ID > 0 {
@@ -27,7 +26,6 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	// Check if email exists
 	var emailExist orm.User
 	orm.Db.Where("email = ?", json.Email).First(&emailExist)
 	if emailExist.ID > 0 {
@@ -35,7 +33,6 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	// Create user
 	encryptedPassword, _ := bcrypt.GenerateFromPassword([]byte(json.Password), 10)
 	user := orm.User{
 		Username:    json.Username,
