@@ -159,25 +159,26 @@ func GetPostRandom(c *gin.Context) {
 	limit := c.DefaultQuery("limit", "")
 
 	err := orm.Db.Raw(`
-		SELECT 
-			posts.id AS post_id,
-			posts.detail AS post_detail,
-			posts.created_at AS post_date,
-			images.id AS image_id,
-			images.img_url AS image_url,
-			users.id AS user_id,
-			users.fullname AS fullname,
-			users.img_profile AS profile
+	SELECT 
+		posts.id AS post_id,
+		posts.detail AS post_detail,
+		posts.created_at AS post_date,
+		MAX(images.id) AS image_id,  -- เลือกรูปแรก
+		MAX(images.img_url) AS image_url,  -- เลือกรูปแรก
+		users.id AS user_id,
+		users.fullname AS fullname,
+		users.img_profile AS profile
 		FROM 
 			posts
 		LEFT JOIN 
 			users ON users.id = posts.user_id
 		LEFT JOIN 
 			images ON posts.id = images.post_id
-			GROUP BY 
-			posts.id
-			ORDER BY RAND()
-			LIMIT ?;
+		GROUP BY 
+			posts.id, users.id, users.fullname, users.img_profile
+		ORDER BY 
+			RAND()
+		LIMIT ?;
 	`, limit).Scan(&rows_get_post_random).Error
 
 	if err != nil {
