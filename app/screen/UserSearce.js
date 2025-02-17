@@ -116,9 +116,9 @@ const UserSearch = () => {
       // กำหนด URL ที่ส่ง parameter keyword ไปกับ GET request
       const response = await fetch(
         "http://" +
-        app_var.api_host +
-        "/users/search?keyword=" +
-        encodeURIComponent(keyword),
+          app_var.api_host +
+          "/users/search?keyword=" +
+          encodeURIComponent(keyword),
         {
           method: "GET",
           headers: {
@@ -146,7 +146,7 @@ const UserSearch = () => {
 
   const navigation = useNavigation();
 
-  const UserIndex = () => {
+  const UserIdex = () => {
     navigation.navigate("UserIndex");
   };
 
@@ -185,7 +185,7 @@ const UserSearch = () => {
     } catch (error) {
       console.error("Error clearing token:", error);
     }
-  }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -208,7 +208,7 @@ const UserSearch = () => {
           {/* แสดง dropdown */}
           {isDropdownVisible && (
             <View style={styles.dropdown}>
-              <View style={{ flexDirection: 'row' }}>
+              <View style={{ flexDirection: "row" }}>
                 <Image
                   source={{
                     uri: user.Img_profile,
@@ -228,7 +228,7 @@ const UserSearch = () => {
                   </Text>
                 </View>
               </View>
-              <View style={{ alignItems: 'center', marginTop: 15 }}>
+              <View style={{ alignItems: "center", marginTop: 15 }}>
                 <TouchableOpacity style={styles.button} onPress={handleLogout}>
                   <Text style={styles.buttonText}>Logout</Text>
                 </TouchableOpacity>
@@ -296,9 +296,13 @@ const UserSearch = () => {
         </ScrollView>
         <View style={styles.body}>
           {userAll.map((user, i) => (
-            <TouchableOpacity key={i} style={styles.item} onPress={() => {
-              navigation.navigate("PhotoDetailUser", { userId: user.ID })
-            }}>
+            <TouchableOpacity
+              key={i}
+              style={styles.item}
+              onPress={() => {
+                navigation.navigate("PhotoDetailUser", { userId: user.ID });
+              }}
+            >
               <Image
                 source={{ uri: user.Img_profile }}
                 style={styles.image_body}
@@ -313,7 +317,7 @@ const UserSearch = () => {
 
       {/* เมนูด้านล่าง */}
       <View style={styles.menu}>
-        <TouchableOpacity style={styles.menuItem} onPress={UserIndex}>
+        <TouchableOpacity style={styles.menuItem} onPress={UserIdex}>
           <FontAwesomeIcon icon={faHouse} size={24} color="#000" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem} onPress={UserSearce}>
