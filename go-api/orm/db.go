@@ -22,4 +22,5 @@ func InitDB() {
 	Db.AutoMigrate(&Post{})
 	Db.AutoMigrate(&Contact{})
 	Db.AutoMigrate(&Rate{})
+	Db.AutoMigrate(&Likes{})
 }
