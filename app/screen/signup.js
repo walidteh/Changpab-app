@@ -189,7 +189,9 @@ export default function LoginForm({ navigation }) {
                 <Text style={{ textAlign: "center", color: "gray" }}>
                   กรุณาเลือกบทบาทของคุณ
                 </Text>
+
               )}
+              
 
               {role === "PG" && (
                 <>
