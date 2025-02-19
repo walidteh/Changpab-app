@@ -215,14 +215,10 @@ const UserAllphotographer = () => {
       {/* รูป */}
       <ScrollView>
         <View style={styles.body}>
-          {userAll.map((user, i) => (
-            <TouchableOpacity
-              key={i}
-              style={styles.item}
-              onPress={() => {
-                navigation.navigate("PhotoDetailUser", { userId: user.ID })
-              }}
-            >
+        {userAll.map((user, i) => (
+            <TouchableOpacity key={i} style={styles.item} onPress={() => {
+              navigation.navigate("PhotoDetailUser", { userId: user.ID , userLoginId: user.ID })
+            }}>
               <Image source={{ uri: user.Img_profile }} style={styles.image_body} />
               <Text style={styles.name}>{user.Fullname || "No Fullname Available"}</Text>
             </TouchableOpacity>
