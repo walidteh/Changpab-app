@@ -1,31 +1,15 @@
-import {
-  StyleSheet,
-  View,
-  Image,
-  Pressable,
-  ActivityIndicator,
-  Text,
-  Animated,
-} from "react-native";
-import React, { useState, useEffect, useRef } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { StyleSheet, View, Image, Pressable, ActivityIndicator, Text, Animated, Button } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
 
 const GetStart = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const scaleValue = useRef(new Animated.Value(1)).current;
-  const translateY = useRef(new Animated.Value(0)).current;
+  const scaleValue = useRef(new Animated.Value(1)).current; // สำหรับแอนิเมชั่นการขยายของโลโก้
+  const translateY = useRef(new Animated.Value(0)).current; // สำหรับแอนิเมชั่นการเคลื่อนที่ในแนว Y
+  const logoScale = useRef(new Animated.Value(1)).current; // สำหรับแอนิเมชั่นการซูมโลโก้
 
   useEffect(() => {
-    const checkLogin = async () => {
-      const token = await AsyncStorage.getItem("@token");
-      setIsLoggedIn(!!token);
-    };
-
-    checkLogin();
-
     const scaleAnimation = Animated.loop(
       Animated.sequence([
         Animated.timing(scaleValue, {
@@ -40,11 +24,26 @@ const GetStart = ({ navigation }) => {
         }),
       ])
     );
-
     scaleAnimation.start();
 
     const timer = setTimeout(() => {
       setCooldown(true);
+      // ซูมโลโก้เข้าออกหลังจาก cooldown เริ่ม
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(logoScale, {
+            toValue: 1.05, // ขยายโลโก้
+            duration: 800,
+            useNativeDriver: true,
+          }),
+          Animated.timing(logoScale, {
+            toValue: 1, // หดโลโก้กลับ
+            duration: 800,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+
       Animated.parallel([
         Animated.timing(scaleValue, {
           toValue: 0.8,
@@ -63,27 +62,14 @@ const GetStart = ({ navigation }) => {
       clearTimeout(timer);
       scaleAnimation.stop();
     };
-  }, [scaleValue, translateY]);
+  }, [scaleValue, translateY, logoScale]);
 
-  useEffect(() => {
-    if (isLoggedIn && cooldown) {
-      const navigateToIndex = async () => {
-        const role = await AsyncStorage.getItem("@userRole");
-        navigation.reset({
-          index: 0,
-          routes: [{ name: role === "PG" ? "PhotoIndex" : "UserIndex" }],
-        });
-      };
-      navigateToIndex();
-    }
-  }, [isLoggedIn, cooldown, navigation]);
-
-  const onPress = async () => {
+  const onPress = () => {
     setLoading(true);
     setTimeout(() => {
-      navigation.navigate("login");
+      navigation.navigate('Choose');
       setLoading(false);
-    }, 500);
+    }, 1000);
   };
 
   return (
@@ -93,15 +79,19 @@ const GetStart = ({ navigation }) => {
       ) : (
         <>
           <Animated.Image
-            source={require("../assets/camera.png")}
+            source={require('../assets/logo/camera.png')}
             style={[
               styles.image,
               {
-                transform: [{ scale: scaleValue }, { translateY: translateY }],
+                transform: [
+                  { scale: scaleValue },
+                  { translateY: translateY },
+                  { scale: logoScale } // เพิ่มการซูมโลโก้เข้าออก
+                ]
               },
             ]}
           />
-          {cooldown && !isLoggedIn ? (
+          {cooldown ? (
             <>
               <View style={styles.details}>
                 <Text style={styles.subText}>Find the right</Text>
@@ -113,12 +103,13 @@ const GetStart = ({ navigation }) => {
                 onPress={onPress}
                 disabled={loading}
               >
-                <Text style={styles.buttonText}>Get Started</Text>
+                <Text style={styles.buttonText}>Get Started </Text>
               </Pressable>
             </>
           ) : (
             <Text style={styles.cooldownText}>CHANGPAB</Text>
           )}
+
         </>
       )}
     </View>
@@ -129,49 +120,51 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#072432",
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   image: {
-    width: 280,
-    height: 240,
+    width: 280, // ขนาดโลโก้
+    height: 220,
     marginBottom: 60,
   },
   cooldownText: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 30,
     marginTop: -30,
   },
   subText: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 24,
     marginTop: 5,
-    textAlign: "center",
+    textAlign: 'center',
   },
   titleText: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 28,
     marginTop: 10,
-    fontWeight: "bold",
-    textAlign: "center",
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   details: {
-    top: -150,
+    top: -150
   },
   button: {
-    backgroundColor: "white",
+    backgroundColor: 'white',
     height: 60,
     width: 170,
     borderWidth: 1,
     borderRadius: 5,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     top: 50,
   },
   buttonText: {
-    color: "black",
+    //borderColor: 'red',
+    //borderWidth: 1,
+    color: 'black',
     fontSize: 22,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
 });
 

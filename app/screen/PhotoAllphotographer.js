@@ -224,7 +224,7 @@ const PhotoAllphotographer = () => {
               key={i}
               style={styles.item}
               onPress={() => {
-                navigation.navigate("PhotoDetailUser", { userId: user.ID })
+                navigation.navigate("PhotoDetailUser", {  userId: user.ID , userLoginId: user.ID})
               }}
             >
               <Image source={{ uri: user.Img_profile }} style={styles.image_body} />

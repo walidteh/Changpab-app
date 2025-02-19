@@ -29,6 +29,7 @@
     "expo-font": "~13.0.3",
     "expo-image-picker": "~16.0.4",
     "expo-linear-gradient": "~14.0.2",
+    "expo-modules-core": "^2.2.2",
     "expo-status-bar": "~2.0.1",
     "metro": "^0.81.0",
     "moment": "^2.30.1",

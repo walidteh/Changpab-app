@@ -8,7 +8,6 @@ import {
   ImageBackground,
   TouchableOpacity,
   RefreshControl,
-  Button,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -33,10 +32,6 @@ const PhotoIndex = ({ navigation }) => {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 
   const [refreshing, setRefreshing] = useState(false); // Declare refreshing state
-
-  const handlePress = () => {
-    navigation.navigate("Profile");
-  };
 
   const fetchUser = async () => {
     try {
@@ -203,19 +198,15 @@ const PhotoIndex = ({ navigation }) => {
 
   const handleLogout = async () => {
     try {
-      // ลบ token ออกจาก AsyncStorage
       await AsyncStorage.removeItem("@token");
 
-      // ตรวจสอบว่า token ถูกลบออกจริง ๆ
       const token = await AsyncStorage.getItem("@token");
       if (!token) {
         console.log("Token removed successfully");
       }
-
-      // รีเซ็ตการนำทางไปยังหน้า login
       navigation.reset({
         index: 0,
-        routes: [{ name: "login" }], // เปลี่ยน 'Login' เป็นชื่อของหน้า Login ที่คุณใช้
+        routes: [{ name: "login" }],
       });
     } catch (error) {
       console.error("Error clearing token:", error);

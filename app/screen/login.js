@@ -55,11 +55,10 @@ export default function LoginForm({ navigation }) {
     }, 1000);
   };
 
-  // ปรับฟังก์ชัน handleSubmit ให้รับค่าจาก email และ password โดยตรง
   const handleSubmit = async () => {
     if (!email || !password) {
       Alert.alert("error", "Please enter your username");
-      return; // หยุดการทำงานของฟังก์ชันถ้าไม่มีข้อมูล
+      return; 
     }
 
     const response = await fetch("http://" + app_var.api_host + "/login", {
@@ -76,13 +75,16 @@ export default function LoginForm({ navigation }) {
     if (data.status === "ok") {
       setEmail("");
       setPassword("");
-      navigation.navigate(data.role === "PG" ? "PhotoIndex" : "UserIndex");
-
+      // navigation.navigate(data.role === "PG" ? "PhotoIndex" : "UserIndex");
+      navigation.reset({
+        index: 0,
+        routes: [{ name: data.role === "PG" ? "PhotoIndex" : "UserIndex" }],
+      });
       await AsyncStorage.setItem("@token", data.token);
       await AsyncStorage.setItem("@userRole", data.role);
       console.log(data.role);
       const token = await AsyncStorage.getItem("@token");
-      // navigation.navigate('Profile')
+
       console.log(token);
     } else {
       Alert.alert(data.status, data.message, [
