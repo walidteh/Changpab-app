@@ -111,8 +111,7 @@ const PhotoDetailPost = ({ navigation }) => {
       }
 
       const response = await fetch(
-        `http://${
-          app_var.api_host
+        `http://${app_var.api_host
         }/users/get_user_visitors?userId=${encodeURIComponent(userId)}`,
         {
           method: "GET",
@@ -147,8 +146,7 @@ const PhotoDetailPost = ({ navigation }) => {
       }
 
       const response = await fetch(
-        `http://${
-          app_var.api_host
+        `http://${app_var.api_host
         }/users/post_visitor?postId=${encodeURIComponent(postId)}`,
         {
           method: "GET",
@@ -239,15 +237,15 @@ const PhotoDetailPost = ({ navigation }) => {
         Img_Post:
           postDetails.images && Array.isArray(postDetails.images)
             ? postDetails.images.map((image) => ({
-                url: image.url,
-                img_id: image.image_id,
-              }))
+              url: image.url,
+              img_id: image.image_id,
+            }))
             : [],
       });
 
       return PostUser.length > 0 ? (
         PostUser.map((user, i) => (
-          <View key={i} style={stylesIn.item}>
+          <View key={i} style={stylesIn.item_body}>
             <View>
               <TouchableOpacity
                 key={i}
@@ -270,7 +268,7 @@ const PhotoDetailPost = ({ navigation }) => {
                     {user.Date}
                   </Text>
                 </View>
-                </TouchableOpacity>
+              </TouchableOpacity>
             </View>
             <Swiper style={stylesIn.swiper} showsPagination={true} loop={false}>
               {user.Img_Post && user.Img_Post.length > 0 ? (
@@ -352,19 +350,17 @@ const PhotoDetailPost = ({ navigation }) => {
         </View>
       </View>
 
-      <ScrollView>
-        <View style={stylesIn.content}>
-          <View style={styles.exit}>
-            <TouchableOpacity
-              style={styles.exitIcon}
-              onPress={() => navigation.goBack()}
-            >
-              <FontAwesomeIcon icon={faArrowLeft} size={18} color="#000" />
-            </TouchableOpacity>
-            <Text style={styles.exitText}>รายละเอียดโพสต์</Text>
-          </View>
-          <View style={stylesIn.body}>{renderPost()}</View>
+      <ScrollView style={stylesIn.content}>
+        <View style={styles.exit}>
+          <TouchableOpacity
+            style={styles.exitIcon}
+            onPress={() => navigation.goBack()}
+          >
+            <FontAwesomeIcon icon={faArrowLeft} size={18} color="#000" />
+          </TouchableOpacity>
+          <Text style={styles.exitText}>รายละเอียดโพสต์</Text>
         </View>
+        <View style={stylesIn.body}>{renderPost()}</View>
       </ScrollView>
 
       <Modal visible={isFullView} transparent={true} animationType="fade">
@@ -420,11 +416,11 @@ const stylesIn = StyleSheet.create({
   body: {
     flex: 1,
     padding: 10,
+    marginBottom: 90,
   },
-  item: {
+  item_body: {
     width: "100%",
-    height: "120%",
-    // marginBottom: 16,
+    minHeight: "auto", // กำหนดความสูงขั้นต่ำ
     backgroundColor: "#fff",
     borderRadius: 12,
     padding: 15,
@@ -433,6 +429,20 @@ const stylesIn = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 5,
     elevation: 4,
+  },  
+  item: {
+    width: "100%", // ใช้ 100% เพื่อให้เต็มความกว้างของ container
+    marginBottom: 16,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    // alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 3, // เฉพาะ Android
+    padding: 10,
   },
   profile_header: {
     width: 200,
@@ -473,7 +483,7 @@ const stylesIn = StyleSheet.create({
     fontSize: 15,
     fontWeight: "500",
     color: "#444",
-    // marginTop: 10,
+    marginTop: 10,
   },
   fullViewContainer: {
     flex: 1,

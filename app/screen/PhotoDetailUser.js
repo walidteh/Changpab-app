@@ -541,7 +541,7 @@ const stylesIn = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "space-between",
   },
   likeText: {
     color: "#888",
@@ -551,9 +551,8 @@ const stylesIn = StyleSheet.create({
     color: "red",
   },
   name: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: "bold",
-    marginRight: 8,
   },
   btt_info: {
     backgroundColor: "#d4d4d4",

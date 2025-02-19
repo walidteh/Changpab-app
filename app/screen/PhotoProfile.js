@@ -843,7 +843,7 @@ const PhotoProfile = ({ navigation }) => {
               {rate && (
                 <View style={styles.form}>
                   <TextInput
-                    placeholder="Type Name"
+                    placeholder="ประเภทงาน"
                     style={styles.input}
                     value={ratetype}
                     onChangeText={(text) => {
@@ -851,7 +851,7 @@ const PhotoProfile = ({ navigation }) => {
                     }}
                   />
                   <TextInput
-                    placeholder="Rate Price"
+                    placeholder="ราคา"
                     style={styles.input}
                     value={rateprice}
                     onChangeText={setRatePrice}
