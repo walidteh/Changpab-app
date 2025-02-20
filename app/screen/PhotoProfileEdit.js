@@ -464,7 +464,7 @@ const PhotoProfileEdit = ({ navigation }) => {
             <Text style={stylesIn.intoinput}>ประวัติ</Text>
             <TextInput
               style={stylesIn.inputBio}
-              placeholder="เขียนอะไรสักหน่อย"
+              placeholder="เพิ่มประว้ติ"
               value={textdetail}
               onChangeText={DetailEdit}
               autoCorrect={false}

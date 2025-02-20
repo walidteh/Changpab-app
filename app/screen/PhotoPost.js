@@ -282,7 +282,7 @@ const PhotoPost = ({ navigation }) => {
           <View style={stylesIn.contentpost}>
             <TextInput
               style={stylesIn.input}
-              placeholder="เขียนอะไรสักหน่อย"
+              placeholder="เพิ่มคำบรรยาย"
               value={text}
               onChangeText={handleTextChange}
               autoCorrect={false}

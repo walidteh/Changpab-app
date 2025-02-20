@@ -682,7 +682,7 @@ const PhotoProfile = ({ navigation }) => {
               <Text style={styles.caption}>
                 {user.Detail || "ข้อมูล ประวัตื caption"}{" "}
               </Text>
-              <View style={styles.container}>
+              <View style={styles.container_info}>
                 {/* ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- */}
 
                 <View style={styles.header}>
@@ -1438,7 +1438,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     // backgroundColor: "#fff",
-    // paddingTop: 80,
+    paddingTop: 80,
   },
   navbar: {
     position: "absolute",
