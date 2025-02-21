@@ -301,7 +301,7 @@ const PhotoSearch = () => {
         <View style={styles.body}>
           {userAll.map((user, i) => (
             <TouchableOpacity key={i} style={styles.item} onPress={() => {
-              navigation.navigate("PhotoDetailUser", { userId: user.ID , userLoginId: user.ID })
+              navigation.navigate("PhotoDetailUser", { userId: user.ID , userLoginId: user.ID });
             }}>
               <Image
                 source={{ uri: user.Img_profile }}

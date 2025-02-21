@@ -295,14 +295,10 @@ const UserSearch = () => {
           </TouchableOpacity>
         </ScrollView>
         <View style={styles.body}>
-          {userAll.map((user, i) => (
-            <TouchableOpacity
-              key={i}
-              style={styles.item}
-              onPress={() => {
-                navigation.navigate("PhotoDetailUser", { userId: user.ID });
-              }}
-            >
+        {userAll.map((user, i) => (
+            <TouchableOpacity key={i} style={styles.item} onPress={() => {
+              navigation.navigate("UserDetailUser", { userId: user.ID , userLoginId: user.ID });
+            }}>
               <Image
                 source={{ uri: user.Img_profile }}
                 style={styles.image_body}

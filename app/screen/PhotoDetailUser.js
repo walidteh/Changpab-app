@@ -44,6 +44,7 @@ const PhotoDetailUser = ({ navigation }) => {
   const [contactInfo, setContactInfo] = useState([]);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [rateInfo, setRateInfo] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const route = useRoute();
   const { userId } = route.params;
   const { userLoginId } = route.params;

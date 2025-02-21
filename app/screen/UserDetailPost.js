@@ -35,6 +35,7 @@ import { faFacebook, faInstagram } from "@fortawesome/free-brands-svg-icons";
 
 const UserDetailPost = ({ navigation }) => {
   const [user, setUser] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
   const [userVisitors, setUserVisitors] = useState({});
   const [post, setPost] = useState([]);
   const HostInfo = [

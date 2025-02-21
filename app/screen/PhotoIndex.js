@@ -12,6 +12,7 @@ import {
 import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import app_var from "./public";
+import { useFonts } from "expo-font";
 import styles from "./styles";
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
@@ -32,6 +33,12 @@ const PhotoIndex = ({ navigation }) => {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 
   const [refreshing, setRefreshing] = useState(false); // Declare refreshing state
+  const [fontsLoaded] = useFonts({
+        "Kanit-ExtraLight": require("../assets/fonts/Kanit-ExtraLight.ttf"),
+      });
+    if (!fontsLoaded) {
+      return null; // Or a loading screen
+    }
 
   const fetchUser = async () => {
     try {

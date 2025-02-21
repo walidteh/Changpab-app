@@ -14,6 +14,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import Checkbox from "expo-checkbox";
 import { useNavigation } from "@react-navigation/native";
+import { useFonts } from 'expo-font'; // expo install expo-font
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import app_var from "./public";
 
@@ -92,6 +93,14 @@ export default function LoginForm({ navigation }) {
       ]);
     }
   };
+
+  const [fontsLoaded] = useFonts({
+      "Kanit-ExtraLight": require("../assets/fonts/Kanit-ExtraLight.ttf"),
+    });
+  if (!fontsLoaded) {
+    return null; // Or a loading screen
+  }
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -217,8 +226,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
+    fontFamily: "Kanit-ExtraLight",
     fontSize: 26,
-    fontFamily: 'Kanit-ExtraLight', 
+    // fontFamily: 'Kanit-ExtraLight', 
     fontWeight: "bold",
     textAlign: "center",
     color: "white",
@@ -237,11 +247,13 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 50,
+    fontFamily: "Kanit-ExtraLight",
     backgroundColor: "white",
     paddingHorizontal: 20,
     borderRadius: 10,
   },
   intoinput: {
+    fontFamily: "Kanit-ExtraLight",
     gap: 1,
     paddingHorizontal: 10,
   },
@@ -276,9 +288,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   buttonText: {
+    fontFamily: "Kanit-ExtraLight",
     color: "white",
     fontSize: 18,
-    fontWeight: "bold",
+    // fontWeight: "bold",
   },
   buttonView: {
     width: "80%",
@@ -315,11 +328,13 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   footerText: {
+    fontFamily: "Kanit-ExtraLight",
     textAlign: "center",
     color: "gray",
     marginTop: 15,
   },
   signup: {
+    fontFamily: "Kanit-ExtraLight",
     textDecorationLine: "underline",
     color: "blue",
     fontSize: 13,

@@ -36,6 +36,7 @@ import { faFacebook, faInstagram } from "@fortawesome/free-brands-svg-icons";
 const PhotoDetailPost = ({ navigation }) => {
   const [user, setUser] = useState({});
   const [userVisitors, setUserVisitors] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
   const [post, setPost] = useState([]);
   const HostInfo = [
     { platform: "facebook", icon: faFacebook, color: "#1877f2" },

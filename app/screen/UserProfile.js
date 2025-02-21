@@ -57,6 +57,7 @@ const UserProfile = ({ navigation }) => {
   const [contactInfo, setContactInfo] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingContactItem, setIsEditingContactItem] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [EditContactId, setEditContactId] = useState(null);
 
   const [rate, setRate] = useState(false);
@@ -375,7 +376,7 @@ const UserProfile = ({ navigation }) => {
 
             <View style={styles.detials}>
               <Text style={styles.caption}>
-                {user.Detail || "ข้อมูล ประวัตื caption"}{" "}
+              {user.Detail || "ข้อมูล ประวัตื caption"}{" "}
               </Text>
               <View style={styles.container_info}>
                 {/* ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- */}
@@ -766,7 +767,7 @@ const UserProfile = ({ navigation }) => {
               <TouchableOpacity
                 style={styles.btt_info}
                 onPress={() => {
-                  navigation.navigate("PhotoProfileEdit", {
+                  navigation.navigate("UserProfileEdit", {
                     fullnameedit: user.Fullname,
                     lastnameedit: user.Lastname,
                     detailedit: user.Detail,

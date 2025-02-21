@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontFamily: "Kanit-ExtraLight",
-    fontWeight: "bold",
+    // fontWeight: "bold",
     textAlign: "center",
     color: "white",
   },
@@ -385,12 +385,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
   },
   input: {
+    fontFamily: "Kanit-ExtraLight",
     height: 50,
     backgroundColor: "white",
     paddingHorizontal: 20,
     borderRadius: 10,
   },
   intoinput: {
+    fontFamily: "Kanit-ExtraLight",
     gap: 1,
     paddingHorizontal: 10,
   },
@@ -405,7 +407,8 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "white",
     fontSize: 18,
-    fontWeight: "bold",
+    // fontWeight: "bold",
+    fontFamily: "Kanit-ExtraLight",
   },
   buttonView: {
     width: "100%",
@@ -414,6 +417,7 @@ const styles = StyleSheet.create({
     paddingRight: 30,
   },
   footerText: {
+    fontFamily: "Kanit-ExtraLight",
     marginBottom: 20,
     textAlign: "center",
     color: "gray",
@@ -434,6 +438,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   titlech: {
+    fontFamily: "Kanit-ExtraLight",
     fontSize: 18,
     color: "black",
     textAlign: "center",
@@ -476,6 +481,7 @@ const styles = StyleSheet.create({
     transform: [{ translateY: 10 }], // เลื่อนขึ้นเพื่อตัดขอบด้านล่าง
   },
   namebtt: {
+    fontFamily: "Kanit-ExtraLight",
     color: "black",
     fontSize: 16,
     marginTop: 5,
