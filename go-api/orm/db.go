@@ -23,4 +23,6 @@ func InitDB() {
 	Db.AutoMigrate(&Contact{})
 	Db.AutoMigrate(&Rate{})
 	Db.AutoMigrate(&Likes{})
+	// Db.AutoMigrate(&Interests{})
+	Db.AutoMigrate(&Notification{})
 }
