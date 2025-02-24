@@ -180,35 +180,33 @@ const PhotoProfile = ({ navigation }) => {
   };
 
   const fetchUserLiked = async (userId) => {
-
     try {
       const token = await AsyncStorage.getItem("@token");
       if (!token) {
         alert("Token not found. Please log in again.");
         return;
       }
-    
+
       // Correct way to pass query parameters in a GET request
-      const url = `http://${app_var.api_host}/users/get_users_liked?userId=${encodeURIComponent(userId)}`;
-    
+      const url = `http://${
+        app_var.api_host
+      }/users/get_users_liked?userId=${encodeURIComponent(userId)}`;
+
       const response = await fetch(url, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-    
+
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
-    
+
       const data = await response.json();
-      // console.log("API Response:", data);
       setUsersLiked(data);
-    
     } catch (error) {
       console.error("Error fetching users like:", error);
-      // alert("Error fetching like data");
     }
   };
 
@@ -1040,16 +1038,18 @@ const PhotoProfile = ({ navigation }) => {
     } else if (selectedMenu === "ถูกใจ") {
       return (
         <ScrollView style={styles.container}>
-        {usersLiked.map((item, i) => (
-          <View key={i} style={styles.card}>
-            <Image source={{ uri: item.img_profile }} style={styles.profileImage} />
-            <View style={styles.textContainer}>
-              <Text style={styles.name}>{item.fullname}</Text>
-              {/* <Text style={styles.id}>ID: {item.id}</Text> */}
+          {usersLiked.map((item, i) => (
+            <View key={i} style={styles.card}>
+              <Image
+                source={{ uri: item.img_profile }}
+                style={styles.profileImage}
+              />
+              <View style={styles.textContainer}>
+                <Text style={styles.name}>{item.fullname}</Text>
+              </View>
             </View>
-          </View>
-        ))}
-      </ScrollView>
+          ))}
+        </ScrollView>
       );
     }
     return null;
@@ -1711,13 +1711,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
     padding: 15,
     marginVertical: 5,
     borderRadius: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
     elevation: 2,
@@ -1737,7 +1737,7 @@ const styles = StyleSheet.create({
   },
   id: {
     fontSize: 12,
-    color: 'gray',
+    color: "gray",
   },
 });
 

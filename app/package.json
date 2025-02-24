@@ -27,7 +27,7 @@
     "expo-asset": "~11.0.2",
     "expo-checkbox": "~4.0.1",
     "expo-font": "~13.0.3",
-    "expo-image-picker": "~16.0.4",
+    "expo-image-picker": "^16.0.6",
     "expo-linear-gradient": "~14.0.2",
     "expo-modules-core": "^2.2.2",
     "expo-status-bar": "~2.0.1",

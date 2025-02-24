@@ -1,64 +1,38 @@
-import { View, Text, SafeAreaView, StyleSheet, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  SafeAreaView,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+} from "react-native";
+import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import app_var from "./public";
-import styles from './styles';
+import styles from "./styles";
 
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faBars, faTimes, faMagnifyingGlass, faArrowLeft, faHouse, faBell, faUser, faSquarePlus } from '@fortawesome/free-solid-svg-icons';
-
-const photographers = [
-  { id: 1, name: 'fauzan studio' },
-  { id: 2, name: 'fullframe' },
-  { id: 3, name: 'hilmee photographer' },
-  { id: 4, name: 'kasut buruk' },
-  { id: 5, name: 'pl-photographer' },
-  { id: 6, name: 'Supang' },
-  { id: 7, name: 'fauzan studio' },
-  { id: 8, name: 'fullframe' },
-  { id: 9, name: 'hilmee photographer' },
-  { id: 10, name: 'kasut buruk' },
-  { id: 11, name: 'pl-photographer' },
-  { id: 12, name: 'Supang' },
-];
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import {
+  faBars,
+  faTimes,
+  faMagnifyingGlass,
+  faArrowLeft,
+  faHouse,
+  faBell,
+  faUser,
+  faSquarePlus,
+} from "@fortawesome/free-solid-svg-icons";
 
 const PhotoNotify = ({ navigation }) => {
   const [user, setUser] = useState({});
   const [userAll, setUserAll] = useState([]);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [usersInterests, setUsersInterests] = useState([]);
 
-  const fetchUser = async () => {
-    try {
-      const token = await AsyncStorage.getItem("@token");
-      if (!token) {
-        alert("Token not found. Please log in again.");
-        return;
-      }
-
-      const response = await fetch(
-        "http://" + app_var.api_host + "/users/get_user_info",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const data = await response.json();
-      if (data.status === "ok") {
-        setUser(data.userId);
-      } else {
-        alert("Failed to fetch user data");
-      }
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-      alert("Error fetching user data");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  
 
   const fetchAllUser = async () => {
     try {
@@ -93,30 +67,87 @@ const PhotoNotify = ({ navigation }) => {
     }
   };
 
+  const fetchUser = async () => {
+    try {
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        alert("Token not found. Please log in again.");
+        return;
+      }
+
+      const response = await fetch(
+        "http://" + app_var.api_host + "/users/get_user_info",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+      if (data.status === "ok") {
+        setUser(data.userId);
+        fetchUserInterest(data.userId.ID);
+      } else {
+        alert("Failed to fetch user data");
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      alert("Error fetching user data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchUserInterest = async (userId) => {
+    try {
+      const token = await AsyncStorage.getItem("@token");
+      const url = `http://${
+        app_var.api_host
+      }/users/get_users_interests?userId=${encodeURIComponent(userId)}`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+      console.log("📌 Users Interests Data:", data); // Debug log
+      setUsersInterests(data); // เช็คว่ามันเซ็ต state จริงมั้ย
+    } catch (error) {
+      console.error("❌ Error fetching interested users:", error);
+    }
+  };
+
   useEffect(() => {
     fetchUser();
     fetchAllUser();
   }, []);
 
   const PhotoIdex = () => {
-    navigation.navigate('PhotoIndex');
+    navigation.navigate("PhotoIndex");
   };
 
   const PhotoSearce = () => {
-    navigation.navigate('PhotoSearch');
+    navigation.navigate("PhotoSearch");
   };
 
   const PhotoNotify = () => {
-    navigation.navigate('PhotoNotify');
+    navigation.navigate("PhotoNotify");
   };
 
   const PhotoProfile = () => {
-    navigation.navigate('PhotoProfile');
+    navigation.navigate("PhotoProfile");
   };
 
   const PhotoPost = () => {
-    navigation.navigate('PhotoPost');
-  }
+    navigation.navigate("PhotoPost");
+  };
 
   const toggleDropdown = () => {
     setIsDropdownVisible(!isDropdownVisible);
@@ -141,7 +172,7 @@ const PhotoNotify = ({ navigation }) => {
     } catch (error) {
       console.error("Error clearing token:", error);
     }
-  }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -164,7 +195,7 @@ const PhotoNotify = ({ navigation }) => {
           {/* แสดง dropdown */}
           {isDropdownVisible && (
             <View style={styles.dropdown}>
-              <View style={{ flexDirection: 'row' }}>
+              <View style={{ flexDirection: "row" }}>
                 <Image
                   source={{
                     uri: user.Img_profile,
@@ -184,7 +215,7 @@ const PhotoNotify = ({ navigation }) => {
                   </Text>
                 </View>
               </View>
-              <View style={{ alignItems: 'center', marginTop: 15 }}>
+              <View style={{ alignItems: "center", marginTop: 15 }}>
                 <TouchableOpacity style={styles.button} onPress={handleLogout}>
                   <Text style={styles.buttonText}>Logout</Text>
                 </TouchableOpacity>
@@ -200,69 +231,47 @@ const PhotoNotify = ({ navigation }) => {
           style={styles.exitIcon}
           onPress={() => navigation.goBack()}
         >
-          <FontAwesomeIcon
-            icon={faArrowLeft}
-            size={18}
-            color="#000"
-          />
+          <FontAwesomeIcon icon={faArrowLeft} size={18} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.exitText}>
-          แจ้งเตือน
-        </Text>
+        <Text style={styles.exitText}>แจ้งเตือน</Text>
       </View>
 
       {/*เนื้อหา*/}
-      <ScrollView>
-        <View style={stylesIn.message}>
-          {photographers.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={stylesIn.item}
-              onPress={() => PhotoNotify()}
-            >
-              <Text style={stylesIn.name}>{item.id}</Text>
-              <Text style={stylesIn.sub}>{item.name}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+      <ScrollView style={styles.container}>
+        {usersInterests.map((item, i) => (
+          <View key={i} style={styles.card}>
+            <Image
+              source={{ uri: item.img_profile }}
+              style={styles.profileImage}
+            />
+            <View style={styles.textContainer}>
+              <Text style={styles.name}>sdfsdfsdfsdfkajsdklfj</Text>
+            </View>
+          </View>
+        ))}
       </ScrollView>
 
       {/* เมนูด้านล่าง */}
       <View style={styles.menu}>
         <TouchableOpacity style={styles.menuItem} onPress={PhotoIdex}>
-          <FontAwesomeIcon
-            icon={faHouse}
-            size={24}
-            color="#000" />
+          <FontAwesomeIcon icon={faHouse} size={24} color="#000" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem} onPress={PhotoSearce}>
-          <FontAwesomeIcon
-            icon={faMagnifyingGlass}
-            size={24}
-            color="#000" />
+          <FontAwesomeIcon icon={faMagnifyingGlass} size={24} color="#000" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem} onPress={PhotoPost}>
-          <FontAwesomeIcon
-            icon={faSquarePlus}
-            size={24}
-            color="#000" />
+          <FontAwesomeIcon icon={faSquarePlus} size={24} color="#000" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem} onPress={PhotoNotify}>
-          <FontAwesomeIcon
-            icon={faBell}
-            size={24}
-            color="#000" />
+          <FontAwesomeIcon icon={faBell} size={24} color="#000" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem} onPress={PhotoProfile}>
-          <FontAwesomeIcon
-            icon={faUser}
-            size={24}
-            color="#000" />
+          <FontAwesomeIcon icon={faUser} size={24} color="#000" />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
-  )
-}
+  );
+};
 
 const stylesIn = StyleSheet.create({
   message: {
@@ -270,19 +279,48 @@ const stylesIn = StyleSheet.create({
   },
   name: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   sub: {
     fontSize: 15,
     marginBottom: 10,
   },
   item: {
-    width: '100%', // กำหนดให้กล่องแต่ละอันครึ่งหนึ่งของหน้าจอ
-    backgroundColor: '#f9f9f9',
+    width: "100%", // กำหนดให้กล่องแต่ละอันครึ่งหนึ่งของหน้าจอ
+    backgroundColor: "#f9f9f9",
     borderWidth: 1, // ความกว้างของเส้นขอบ
-    borderColor: '#ddd', // สีของเส้นขอบ
+    borderColor: "#ddd", // สีของเส้นขอบ
     padding: 10,
+  },
+  card: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    padding: 15,
+    marginVertical: 5,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+  },
+  profileImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 15,
+  },
+  textContainer: {
+    flex: 1,
+  },
+  name: {
+    fontSize: 16,
+    // fontWeight: 'bold',
+  },
+  id: {
+    fontSize: 12,
+    color: "gray",
   },
 });
 
-export default PhotoNotify
+export default PhotoNotify;

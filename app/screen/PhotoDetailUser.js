@@ -34,6 +34,7 @@ const PhotoDetailUser = ({ navigation }) => {
   const [user, setUser] = useState({});
   const [userVisitors, setUserVisitors] = useState({});
   const [post, setPost] = useState([]);
+  const [expanded, setExpanded] = useState(false);
   const HostInfo = [
     { platform: "facebook", icon: faFacebook, color: "#1877f2" },
     { platform: "instagram", icon: faInstagram, color: "#f56949" },
@@ -49,7 +50,7 @@ const PhotoDetailUser = ({ navigation }) => {
   const { userId } = route.params;
   const { userLoginId } = route.params;
   const [liked, setLiked] = useState([]);
-  
+
   const [likedPosts, setLikedPosts] = useState([]);
 
   const toggleLike = (postId) => {
@@ -131,6 +132,8 @@ const PhotoDetailUser = ({ navigation }) => {
     }
   };
 
+  
+
   const fetchUserLike = async () => {
     try {
       const myId = userLoginId;
@@ -143,7 +146,11 @@ const PhotoDetailUser = ({ navigation }) => {
       }
 
       // Correct way to pass query parameters in a GET request
-      const url = `http://${app_var.api_host}/users/check_like?userId=${encodeURIComponent(myId)}&likedUserId=${encodeURIComponent(visitorId)}`;
+      const url = `http://${
+        app_var.api_host
+      }/users/check_like?userId=${encodeURIComponent(
+        myId
+      )}&likedUserId=${encodeURIComponent(visitorId)}`;
 
       const response = await fetch(url, {
         method: "GET",
@@ -158,14 +165,12 @@ const PhotoDetailUser = ({ navigation }) => {
 
       const data = await response.json();
       setLiked(data.liked);
-
     } catch (error) {
       console.error("Error fetching like data:", error);
       alert("Error fetching like data");
     } finally {
       setIsLoading(false);
     }
-
   };
 
   var contactData = [];
@@ -316,9 +321,20 @@ const PhotoDetailUser = ({ navigation }) => {
               />
             ))}
           </Swiper>
-          <Text style={stylesIn.name_body}>
+          <Text
+            style={styles.name_body}
+            numberOfLines={expanded ? undefined : 3}
+          >
             {user.Detail || "No Details Available"}
           </Text>
+
+          {user.Detail.length > 100 && (
+            <TouchableOpacity onPress={() => setExpanded(!expanded)}>
+              <Text style={{ color: "grey", marginTop: 5 }}>
+                {expanded ? "ย่อข้อความ" : "อ่านเพิ่มเติม"}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       ));
     } else {
@@ -434,20 +450,20 @@ const PhotoDetailUser = ({ navigation }) => {
             <View style={stylesIn.info_top}>
               <View style={stylesIn.centerContainer}>
                 <Text style={stylesIn.name}>{userVisitors.fullname}</Text>
-                {userId != userLoginId ? (
-                <TouchableOpacity onPress={userLikePress}>
-                  <Text
-                    style={[
-                      stylesIn.likeText,
-                      liked && stylesIn.likedText,
-                    ]}
-                  >
-                    {liked ? "ถูกใจแล้ว" : "ถูกใจ"}
-                  </Text>
-                </TouchableOpacity>
-                ):(<View></View>)}
               </View>
             </View>
+          </View>
+
+          <View>
+            {userId != userLoginId ? (
+              <TouchableOpacity onPress={userLikePress}>
+                <Text style={[stylesIn.likeText, liked && stylesIn.likedText]}>
+                  {liked ? "ถูกใจแล้ว" : "ถูกใจ"}
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <View></View>
+            )}
           </View>
 
           <View style={stylesIn.content_home}>
@@ -590,7 +606,7 @@ const stylesIn = StyleSheet.create({
     paddingHorizontal: 10,
   },
   contactText: {
-    left : 10
+    left: 10,
   },
   rate: {
     marginBottom: 10,

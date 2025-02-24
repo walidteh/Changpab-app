@@ -318,7 +318,7 @@ const UserIndex = ({ navigation }) => {
             style={{ paddingLeft: 15 }}
           >
             {userAll
-              .slice(0, 15) // เลือกแค่ 15 อัน
+              .slice(0, 6) // เลือกแค่ 15 อัน
               .map((item, i) => (
                 <TouchableOpacity
                   key={i}

@@ -33,12 +33,12 @@ const PhotoIndex = ({ navigation }) => {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 
   const [refreshing, setRefreshing] = useState(false); // Declare refreshing state
-  const [fontsLoaded] = useFonts({
-        "Kanit-ExtraLight": require("../assets/fonts/Kanit-ExtraLight.ttf"),
-      });
-    if (!fontsLoaded) {
-      return null; // Or a loading screen
-    }
+  // const [fontsLoaded] = useFonts({
+  //       "Kanit-ExtraLight": require("../assets/fonts/Kanit-ExtraLight.ttf"),
+  //     });
+  //   if (!fontsLoaded) {
+  //     return null; // Or a loading screen
+  //   }
 
   const fetchUser = async () => {
     try {

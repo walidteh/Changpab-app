@@ -21,12 +21,13 @@ import PhotoPostEdit from './screen/PhotoPostEdit.js'
 
 import UserIndex from './screen/UserIndex.js';
 import UserProfile from './screen/UserProfile.js'
-import UserAllphotographer from './screen/UserAllpicture.js'
+import UserAllphotographer from './screen/UserAllphotographer.js'
 import UserAllpicture from './screen/UserAllpicture.js'
 import UserSearch from './screen/UserSearce.js'
 import UserNotify from './screen/UserNotify.js'
 import UserDetailPost from './screen/UserDetailPost.js';
 import UserDetailUser from './screen/UserDetailUser.js';
+import UserProfileEdit from './screen/UserProfileEdit.js';
 
 const Stack = createNativeStackNavigator();
 
@@ -60,6 +61,7 @@ const App = () => {
         <Stack.Screen name="UserNotify" component={UserNotify} options={{ headerShown: false, animation: 'none' }} />
         <Stack.Screen name="UserDetailPost" component={UserDetailPost} options={{ headerShown: false, animation: 'none' }} />
         <Stack.Screen name="UserDetailUser" component={UserDetailUser} options={{ headerShown: false, animation: 'none' }} />
+        <Stack.Screen name="UserProfileEdit" component={UserProfileEdit} options={{ headerShown: false, animation: 'none' }} />
       </Stack.Navigator>
     </NavigationContainer>
   )

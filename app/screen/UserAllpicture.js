@@ -275,7 +275,12 @@ const UserAllpicture = () => {
               <TouchableOpacity
                 key={i}
                 style={styles.item}
-                onPress={UserDetailPost}
+                onPress={() => {
+                  navigation.navigate("UserDetailPost", {
+                    postId: post.post_id,
+                    userId: post.user_id,
+                  });
+                }}
               >
                 <Image
                   source={{ uri: post.image_url }}

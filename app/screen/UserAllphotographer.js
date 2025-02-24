@@ -109,20 +109,24 @@ const UserAllphotographer = () => {
     fetchAllUser();
   }, []);
 
-  const UserIndex = () => {
-    navigation.navigate("UserIndex");
+  const PhotoIdex = () => {
+    navigation.navigate("PhotoIndex");
   };
 
-  const UserSearce = () => {
-    navigation.navigate("UserSearch");
+  const PhotoSearce = () => {
+    navigation.navigate("PhotoSearce");
   };
 
-  const UserNotify = () => {
-    navigation.navigate("UserNotify");
+  const PhotoNotify = () => {
+    navigation.navigate("PhotoNotify");
   };
 
-  const UserProfile = () => {
-    navigation.navigate("UserProfile");
+  const PhotoProfile = () => {
+    navigation.navigate("PhotoProfile");
+  };
+
+  const PhotoAdd = () => {
+    navigation.navigate("PhotoIndex");
   };
 
   const toggleDropdown = () => {
@@ -215,10 +219,14 @@ const UserAllphotographer = () => {
       {/* รูป */}
       <ScrollView>
         <View style={styles.body}>
-        {userAll.map((user, i) => (
-            <TouchableOpacity key={i} style={styles.item} onPress={() => {
-              navigation.navigate("PhotoDetailUser", { userId: user.ID , userLoginId: user.ID })
-            }}>
+          {userAll.map((user, i) => (
+            <TouchableOpacity
+              key={i}
+              style={styles.item}
+              onPress={() => {
+                navigation.navigate("PhotoDetailUser", {  userId: user.ID , userLoginId: user.ID})
+              }}
+            >
               <Image source={{ uri: user.Img_profile }} style={styles.image_body} />
               <Text style={styles.name}>{user.Fullname || "No Fullname Available"}</Text>
             </TouchableOpacity>
@@ -228,16 +236,19 @@ const UserAllphotographer = () => {
 
       {/* เมนูด้านล่าง */}
       <View style={styles.menu}>
-        <TouchableOpacity style={styles.menuItem} onPress={UserIndex}>
+        <TouchableOpacity style={styles.menuItem} onPress={PhotoIdex}>
           <FontAwesomeIcon icon={faHouse} size={24} color="#000" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.menuItem} onPress={UserSearce}>
+        <TouchableOpacity style={styles.menuItem} onPress={PhotoSearce}>
           <FontAwesomeIcon icon={faMagnifyingGlass} size={24} color="#000" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.menuItem} onPress={UserNotify}>
+        <TouchableOpacity style={styles.menuItem} onPress={PhotoAdd}>
+          <FontAwesomeIcon icon={faSquarePlus} size={24} color="#000" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.menuItem} onPress={PhotoNotify}>
           <FontAwesomeIcon icon={faBell} size={24} color="#000" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.menuItem} onPress={UserProfile}>
+        <TouchableOpacity style={styles.menuItem} onPress={PhotoProfile}>
           <FontAwesomeIcon icon={faUser} size={24} color="#000" />
         </TouchableOpacity>
       </View>
