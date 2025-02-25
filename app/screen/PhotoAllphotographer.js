@@ -114,7 +114,7 @@ const PhotoAllphotographer = () => {
   };
 
   const PhotoSearce = () => {
-    navigation.navigate("PhotoSearce");
+    navigation.navigate("PhotoSearch");
   };
 
   const PhotoNotify = () => {
@@ -219,16 +219,16 @@ const PhotoAllphotographer = () => {
       {/* รูป */}
       <ScrollView>
         <View style={styles.body}>
-          {userAll.map((user, i) => (
+          {userAll.map((item, i) => (
             <TouchableOpacity
               key={i}
               style={styles.item}
               onPress={() => {
-                navigation.navigate("PhotoDetailUser", {  userId: user.ID , userLoginId: user.ID})
+                navigation.navigate("PhotoDetailUser", {  userId: item.ID , userLoginId: user.ID})
               }}
             >
-              <Image source={{ uri: user.Img_profile }} style={styles.image_body} />
-              <Text style={styles.name}>{user.Fullname || "No Fullname Available"}</Text>
+              <Image source={{ uri: item.Img_profile }} style={styles.image_body} />
+              <Text style={styles.name}>{item.Fullname || "No Fullname Available"}</Text>
             </TouchableOpacity>
           ))}
         </View>

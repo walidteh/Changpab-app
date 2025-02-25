@@ -1438,7 +1438,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     // backgroundColor: "#fff",
-    paddingTop: 80,
+    // paddingTop: 80,
   },
   navbar: {
     position: "absolute",
