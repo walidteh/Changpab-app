@@ -7,6 +7,9 @@ import {
   SafeAreaView,
   ImageBackground,
   Image,
+  Modal,
+  TextInput,
+  Button,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -16,6 +19,7 @@ import moment from "moment";
 import { useRoute } from "@react-navigation/native";
 import styles from "./styles";
 import Icon from "react-native-vector-icons/AntDesign";
+import { Linking } from "react-native";
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
@@ -32,9 +36,9 @@ import { faFacebook, faInstagram } from "@fortawesome/free-brands-svg-icons";
 
 const UserDetailUser = ({ navigation }) => {
   const [user, setUser] = useState({});
-  const [isLoading, setIsLoading] = useState(true);
   const [userVisitors, setUserVisitors] = useState({});
   const [post, setPost] = useState([]);
+  const [expanded, setExpanded] = useState(false);
   const HostInfo = [
     { platform: "facebook", icon: faFacebook, color: "#1877f2" },
     { platform: "instagram", icon: faInstagram, color: "#f56949" },
@@ -45,10 +49,15 @@ const UserDetailUser = ({ navigation }) => {
   const [contactInfo, setContactInfo] = useState([]);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [rateInfo, setRateInfo] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const route = useRoute();
   const { userId } = route.params;
   const { userLoginId } = route.params;
   const [liked, setLiked] = useState([]);
+  const [interests, setInterests] = useState([]);
+  const [modalVisible, setModalVisibles] = useState(false);
+  const [nameContact, setNameContact] = useState("");
+  const [messageContact, setMessageContact] = useState("");
 
   const [likedPosts, setLikedPosts] = useState([]);
 
@@ -59,6 +68,18 @@ const UserDetailUser = ({ navigation }) => {
       setLikedPosts([...likedPosts, postId]);
     }
   };
+  const openlink = (url) => {
+        console.log(url);
+        Linking.canOpenURL(url)
+          .then((supported) => {
+            if (supported) {
+              Linking.openURL(url);
+            } else {
+              console.log("ไม่สามารถเปิดลิงก์นี้ได้");
+            }
+          })
+          .catch((err) => console.error("เกิดข้อผิดพลาดในการเปิดลิงก์:", err));
+      };
 
   const fetchUser = async () => {
     try {
@@ -170,6 +191,45 @@ const UserDetailUser = ({ navigation }) => {
     }
   };
 
+  // const fetchInterests = async () => {
+  //   try {
+  //     const myId = userLoginId;
+  //     const visitorId = userId;
+
+  //     const token = await AsyncStorage.getItem("@token");
+  //     if (!token) {
+  //       alert("Token not found. Please log in again.");
+  //       return;
+  //     }
+
+  //     // Correct way to pass query parameters in a GET request
+  //     const url = `http://${
+  //       app_var.api_host
+  //     }/users/check_interests?userId=${encodeURIComponent(
+  //       myId
+  //     )}&interestedUserId=${encodeURIComponent(visitorId)}`;
+
+  //     const response = await fetch(url, {
+  //       method: "GET",
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+
+  //     if (!response.ok) {
+  //       throw new Error(`HTTP error! Status: ${response.status}`);
+  //     }
+
+  //     const data = await response.json();
+  //     setInterests(data.interests);
+  //   } catch (error) {
+  //     console.error("Error fetching Interests data:", error);
+  //     alert("Error fetching Interests data");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
   var contactData = [];
 
   const ImageProfile = "";
@@ -202,6 +262,7 @@ const UserDetailUser = ({ navigation }) => {
     setIsDropdownVisible(!isDropdownVisible);
   };
 
+
   const userLikePress = async () => {
     const myId = user.ID;
     const visitorId = userVisitors.user_id;
@@ -228,20 +289,65 @@ const UserDetailUser = ({ navigation }) => {
     });
 
     if (response.ok) {
-      // const result = await response.json();
-      // console.log("Like successful:", result);
       fetchUserLike();
     } else {
       console.error("Like failed:", response.statusText);
     }
   };
 
+  const userInterests = async () => {
+    try {
+      const myId = user.ID;
+      const visitorId = userVisitors.user_id;
+  
+      if (!myId || !visitorId || !nameContact || !messageContact) {
+        alert("Missing required fields. Please check and try again.");
+        return;
+      }
+  
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        alert("Token not found. Please log in again.");
+        return;
+      }
+  
+      const formData = new FormData();
+      formData.append("userId", myId);
+      formData.append("interestedUserId", visitorId);
+      formData.append("name", nameContact);
+      formData.append("message", messageContact);
+  
+      const response = await fetch(
+        `http://${app_var.api_host}/users/interests`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+  
+      const result = await response.json(); 
+  
+      if (!response.ok) {
+        throw new Error(result.error || "Something went wrong");
+      }
+  
+      alert("ได้ส่งการแจ้งเตือนไปให้ช่างเรียบร้อยแล้ว"); 
+    } catch (error) {
+      console.error("Error sending interest:", error);
+      alert(error.message || "An error occurred. Please try again.");
+    }
+  };
+  
+
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem("@token");
       const token = await AsyncStorage.getItem("@token");
       if (!token) {
-        console.log("Token removed successfully");
+        // console.log("Token removed successfully");
       }
       navigation.reset({
         index: 0,
@@ -314,9 +420,20 @@ const UserDetailUser = ({ navigation }) => {
               />
             ))}
           </Swiper>
-          <Text style={stylesIn.name_body}>
+          <Text
+            style={styles.name_body}
+            numberOfLines={expanded ? undefined : 3}
+          >
             {user.Detail || "No Details Available"}
           </Text>
+
+          {user.Detail.length > 100 && (
+            <TouchableOpacity onPress={() => setExpanded(!expanded)}>
+              <Text style={{ color: "grey", marginTop: 5 }}>
+                {expanded ? "ย่อข้อความ" : "อ่านเพิ่มเติม"}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       ));
     } else {
@@ -346,7 +463,7 @@ const UserDetailUser = ({ navigation }) => {
       <View key={i} style={stylesIn.contactContainer}>
         <TouchableOpacity
           style={stylesIn.contact}
-          onPress={() => console.log("test")}
+          onPress={() => openlink(item.contact_link)}
         >
           <FontAwesomeIcon
             icon={item.contact_icon}
@@ -432,19 +549,86 @@ const UserDetailUser = ({ navigation }) => {
             <View style={stylesIn.info_top}>
               <View style={stylesIn.centerContainer}>
                 <Text style={stylesIn.name}>{userVisitors.fullname}</Text>
-                {userId != userLoginId ? (
-                  <TouchableOpacity onPress={userLikePress}>
-                    <Text
-                      style={[stylesIn.likeText, liked && stylesIn.likedText]}
-                    >
-                      {liked ? "ถูกใจแล้ว" : "ถูกใจ"}
-                    </Text>
-                  </TouchableOpacity>
-                ) : (
-                  <View></View>
-                )}
               </View>
             </View>
+          </View>
+
+          <View></View>
+          <View style={stylesIn.mainContainer}>
+            <View style={stylesIn.actionRow}>
+              {userId != userLoginId ? (
+                <TouchableOpacity onPress={userLikePress}>
+                  <Text
+                    style={[stylesIn.likeText, liked && stylesIn.likedText]}
+                  >
+                    {liked ? "ถูกใจแล้ว" : "ถูกใจ"}
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <View />
+              )}
+              {userId != userLoginId ? (
+                <TouchableOpacity
+                  onPress={() => setModalVisibles(true)}
+                  style={stylesIn.button}
+                >
+                  <Text style={stylesIn.buttonText}>สนใจ</Text>
+                </TouchableOpacity>
+              ) : (
+                <View />
+              )}
+            </View>
+
+            <Modal
+              visible={modalVisible}
+              animationType="slide"
+              transparent={true}
+            >
+              <View style={stylesIn.modalBackground}>
+                <View style={stylesIn.modalBox}>
+                  <Text style={stylesIn.modalTitle}>กรอกข้อมูลติดต่อ</Text>
+                  <TextInput
+                    style={stylesIn.inputField}
+                    placeholder="ชื่อของคุณ"
+                    value={nameContact}
+                    onChangeText={setNameContact}
+                    placeholderTextColor="#aaa"
+                  />
+                  <TextInput
+                    style={stylesIn.inputField}
+                    placeholder="กรอกช่องทางการติดต่อ"
+                    value={messageContact}
+                    onChangeText={setMessageContact}
+                    placeholderTextColor="#aaa"
+                    multiline={true}
+                    numberOfLines={4}
+                    returnKeyType="default"
+                  />
+
+                  <TouchableOpacity
+                    style={stylesIn.submitButton}
+                    onPress={() => {
+                      setModalVisibles(false);
+                      setMessageContact("");
+                      setNameContact("");
+                      userInterests();
+                    }}
+                  >
+                    <Text style={stylesIn.submitButtonText}>ส่ง</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={stylesIn.cancelButton}
+                    onPress={() => {
+                      setModalVisibles(false);
+                      setMessageContact("");
+                      setNameContact("");
+                    }}
+                  >
+                    <Text style={stylesIn.cancelButtonText}>ยกเลิก</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
           </View>
 
           <View style={stylesIn.content_home}>
@@ -498,6 +682,15 @@ const UserDetailUser = ({ navigation }) => {
 };
 
 const stylesIn = StyleSheet.create({
+  actionRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    paddingHorizontal: 100,
+    marginBottom: 10,
+  },
+
   content: {
     width: "auto",
     marginTop: 80,
@@ -536,7 +729,7 @@ const stylesIn = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "space-between",
   },
   likeText: {
     color: "#888",
@@ -546,9 +739,8 @@ const stylesIn = StyleSheet.create({
     color: "red",
   },
   name: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: "bold",
-    marginRight: 8,
   },
   btt_info: {
     backgroundColor: "#d4d4d4",
@@ -660,6 +852,70 @@ const stylesIn = StyleSheet.create({
     height: 45,
     borderRadius: 50, // รูปทรงกลม
     marginRight: 10,
+  },
+  mainContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    // backgroundColor: "#f4f4f4",
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalBox: {
+    width: 320,
+    padding: 20,
+    backgroundColor: "white",
+    borderRadius: 15,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 15,
+    color: "#333",
+  },
+  inputField: {
+    width: "100%",
+    padding: 12,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 10,
+    marginBottom: 10,
+    backgroundColor: "#f9f9f9",
+  },
+  submitButton: {
+    backgroundColor: "#063B52",
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+    marginTop: 10,
+    width: "100%",
+    alignItems: "center",
+  },
+  submitButtonText: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  cancelButton: {
+    marginTop: 10,
+    paddingVertical: 10,
+    width: "100%",
+    alignItems: "center",
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    color: "#333",
+    fontWeight: "bold",
   },
 });
 
