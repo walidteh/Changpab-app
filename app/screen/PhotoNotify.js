@@ -7,11 +7,13 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
+  Modal,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import app_var from "./public";
 import styles from "./styles";
+import { Ionicons } from "@expo/vector-icons"; // ใช้ icon ของ Expo
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
@@ -31,8 +33,13 @@ const PhotoNotify = ({ navigation }) => {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [usersInterests, setUsersInterests] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState("");
 
-  
+  const openMessage = (message) => {
+    setSelectedMessage(message);
+    setModalVisible(true);
+  };
 
   const fetchAllUser = async () => {
     try {
@@ -239,16 +246,34 @@ const PhotoNotify = ({ navigation }) => {
       {/*เนื้อหา*/}
       <ScrollView style={styles.container}>
         {usersInterests.map((item, i) => (
-          <View key={i} style={styles.card}>
+          <View key={i} style={stylesIn.card}>
             <Image
               source={{ uri: item.img_profile }}
-              style={styles.profileImage}
+              style={stylesIn.profileImage}
             />
-            <View style={styles.textContainer}>
-              <Text style={styles.name}>sdfsdfsdfsdfkajsdklfj</Text>
+            <View style={stylesIn.textContainer}>
+              <Text style={stylesIn.name}>{item.fullname}</Text>
             </View>
+            <TouchableOpacity onPress={() => openMessage(item.message)}>
+              <Ionicons name="mail-outline" size={24} color="black" />
+            </TouchableOpacity>
           </View>
         ))}
+
+        <Modal visible={modalVisible} transparent animationType="slide">
+          <View style={stylesIn.modalContainer}>
+            <View style={stylesIn.modalContent}>
+              <Text style={stylesIn.modalTitle}>สนใจติดต่องาน</Text>
+              <Text style={stylesIn.modalMessage}>{selectedMessage}</Text>
+              <TouchableOpacity
+                onPress={() => setModalVisible(false)}
+                style={stylesIn.closeButton}
+              >
+                <Text>ปิด</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </ScrollView>
 
       {/* เมนูด้านล่าง */}
@@ -304,6 +329,40 @@ const stylesIn = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 2,
   },
+  // card: {
+  //   padding: 10,
+  //   backgroundColor: "#fff",
+  //   marginBottom: 10,
+  //   borderRadius: 10,
+  //   flexDirection: "row",
+  //   alignItems: "center",
+  // },
+  profileImage: { width: 50, height: 50, borderRadius: 25 },
+  textContainer: { flex: 1, marginLeft: 10 },
+  name: { fontSize: 16, fontWeight: "bold" },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 10,
+    width: "80%",
+    // alignItems: "center",
+  },
+  modalTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
+  modalMessage: { fontSize: 16, marginBottom: 20,},
+  closeButton: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: "#ddd",
+    borderRadius: 5,
+    alignItems: "center",
+    width: "100%",
+  },
   profileImage: {
     width: 50,
     height: 50,
@@ -316,10 +375,6 @@ const stylesIn = StyleSheet.create({
   name: {
     fontSize: 16,
     // fontWeight: 'bold',
-  },
-  id: {
-    fontSize: 12,
-    color: "gray",
   },
 });
 

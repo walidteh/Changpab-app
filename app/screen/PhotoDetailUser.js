@@ -50,6 +50,7 @@ const PhotoDetailUser = ({ navigation }) => {
   const { userId } = route.params;
   const { userLoginId } = route.params;
   const [liked, setLiked] = useState([]);
+  const [interests, setInterests] = useState([]);
 
   const [likedPosts, setLikedPosts] = useState([]);
 
@@ -173,6 +174,45 @@ const PhotoDetailUser = ({ navigation }) => {
     }
   };
 
+  const fetchInterests = async () => {
+    try {
+      const myId = userLoginId;
+      const visitorId = userId;
+
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        alert("Token not found. Please log in again.");
+        return;
+      }
+
+      // Correct way to pass query parameters in a GET request
+      const url = `http://${
+        app_var.api_host
+      }/users/check_interests?userId=${encodeURIComponent(
+        myId
+      )}&interestedUserId=${encodeURIComponent(visitorId)}`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setInterests(data.interests);
+    } catch (error) {
+      console.error("Error fetching Interests data:", error);
+      alert("Error fetching Interests data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   var contactData = [];
 
   const ImageProfile = "";
@@ -183,6 +223,7 @@ const PhotoDetailUser = ({ navigation }) => {
     fetchUserVisitors();
     fetchUser();
     fetchUserLike();
+    fetchInterests();
   }, []);
 
   const PhotoIdex = () => {
@@ -235,11 +276,40 @@ const PhotoDetailUser = ({ navigation }) => {
     });
 
     if (response.ok) {
-      // const result = await response.json();
-      // console.log("Like successful:", result);
       fetchUserLike();
     } else {
       console.error("Like failed:", response.statusText);
+    }
+  };
+  const userInterests = async () => {
+    const myId = user.ID;
+    const visitorId = userVisitors.user_id;
+    // console.log("My ID : ", myId);
+    // console.log("Visitor ID : ", visitorId);
+
+    const token = await AsyncStorage.getItem("@token");
+    if (!token) {
+      alert("Token not found. Please log in again.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("userId", myId);
+    formData.append("interestedUserId", visitorId);
+
+    const response = await fetch("http://" + app_var.api_host + "/users/interests", {
+      method: "POST",
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    if (response.ok) {
+      fetchUserLike();
+    } else {
+      console.error("Interests failed:", response.statusText);
     }
   };
 
