@@ -27,7 +27,55 @@ npx expo-doctor
 npx expo install --check
 ```
 
+## Deploy
+##### 1. Build Go
+```
+go-api>go build -o <file build name>
+```
 
+##### 2. Reload file
+```
+sudo systemctl daemon-reload
+```
+
+##### 3. Restart Service
+```
+sudo systemctl restart <file service name>
+```
+
+##### 4. View Service Logs
+```
+sudo journalctl -u <file service name> -f
+```
+
+## Ubuntu Command Recommended
+
+##### Status Service
+```
+sudo systemctl status <file service name>
+```
+
+##### Edit File Service
+```
+sudo nano /etc/systemd/system/<file service name>
+```
+
+## File Service Detail
+```
+[Unit]
+Description=Go API Service
+After=network.target
+
+[Service]
+ExecStart=/path/to/your/go/api/binary
+Restart=always
+User=your-username
+Group=your-groupname
+WorkingDirectory=/path/to/your/api
+
+[Install]
+WantedBy=multi-user.target
+```
 
 ## API
 |Description|Api Path|Method|
