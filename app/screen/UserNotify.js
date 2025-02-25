@@ -1,31 +1,44 @@
-import { View, Text, SafeAreaView, StyleSheet, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  SafeAreaView,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  Modal,
+} from "react-native";
+import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import app_var from "./public";
-import styles from './styles';
+import { Ionicons } from "@expo/vector-icons"; // ใช้ icon ของ Expo
+import styles from "./styles";
 
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faBars, faTimes, faMagnifyingGlass, faArrowLeft, faHouse, faBell, faUser, faSquarePlus } from '@fortawesome/free-solid-svg-icons';
-
-const photographers = [
-  { id: 1, name: 'fauzan studio' },
-  { id: 2, name: 'fullframe' },
-  { id: 3, name: 'hilmee photographer' },
-  { id: 4, name: 'kasut buruk' },
-  { id: 5, name: 'pl-photographer' },
-  { id: 6, name: 'Supang' },
-  { id: 7, name: 'fauzan studio' },
-  { id: 8, name: 'fullframe' },
-  { id: 9, name: 'hilmee photographer' },
-  { id: 10, name: 'kasut buruk' },
-  { id: 11, name: 'pl-photographer' },
-  { id: 12, name: 'Supang' },
-];
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import {
+  faBars,
+  faTimes,
+  faMagnifyingGlass,
+  faArrowLeft,
+  faHouse,
+  faBell,
+  faUser,
+  faSquarePlus,
+} from "@fortawesome/free-solid-svg-icons";
 
 const UserNotify = ({ navigation }) => {
+  const [usersInterests, setUsersInterests] = useState([]);
   const [user, setUser] = useState({});
   const [userAll, setUserAll] = useState([]);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState("");
+
+  const openMessage = (message) => {
+    setSelectedMessage(message);
+    setModalVisible(true);
+  };
 
   const fetchUser = async () => {
     try {
@@ -49,6 +62,7 @@ const UserNotify = ({ navigation }) => {
       const data = await response.json();
       if (data.status === "ok") {
         setUser(data.userId);
+        fetchMyInterest(data.userId.ID);
       } else {
         alert("Failed to fetch user data");
       }
@@ -90,6 +104,29 @@ const UserNotify = ({ navigation }) => {
       alert("Error fetching user data");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchMyInterest = async (userId) => {
+    try {
+      const token = await AsyncStorage.getItem("@token");
+      const url = `http://${
+        app_var.api_host
+      }/users/get_myinterests?userId=${encodeURIComponent(userId)}`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+      console.log("📌 Users Interests Data:", data); // Debug log
+      setUsersInterests(data); // เช็คว่ามันเซ็ต state จริงมั้ย
+    } catch (error) {
+      console.error("❌ Error fetching interested users:", error);
     }
   };
 
@@ -137,7 +174,7 @@ const UserNotify = ({ navigation }) => {
     } catch (error) {
       console.error("Error clearing token:", error);
     }
-  }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -160,7 +197,7 @@ const UserNotify = ({ navigation }) => {
           {/* แสดง dropdown */}
           {isDropdownVisible && (
             <View style={styles.dropdown}>
-              <View style={{ flexDirection: 'row' }}>
+              <View style={{ flexDirection: "row" }}>
                 <Image
                   source={{
                     uri: user.Img_profile,
@@ -180,7 +217,7 @@ const UserNotify = ({ navigation }) => {
                   </Text>
                 </View>
               </View>
-              <View style={{ alignItems: 'center', marginTop: 15 }}>
+              <View style={{ alignItems: "center", marginTop: 15 }}>
                 <TouchableOpacity style={styles.button} onPress={handleLogout}>
                   <Text style={styles.buttonText}>Logout</Text>
                 </TouchableOpacity>
@@ -196,36 +233,50 @@ const UserNotify = ({ navigation }) => {
           style={styles.exitIcon}
           onPress={() => navigation.goBack()}
         >
-          <FontAwesomeIcon
-            icon={faArrowLeft}
-            size={18}
-            color="#000"
-          />
+          <FontAwesomeIcon icon={faArrowLeft} size={18} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.exitText}>
-          แจ้งเตือน
-        </Text>
+        <Text style={styles.exitText}>แจ้งเตือน</Text>
       </View>
 
       {/*เนื้อหา*/}
       <ScrollView>
         <View style={stylesIn.message}>
-          {photographers.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={stylesIn.item}
-              onPress={() => PhotoNotify()}
-            >
-              <Text style={stylesIn.name}>{item.id}</Text>
-              <Text style={stylesIn.sub}>{item.name}</Text>
-            </TouchableOpacity>
+          {usersInterests.map((item, i) => (
+            <View key={i} style={stylesIn.card}>
+              <Image
+                source={{ uri: item.img_profile }}
+                style={stylesIn.profileImage}
+                />
+              <View style={stylesIn.textContainer}>
+                <Text style={stylesIn.textsend}>ส่งข้อความไปยัง</Text>
+                <Text style={stylesIn.name}>{item.fullname}</Text>
+              </View>
+              <TouchableOpacity onPress={() => openMessage(item.message)}>
+                <Ionicons name="mail-outline" size={24} color="black" />
+              </TouchableOpacity>
+            </View>
           ))}
         </View>
+
+        <Modal visible={modalVisible} transparent animationType="slide">
+          <View style={stylesIn.modalContainer}>
+            <View style={stylesIn.modalContent}>
+              <Text style={stylesIn.modalTitle}>สนใจติดต่องาน</Text>
+              <Text style={stylesIn.modalMessage}>{selectedMessage}</Text>
+              <TouchableOpacity
+                onPress={() => setModalVisible(false)}
+                style={stylesIn.closeButton}
+              >
+                <Text>ปิด</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </ScrollView>
 
       {/* เมนูด้านล่าง */}
       <View style={styles.menu}>
-      <TouchableOpacity style={styles.menuItem} onPress={UserIndex}>
+        <TouchableOpacity style={styles.menuItem} onPress={UserIndex}>
           <FontAwesomeIcon icon={faHouse} size={24} color="#000" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem} onPress={UserSearce}>
@@ -239,8 +290,8 @@ const UserNotify = ({ navigation }) => {
         </TouchableOpacity>
       </View>
     </SafeAreaView>
-  )
-}
+  );
+};
 
 const stylesIn = StyleSheet.create({
   message: {
@@ -248,19 +299,74 @@ const stylesIn = StyleSheet.create({
   },
   name: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   sub: {
     fontSize: 15,
     marginBottom: 10,
   },
   item: {
-    width: '100%', // กำหนดให้กล่องแต่ละอันครึ่งหนึ่งของหน้าจอ
-    backgroundColor: '#f9f9f9',
+    width: "100%", // กำหนดให้กล่องแต่ละอันครึ่งหนึ่งของหน้าจอ
+    backgroundColor: "#f9f9f9",
     borderWidth: 1, // ความกว้างของเส้นขอบ
-    borderColor: '#ddd', // สีของเส้นขอบ
+    borderColor: "#ddd", // สีของเส้นขอบ
     padding: 10,
+  },
+  card: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    padding: 15,
+    marginVertical: 5,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+  },
+  profileImage: { width: 50, height: 50, borderRadius: 25 },
+  textContainer: { flex: 1, marginLeft: 10 },
+  name: { fontSize: 16, fontWeight: "bold" },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 10,
+    width: "80%",
+    // alignItems: "center",
+  },
+  modalTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
+  modalMessage: { fontSize: 16, marginBottom: 20 },
+  closeButton: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: "#ddd",
+    borderRadius: 5,
+    alignItems: "center",
+    width: "100%",
+  },
+  profileImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 15,
+  },
+  textContainer: {
+    flex: 1,
+  },
+  name: {
+    fontSize: 16,
+    // fontWeight: 'bold',
+  },
+  textsend: {
+    fontSize: 12,
+    opacity: 0.5,
   },
 });
 
-export default UserNotify
+export default UserNotify;

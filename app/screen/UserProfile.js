@@ -626,18 +626,34 @@ const UserProfile = ({ navigation }) => {
     console.log(post_id);
   };
 
-  const openlink = (url) => {
-    console.log(url);
-    Linking.canOpenURL(url)
-      .then((supported) => {
-        if (supported) {
-          Linking.openURL(url);
-        } else {
-          console.log("ไม่สามารถเปิดลิงก์นี้ได้");
-        }
-      })
-      .catch((err) => console.error("เกิดข้อผิดพลาดในการเปิดลิงก์:", err));
-  };
+  const openlink = (host) => {
+      // console.log(host);
+  
+      if (/^\d{10}$/.test(host.contact_name)) {
+        console.log("phone is : ", host.contact_name);
+        const phoneNumber = `tel:${host.contact_name}`;
+        console.log(phoneNumber);
+        Linking.openURL(phoneNumber).catch((err) =>
+          Alert.alert("Error", "Cannot open dialer")
+        );
+      } else if (host.contact_name.includes("@")) {
+        console.log("email is : ", host.contact_name);
+      } else {
+        console.log("link is : ", host.contact_link);
+        const url = host.contact_link;
+        Linking.canOpenURL(url)
+          .then((supported) => {
+            if (supported) {
+              Linking.openURL(url).catch((err) => {
+                alert("ไม่สามารถเปิดลิงก์นี้ได้");
+              });
+            } else {
+              alert("ไม่สามารถเปิดลิงก์นี้ได้");
+            }
+          })
+          .catch((err) => console.error("เกิดข้อผิดพลาดในการเปิดลิงก์:", err));
+      }
+    };
 
   const renderContent = () => {
     post.forEach((item) => {
@@ -770,7 +786,7 @@ const UserProfile = ({ navigation }) => {
                     <View key={contact.id} style={styles.contactContainer}>
                       <TouchableOpacity
                         style={styles.contact}
-                        onPress={() => openlink(contact.contact_link)}
+                        onPress={() => openlink(contact)}
                       >
                         <FontAwesomeIcon
                           icon={contact.contact_icon}

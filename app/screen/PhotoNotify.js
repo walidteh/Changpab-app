@@ -252,6 +252,7 @@ const PhotoNotify = ({ navigation }) => {
               style={stylesIn.profileImage}
             />
             <View style={stylesIn.textContainer}>
+              <Text style={stylesIn.gettext}>รับข้อความจาก</Text>
               <Text style={stylesIn.name}>{item.fullname}</Text>
             </View>
             <TouchableOpacity onPress={() => openMessage(item.message)}>
@@ -367,6 +368,10 @@ const stylesIn = StyleSheet.create({
   name: {
     fontSize: 16,
     // fontWeight: 'bold',
+  },
+  gettext: {
+    fontSize: 12,
+    opacity: 0.5,
   },
 });
 

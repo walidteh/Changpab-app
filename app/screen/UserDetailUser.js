@@ -58,6 +58,7 @@ const UserDetailUser = ({ navigation }) => {
   const [modalVisible, setModalVisibles] = useState(false);
   const [nameContact, setNameContact] = useState("");
   const [messageContact, setMessageContact] = useState("");
+  const [isSubmitted, setIsSubmitted] = useState(false); // เช็คว่าส่งข้อมูลไปแล้วหรือยัง
 
   const [likedPosts, setLikedPosts] = useState([]);
 
@@ -68,18 +69,34 @@ const UserDetailUser = ({ navigation }) => {
       setLikedPosts([...likedPosts, postId]);
     }
   };
-  const openlink = (url) => {
-        console.log(url);
-        Linking.canOpenURL(url)
-          .then((supported) => {
-            if (supported) {
-              Linking.openURL(url);
-            } else {
-              console.log("ไม่สามารถเปิดลิงก์นี้ได้");
-            }
-          })
-          .catch((err) => console.error("เกิดข้อผิดพลาดในการเปิดลิงก์:", err));
-      };
+  const openlink = (host) => {
+    // console.log(host);
+
+    if (/^\d{10}$/.test(host.contact_name)) {
+      console.log("phone is : ", host.contact_name);
+      const phoneNumber = `tel:${host.contact_name}`;
+      console.log(phoneNumber);
+      Linking.openURL(phoneNumber).catch((err) =>
+        Alert.alert("Error", "Cannot open dialer")
+      );
+    } else if (host.contact_name.includes("@")) {
+      console.log("email is : ", host.contact_name);
+    } else {
+      console.log("link is : ", host.contact_link);
+      const url = host.contact_link;
+      Linking.canOpenURL(url)
+        .then((supported) => {
+          if (supported) {
+            Linking.openURL(url).catch((err) => {
+              alert("ไม่สามารถเปิดลิงก์นี้ได้");
+            });
+          } else {
+            alert("ไม่สามารถเปิดลิงก์นี้ได้");
+          }
+        })
+        .catch((err) => console.error("เกิดข้อผิดพลาดในการเปิดลิงก์:", err));
+    }
+  };
 
   const fetchUser = async () => {
     try {
@@ -191,45 +208,6 @@ const UserDetailUser = ({ navigation }) => {
     }
   };
 
-  // const fetchInterests = async () => {
-  //   try {
-  //     const myId = userLoginId;
-  //     const visitorId = userId;
-
-  //     const token = await AsyncStorage.getItem("@token");
-  //     if (!token) {
-  //       alert("Token not found. Please log in again.");
-  //       return;
-  //     }
-
-  //     // Correct way to pass query parameters in a GET request
-  //     const url = `http://${
-  //       app_var.api_host
-  //     }/users/check_interests?userId=${encodeURIComponent(
-  //       myId
-  //     )}&interestedUserId=${encodeURIComponent(visitorId)}`;
-
-  //     const response = await fetch(url, {
-  //       method: "GET",
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     });
-
-  //     if (!response.ok) {
-  //       throw new Error(`HTTP error! Status: ${response.status}`);
-  //     }
-
-  //     const data = await response.json();
-  //     setInterests(data.interests);
-  //   } catch (error) {
-  //     console.error("Error fetching Interests data:", error);
-  //     alert("Error fetching Interests data");
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
   var contactData = [];
 
   const ImageProfile = "";
@@ -262,12 +240,9 @@ const UserDetailUser = ({ navigation }) => {
     setIsDropdownVisible(!isDropdownVisible);
   };
 
-
   const userLikePress = async () => {
     const myId = user.ID;
     const visitorId = userVisitors.user_id;
-    // console.log("My ID : ", myId);
-    // console.log("Visitor ID : ", visitorId);
 
     const token = await AsyncStorage.getItem("@token");
     if (!token) {
@@ -299,24 +274,23 @@ const UserDetailUser = ({ navigation }) => {
     try {
       const myId = user.ID;
       const visitorId = userVisitors.user_id;
-  
-      if (!myId || !visitorId || !nameContact || !messageContact) {
+
+      if (!myId || !visitorId || !messageContact) {
         alert("Missing required fields. Please check and try again.");
         return;
       }
-  
+
       const token = await AsyncStorage.getItem("@token");
       if (!token) {
         alert("Token not found. Please log in again.");
         return;
       }
-  
+
       const formData = new FormData();
       formData.append("userId", myId);
       formData.append("interestedUserId", visitorId);
-      formData.append("name", nameContact);
       formData.append("message", messageContact);
-  
+
       const response = await fetch(
         `http://${app_var.api_host}/users/interests`,
         {
@@ -327,20 +301,19 @@ const UserDetailUser = ({ navigation }) => {
           body: formData,
         }
       );
-  
-      const result = await response.json(); 
-  
+
+      const result = await response.json();
+
       if (!response.ok) {
         throw new Error(result.error || "Something went wrong");
       }
-  
-      alert("ได้ส่งการแจ้งเตือนไปให้ช่างเรียบร้อยแล้ว"); 
+
+      alert("ได้ส่งการแจ้งเตือนไปให้ช่างเรียบร้อยแล้ว");
     } catch (error) {
       console.error("Error sending interest:", error);
       alert(error.message || "An error occurred. Please try again.");
     }
   };
-  
 
   const handleLogout = async () => {
     try {
@@ -463,7 +436,7 @@ const UserDetailUser = ({ navigation }) => {
       <View key={i} style={stylesIn.contactContainer}>
         <TouchableOpacity
           style={stylesIn.contact}
-          onPress={() => openlink(item.contact_link)}
+          onPress={() => openlink(item)}
         >
           <FontAwesomeIcon
             icon={item.contact_icon}
@@ -570,9 +543,19 @@ const UserDetailUser = ({ navigation }) => {
               {userId != userLoginId ? (
                 <TouchableOpacity
                   onPress={() => setModalVisibles(true)}
-                  style={stylesIn.button}
+                  style={[
+                    stylesIn.button,
+                    isSubmitted && stylesIn.buttonSubmitted,
+                  ]}
                 >
-                  <Text style={stylesIn.buttonText}>สนใจ</Text>
+                  <Text
+                    style={[
+                      stylesIn.buttonText,
+                      isSubmitted && stylesIn.textSubmitted,
+                    ]}
+                  >
+                    {isSubmitted ? "แจ้งเตือนเรียบร้อย" : "สนใจ"}
+                  </Text>
                 </TouchableOpacity>
               ) : (
                 <View />
@@ -589,13 +572,6 @@ const UserDetailUser = ({ navigation }) => {
                   <Text style={stylesIn.modalTitle}>กรอกข้อมูลติดต่อ</Text>
                   <TextInput
                     style={stylesIn.inputField}
-                    placeholder="ชื่อของคุณ"
-                    value={nameContact}
-                    onChangeText={setNameContact}
-                    placeholderTextColor="#aaa"
-                  />
-                  <TextInput
-                    style={stylesIn.inputField}
                     placeholder="กรอกช่องทางการติดต่อ"
                     value={messageContact}
                     onChangeText={setMessageContact}
@@ -610,7 +586,7 @@ const UserDetailUser = ({ navigation }) => {
                     onPress={() => {
                       setModalVisibles(false);
                       setMessageContact("");
-                      setNameContact("");
+                      setIsSubmitted(true);
                       userInterests();
                     }}
                   >
@@ -621,7 +597,6 @@ const UserDetailUser = ({ navigation }) => {
                     onPress={() => {
                       setModalVisibles(false);
                       setMessageContact("");
-                      setNameContact("");
                     }}
                   >
                     <Text style={stylesIn.cancelButtonText}>ยกเลิก</Text>
@@ -841,7 +816,9 @@ const stylesIn = StyleSheet.create({
     borderRadius: 50, // รูปทรงกลม
     marginRight: 10,
   },
-
+  textSubmitted: {
+    color: "#867B29",
+  },
   profile_header: {
     flexDirection: "row",
     alignItems: "center",
@@ -885,12 +862,14 @@ const stylesIn = StyleSheet.create({
   },
   inputField: {
     width: "100%",
-    padding: 12,
+    height: 100,
+    padding: 10,
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 10,
-    marginBottom: 10,
     backgroundColor: "#f9f9f9",
+    textAlignVertical: "top",
+    marginBottom: 10,
   },
   submitButton: {
     backgroundColor: "#063B52",
