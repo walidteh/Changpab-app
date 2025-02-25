@@ -2,7 +2,6 @@ package user
 
 import (
 	"changpab/jwt-api/orm"
-	"fmt"
 	"net/http"
 	"os"
 	"strconv"
@@ -31,22 +30,26 @@ func InterestUser(c *gin.Context) {
 		return
 	}
 
-	// เช็กว่ามีการกดสนใจไปแล้วหรือยัง
-	var existing orm.Notification
-	err = orm.Db.Where("user_id = ? AND action_user_id = ? AND type = ?", interestedUserId, userId, "interest").First(&existing).Error
+	// // เช็กว่ามีการกดสนใจไปแล้วหรือยัง
+	// var existing orm.Notification
+	// err = orm.Db.Where("user_id = ? AND action_user_id = ? AND type = ?", interestedUserId, userId, "interest").First(&existing).Error
 
-	if err == nil {
-		// ถ้ามีแล้ว → ลบออก (Uninterest)
-		orm.Db.Unscoped().Where("user_id = ? AND action_user_id = ? AND type = ?", interestedUserId, userId, "interest").Delete(&orm.Notification{})
-		c.JSON(http.StatusOK, gin.H{"message": "Uninterested successfully"})
-		return
-	}
+	// if err == nil {
+	// 	// ถ้ามีแล้ว → ลบออก (Uninterest)
+	// 	orm.Db.Unscoped().Where("user_id = ? AND action_user_id = ? AND type = ?", interestedUserId, userId, "interest").Delete(&orm.Notification{})
+	// 	c.JSON(http.StatusOK, gin.H{"message": "Uninterested successfully"})
+	// 	return
+	// }
+
+	name := c.DefaultPostForm("name", "")
+	message := c.DefaultPostForm("message", "")
 
 	// เพิ่มการกดสนใจเป็น Notification
 	notification := orm.Notification{
 		UserID:       uint(interestedUserId), // คนที่ถูกกดสนใจ
 		ActionUserID: uint(userId),           // คนที่กดสนใจ
-		Message:      fmt.Sprintf("User %d is interested in you!", userId),
+		Message:      message,
+		Name:         name,
 		Type:         "interest",
 	}
 	orm.Db.Create(&notification)
@@ -60,6 +63,7 @@ func GetNotifications(c *gin.Context) {
 		Fullname    string `json:"fullname"`
 		Img_profile string `json:"img_profile"`
 		Message     string `json:"message"`
+		Name        string `json:"name"`
 	}
 
 	device_host := os.Getenv("DEVICE_HOST")
@@ -77,6 +81,7 @@ func GetNotifications(c *gin.Context) {
 		Select("users.id, users.fullname, users.img_profile, notifications.message").
 		Joins("JOIN users ON notifications.action_user_id = users.id").
 		Where("notifications.user_id = ?", uint(userId)).
+		Order("notifications.created_at DESC"). // ✅ เรียงลำดับจากล่าสุดไปเก่าสุด
 		Find(&userInterests).Error
 
 	if err != nil {
