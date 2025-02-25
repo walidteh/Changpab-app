@@ -30,18 +30,6 @@ func InterestUser(c *gin.Context) {
 		return
 	}
 
-	// // เช็กว่ามีการกดสนใจไปแล้วหรือยัง
-	// var existing orm.Notification
-	// err = orm.Db.Where("user_id = ? AND action_user_id = ? AND type = ?", interestedUserId, userId, "interest").First(&existing).Error
-
-	// if err == nil {
-	// 	// ถ้ามีแล้ว → ลบออก (Uninterest)
-	// 	orm.Db.Unscoped().Where("user_id = ? AND action_user_id = ? AND type = ?", interestedUserId, userId, "interest").Delete(&orm.Notification{})
-	// 	c.JSON(http.StatusOK, gin.H{"message": "Uninterested successfully"})
-	// 	return
-	// }
-
-	name := c.DefaultPostForm("name", "")
 	message := c.DefaultPostForm("message", "")
 
 	// เพิ่มการกดสนใจเป็น Notification
@@ -49,7 +37,6 @@ func InterestUser(c *gin.Context) {
 		UserID:       uint(interestedUserId), // คนที่ถูกกดสนใจ
 		ActionUserID: uint(userId),           // คนที่กดสนใจ
 		Message:      message,
-		Name:         name,
 		Type:         "interest",
 	}
 	orm.Db.Create(&notification)
@@ -63,7 +50,6 @@ func GetNotifications(c *gin.Context) {
 		Fullname    string `json:"fullname"`
 		Img_profile string `json:"img_profile"`
 		Message     string `json:"message"`
-		Name        string `json:"name"`
 	}
 
 	device_host := os.Getenv("DEVICE_HOST")
@@ -101,7 +87,6 @@ func GetSendUser(c *gin.Context) {
 		Fullname    string `json:"fullname"`
 		Img_profile string `json:"img_profile"`
 		Message     string `json:"message"`
-		Name        string `json:"name"`
 	}
 
 	device_host := os.Getenv("DEVICE_HOST")
