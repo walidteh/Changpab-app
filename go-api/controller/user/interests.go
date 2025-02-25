@@ -4,6 +4,7 @@ import (
 	"changpab/jwt-api/orm"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -54,16 +55,70 @@ func InterestUser(c *gin.Context) {
 }
 
 func GetNotifications(c *gin.Context) {
+	var userInterests []struct {
+		ID          uint   `json:"id"`
+		Fullname    string `json:"fullname"`
+		Img_profile string `json:"img_profile"`
+		Message     string `json:"message"`
+	}
+
+	device_host := os.Getenv("DEVICE_HOST")
+	var imageHost = "http://" + device_host + ":8080/get_image/user_profile/"
+
 	userIdStr := c.DefaultQuery("userId", "")
 
-	userId, err := strconv.ParseUint(userIdStr, 10, 32)
-	if err != nil {
+	userId, erre := strconv.ParseUint(userIdStr, 10, 32)
+	if erre != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
 		return
 	}
 
-	var notifications []orm.Notification
-	orm.Db.Where("user_id = ?", userId).Order("created_at DESC").Find(&notifications)
+	err := orm.Db.Table("notifications").
+		Select("users.id, users.fullname, users.img_profile, notifications.message").
+		Joins("JOIN users ON notifications.action_user_id = users.id").
+		Where("notifications.user_id = ?", uint(userId)).
+		Find(&userInterests).Error
 
-	c.JSON(http.StatusOK, notifications)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch interests users"})
+		return
+	}
+
+	for i := range userInterests {
+		userInterests[i].Img_profile = imageHost + userInterests[i].Img_profile
+	}
+
+	c.JSON(http.StatusOK, userInterests)
+}
+
+func CheckInterests(c *gin.Context) {
+
+	userIdStr := c.DefaultPostForm("userId", "")
+	interestedUserIdStr := c.DefaultPostForm("interestedUserId", "")
+
+	userId, err := strconv.ParseUint(userIdStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid interests ID"})
+		return
+	}
+
+	interestsUserId, err := strconv.ParseUint(interestedUserIdStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid interests user ID"})
+		return
+	}
+
+	// fmt.Println("Checking like for user:", userId, " -> liked user:", likedUserId)
+
+	// ค้นหาไลก์ในฐานข้อมูล
+	var existing orm.Notification
+	err = orm.Db.Where("action_user_id = ? AND user_id = ?", userId, interestsUserId).First(&existing).Error
+
+	if err == nil {
+		// ถ้าพบไลก์
+		c.JSON(http.StatusOK, gin.H{"interests": true})
+	} else {
+		// ถ้าไม่พบไลก์
+		c.JSON(http.StatusOK, gin.H{"interests": false})
+	}
 }
