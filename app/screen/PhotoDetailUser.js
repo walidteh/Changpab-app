@@ -70,18 +70,34 @@ const PhotoDetailUser = ({ navigation }) => {
     }
   };
 
-  const openlink = (url) => {
-      console.log(url);
+  const openlink = (host) => {
+    // console.log(host);
+
+    if(/^\d{10}$/.test(host.contact_name)) {
+      console.log("phone is : " , host.contact_name)
+      const phoneNumber = `tel:${host.contact_name}`;
+      console.log(phoneNumber);
+      Linking.openURL(phoneNumber).catch((err) =>
+        Alert.alert("Error", "Cannot open dialer")
+      );
+    }else if(host.contact_name.includes("@")){
+      console.log("email is : " , host.contact_name)
+    }else {
+      console.log("link is : " , host.contact_link)
+      const url = host.contact_link;
       Linking.canOpenURL(url)
-        .then((supported) => {
-          if (supported) {
-            Linking.openURL(url);
-          } else {
-            console.log("ไม่สามารถเปิดลิงก์นี้ได้");
-          }
-        })
-        .catch((err) => console.error("เกิดข้อผิดพลาดในการเปิดลิงก์:", err));
-    };
+      .then((supported) => {
+        if (supported) {
+          Linking.openURL(url).catch((err) => {
+            alert("ไม่สามารถเปิดลิงก์นี้ได้");
+          });
+        } else {
+          alert("ไม่สามารถเปิดลิงก์นี้ได้");
+        }
+      })
+      .catch((err) => console.error("เกิดข้อผิดพลาดในการเปิดลิงก์:", err));
+    }
+  };
 
   const fetchUser = async () => {
     try {
@@ -467,7 +483,7 @@ const PhotoDetailUser = ({ navigation }) => {
       <View key={i} style={stylesIn.contactContainer}>
         <TouchableOpacity
           style={stylesIn.contact}
-          onPress={() => openlink(item.contact_link)}
+          onPress={() => openlink(item)}
         >
           <FontAwesomeIcon
             icon={item.contact_icon}
@@ -601,13 +617,13 @@ const PhotoDetailUser = ({ navigation }) => {
               <View style={stylesIn.modalBackground}>
                 <View style={stylesIn.modalBox}>
                   <Text style={stylesIn.modalTitle}>กรอกข้อมูลติดต่อ</Text>
-                  <TextInput
+                  {/* <TextInput
                     style={stylesIn.inputField}
                     placeholder="ชื่อของคุณ"
                     value={nameContact}
                     onChangeText={setNameContact}
                     placeholderTextColor="#aaa"
-                  />
+                  /> */}
                   <TextInput
                     style={stylesIn.inputField}
                     placeholder="กรอกช่องทางการติดต่อ"
@@ -906,12 +922,14 @@ const stylesIn = StyleSheet.create({
   },
   inputField: {
     width: "100%",
-    padding: 12,
+    height: 100,
+    padding: 10,
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 10,
-    marginBottom: 10,
     backgroundColor: "#f9f9f9",
+    textAlignVertical: "top",
+    marginBottom: 10,
   },
   submitButton: {
     backgroundColor: "#063B52",
