@@ -321,6 +321,11 @@ const PhotoDetailUser = ({ navigation }) => {
       const myId = user.ID;
       const visitorId = userVisitors.user_id;
 
+      if (!myId || !visitorId || !messageContact) {
+        alert("กรอกข้อความให้เรียบร้อย.");
+        return;
+      }
+
 
       const token = await AsyncStorage.getItem("@token");
       if (!token) {

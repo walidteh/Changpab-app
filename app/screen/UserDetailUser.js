@@ -276,7 +276,7 @@ const UserDetailUser = ({ navigation }) => {
       const visitorId = userVisitors.user_id;
 
       if (!myId || !visitorId || !messageContact) {
-        alert("Missing required fields. Please check and try again.");
+        alert("กรอกข้อความให้เรียบร้อย");
         return;
       }
 
