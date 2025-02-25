@@ -391,7 +391,7 @@ const UserDetailUser = ({ navigation }) => {
         });
       }
     });
-    console.log(PostUser[0]);
+    // console.log(PostUser[0]);
     if (PostUser.length > 0) {
       return PostUser.map((user, i) => (
         <View key={i} style={stylesIn.item}>

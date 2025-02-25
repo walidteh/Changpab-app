@@ -20,6 +20,7 @@ export default function LoginForm({ navigation }) {
   const [username, setUsername] = useState("");
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
+  const [facebook, setFacebook] = useState("");
   const [email, setemail] = useState("");
   // const [role, setRole] = useState("");
   const [password, setPassword] = useState("");
@@ -217,8 +218,8 @@ export default function LoginForm({ navigation }) {
                   <TextInput
                     style={styles.input}
                     placeholder="กรุณากรอกชื่อเพจเฟซบุ๊กของคุณ"
-                    value={lastname}
-                    onChangeText={setLastname}
+                    value={facebook}
+                    onChangeText={setFacebook}
                     autoCorrect={false}
                     autoCapitalize="none"
                   />
@@ -235,7 +236,6 @@ export default function LoginForm({ navigation }) {
                   <TextInput
                     style={styles.input}
                     placeholder="กรุณากรอกชื่อผู้ใช้ของคุณ"
-                    secureTextEntry
                     value={username}
                     onChangeText={setUsername}
                     autoCorrect={false}
@@ -299,7 +299,6 @@ export default function LoginForm({ navigation }) {
                   <TextInput
                     style={styles.input}
                     placeholder="กรุณากรอกชื่อผู้ใช้ของคุณ"
-                    secureTextEntry
                     value={username}
                     onChangeText={setUsername}
                     autoCorrect={false}

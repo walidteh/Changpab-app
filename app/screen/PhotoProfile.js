@@ -627,7 +627,6 @@ const PhotoProfile = ({ navigation }) => {
   };
 
   const openlink = (url) => {
-    console.log(url);
     Linking.canOpenURL(url)
       .then((supported) => {
         if (supported) {

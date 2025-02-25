@@ -364,33 +364,6 @@ const PhotoDetailPost = ({ navigation }) => {
         <View style={stylesIn.body}>{renderPost()}</View>
       </ScrollView>
 
-      <Modal visible={isFullView} transparent={true} animationType="fade">
-        <TouchableWithoutFeedback onPress={closeFullView}>
-          <View style={stylesIn.fullViewContainer}>
-            <View style={stylesIn.swiperContainer}>
-              <Swiper
-                index={selectedIndex} // ให้เริ่มที่รูปที่เลือก
-                loop={false}
-                showsPagination={true} // แสดงตัวเลขหรือจุด pagination
-                onIndexChanged={(index) => setSelectedIndex(index)} // อัปเดต index เมื่อสไลด์
-              >
-                {selectedImages.map((img, index) => (
-                  <View key={index} style={stylesIn.fullViewSlide}>
-                    <Image
-                      source={{ uri: img }}
-                      style={stylesIn.fullViewImage}
-                    />
-                  </View>
-                ))}
-              </Swiper>
-              {/* แสดงตำแหน่งของรูปที่กำลังแสดง */}
-              <Text style={stylesIn.imagePositionText}>
-                {`Image ${selectedIndex + 1} of ${selectedImages.length}`}
-              </Text>
-            </View>
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
 
       <View style={styles.menu}>
         <TouchableOpacity style={styles.menuItem} onPress={PhotoIdex}>

@@ -395,7 +395,7 @@ const PhotoDetailUser = ({ navigation }) => {
         });
       }
     });
-    console.log(PostUser[0]);
+    // console.log(PostUser[0]);
     if (PostUser.length > 0) {
       return PostUser.map((user, i) => (
         <View key={i} style={stylesIn.item}>
@@ -585,7 +585,7 @@ const PhotoDetailUser = ({ navigation }) => {
                       isSubmitted && stylesIn.textSubmitted,
                     ]}
                   >
-                    {isSubmitted ? "แจ้งข้อมูลเรียบร้อย" : "สนใจ"}
+                    {isSubmitted ? "แจ้งเตือนเรียบร้อย" : "สนใจ"}
                   </Text>
                 </TouchableOpacity>
               ) : (
