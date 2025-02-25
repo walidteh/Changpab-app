@@ -321,10 +321,6 @@ const PhotoDetailUser = ({ navigation }) => {
       const myId = user.ID;
       const visitorId = userVisitors.user_id;
 
-      if (!myId || !visitorId || !nameContact || !messageContact) {
-        alert("Missing required fields. Please check and try again.");
-        return;
-      }
 
       const token = await AsyncStorage.getItem("@token");
       if (!token) {
@@ -335,7 +331,7 @@ const PhotoDetailUser = ({ navigation }) => {
       const formData = new FormData();
       formData.append("userId", myId);
       formData.append("interestedUserId", visitorId);
-      formData.append("name", nameContact);
+      // formData.append("name", nameContact);
       formData.append("message", messageContact);
 
       const response = await fetch(
@@ -640,7 +636,7 @@ const PhotoDetailUser = ({ navigation }) => {
                     onPress={() => {
                       setModalVisibles(false);
                       setMessageContact("");
-                      setNameContact("");
+                      // setNameContact("");
                       setIsSubmitted(true); // เปลี่ยนสถานะให้ปุ่มเป็น "แจ้งข้อมูลเรียบร้อย"
                       userInterests();
                     }}
@@ -652,7 +648,7 @@ const PhotoDetailUser = ({ navigation }) => {
                     onPress={() => {
                       setModalVisibles(false);
                       setMessageContact("");
-                      setNameContact("");
+                      // setNameContact("");
                     }}
                   >
                     <Text style={stylesIn.cancelButtonText}>ยกเลิก</Text>
