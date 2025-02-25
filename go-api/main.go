@@ -60,6 +60,7 @@ func main() {
 	authorized.POST("/interests", UserController.InterestUser)
 	authorized.GET("/get_users_interests", UserController.GetNotifications)
 	authorized.GET("/check_interests", UserController.CheckInterests)
+	authorized.GET("/get_myinterests", UserController.GetSendUser)
 
 	device_host := os.Getenv("DEVICE_HOST")
 

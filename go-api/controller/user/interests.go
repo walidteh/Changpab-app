@@ -81,7 +81,45 @@ func GetNotifications(c *gin.Context) {
 		Select("users.id, users.fullname, users.img_profile, notifications.message").
 		Joins("JOIN users ON notifications.action_user_id = users.id").
 		Where("notifications.user_id = ?", uint(userId)).
-		Order("notifications.created_at DESC"). // ✅ เรียงลำดับจากล่าสุดไปเก่าสุด
+		Order("notifications.created_at DESC").
+		Find(&userInterests).Error
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch interests users"})
+		return
+	}
+
+	for i := range userInterests {
+		userInterests[i].Img_profile = imageHost + userInterests[i].Img_profile
+	}
+
+	c.JSON(http.StatusOK, userInterests)
+}
+func GetSendUser(c *gin.Context) {
+	var userInterests []struct {
+		ID          uint   `json:"id"`
+		Fullname    string `json:"fullname"`
+		Img_profile string `json:"img_profile"`
+		Message     string `json:"message"`
+		Name        string `json:"name"`
+	}
+
+	device_host := os.Getenv("DEVICE_HOST")
+	var imageHost = "http://" + device_host + ":8080/get_image/user_profile/"
+
+	userIdStr := c.DefaultQuery("userId", "")
+
+	userId, erre := strconv.ParseUint(userIdStr, 10, 32)
+	if erre != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	err := orm.Db.Table("notifications").
+		Select("users.id, users.fullname, users.img_profile, notifications.message").
+		Joins("JOIN users ON notifications.user_id = users.id").
+		Where("notifications.action_user_id = ?", uint(userId)).
+		Order("notifications.created_at DESC").
 		Find(&userInterests).Error
 
 	if err != nil {
