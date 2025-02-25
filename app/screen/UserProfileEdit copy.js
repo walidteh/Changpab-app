@@ -1,9 +1,19 @@
-import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity, Image, TextInput, ScrollView, Alert } from 'react-native'
-import React, { useState, useEffect } from 'react'
+import {
+  View,
+  Text,
+  SafeAreaView,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  TextInput,
+  ScrollView,
+  Alert,
+} from "react-native";
+import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import app_var from "./public";
 import * as ImagePicker from "expo-image-picker";
-import styles from './styles';
+import styles from "./styles";
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
@@ -19,13 +29,9 @@ import {
   faPhone,
   faEnvelope,
 } from "@fortawesome/free-solid-svg-icons";
-import {
-  faFacebook,
-  faInstagram,
-} from "@fortawesome/free-brands-svg-icons";
+import { faFacebook, faInstagram } from "@fortawesome/free-brands-svg-icons";
 
 import { useRoute } from "@react-navigation/native";
-
 
 const UserProfileEdit = ({ navigation }) => {
   const [user, setUser] = useState({});
@@ -35,33 +41,32 @@ const UserProfileEdit = ({ navigation }) => {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [fullname, setFullname] = useState("");
   const [lastname, setLastname] = useState("");
-  const [textdetail, setTextDetail] = useState(""); 
-  const [textfullname, setTextFullname] = useState(""); 
-  const [textLastname, setTextLastname] = useState(""); 
+  const [textdetail, setTextDetail] = useState("");
+  const [textfullname, setTextFullname] = useState("");
+  const [textLastname, setTextLastname] = useState("");
   const maxChars = 200;
-  const [selectedImage, setSelectImage] = useState(""); 
-  
+  const [selectedImage, setSelectImage] = useState("");
+
   const route = useRoute();
-    const { fullnameedit } = route.params;
-    const { lastnameedit } = route.params;
-    const { detailedit } = route.params;
+  const { fullnameedit } = route.params;
+  const { lastnameedit } = route.params;
+  const { detailedit } = route.params;
 
-    const UserIdex = () => {
-      navigation.navigate("UserIndex");
-    };
-  
-    const UserSearce = () => {
-      navigation.navigate("UserSearch");
-    };
-  
-    const UserNotify = () => {
-      navigation.navigate("UserNotify");
-    };
-  
-    const UserProfile = () => {
-      navigation.navigate("UserProfile");
-    };
+  const UserIdex = () => {
+    navigation.navigate("UserIndex");
+  };
 
+  const UserSearce = () => {
+    navigation.navigate("UserSearch");
+  };
+
+  const UserNotify = () => {
+    navigation.navigate("UserNotify");
+  };
+
+  const UserProfile = () => {
+    navigation.navigate("UserProfile");
+  };
 
   const fetchAllUser = async () => {
     try {
@@ -130,12 +135,11 @@ const UserProfileEdit = ({ navigation }) => {
     }
   };
 
-
   const save = async () => {
-    console.log("asdasdsad")
+    console.log("asdasdsad");
     try {
-      if(profileImage){
-         await SaveImageProfile(profileImage); 
+      if (profileImage) {
+        await SaveImageProfile(profileImage);
       }
       const token = await AsyncStorage.getItem("@token");
       if (!token) {
@@ -163,7 +167,6 @@ const UserProfileEdit = ({ navigation }) => {
       const data = await response.json();
 
       if (response.ok) {
-        
         // alert("แก้ไขข้อมูลเรียบร้อย!");
         navigation.reset({
           index: 0,
@@ -174,10 +177,10 @@ const UserProfileEdit = ({ navigation }) => {
         alert("กรุณากรอกทั้งชื่อและนามสกุล");
       }
     } catch (error) {
-        console.error("Error:", error);
-        alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+      console.error("Error:", error);
+      alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
     }
-};
+  };
   const saveDetail = async () => {
     try {
       const token = await AsyncStorage.getItem("@token");
@@ -203,22 +206,20 @@ const UserProfileEdit = ({ navigation }) => {
       const data = await response.json();
 
       if (response.ok) {
-        
         // alert("แก้ไขข้อมูลเรียบร้อย!");
         navigation.reset({
           index: 0,
-          routes: [{ name: "PhotoProfile" }],
+          routes: [{ name: "UserProfile" }],
         });
         return data;
       } else {
         alert("กรุณากรอกทั้งชื่อและนามสกุล");
       }
     } catch (error) {
-        console.error("Error:", error);
-        alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+      console.error("Error:", error);
+      alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
     }
-};
-
+  };
 
   useEffect(() => {
     fetchUser();
@@ -230,7 +231,8 @@ const UserProfileEdit = ({ navigation }) => {
 
   const handleImagePicker = async () => {
     // ขออนุญาตเข้าถึง Media Library
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (!permissionResult.granted) {
       Alert.alert(
@@ -241,24 +243,25 @@ const UserProfileEdit = ({ navigation }) => {
     }
 
     // เปิดแกลเลอรีเพื่อเลือกภาพ
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaType.IMAGE, 
       allowsEditing: true,
-      aspect: [1, 1], // ตัดรูปให้เป็นสี่เหลี่ยมจัตุรัส
-      quality: 1, // คุณภาพของรูป (0 ถึง 1)
+      aspect: [4, 3],
+      quality: 1,
     });
-
+  
     if (!result.canceled) {
-      const selectedImage = result.assets[0].uri; // URI ของรูปที่เลือก
-      setProfileImage(selectedImage); 
+      console.log(result);
     }
   };
 
   const SaveImageProfile = async (imageUri) => {
-    console.log("asdasdsad")
+    console.log("asdasdsad");
 
     if (!imageUri) {
-      Alert.alert("Error", "Please select an image before uploading.", [{ text: "OK" }]);
+      Alert.alert("Error", "Please select an image before uploading.", [
+        { text: "OK" },
+      ]);
       return;
     }
 
@@ -282,7 +285,9 @@ const UserProfileEdit = ({ navigation }) => {
 
       // ตรวจสอบว่ามี token หรือไม่
       if (!token) {
-        Alert.alert("Error", "Authentication token is missing.", [{ text: "OK" }]);
+        Alert.alert("Error", "Authentication token is missing.", [
+          { text: "OK" },
+        ]);
         return;
       }
 
@@ -305,8 +310,10 @@ const UserProfileEdit = ({ navigation }) => {
 
       // ตรวจสอบผลลัพธ์
       if (response.ok && result.status !== "ok") {
-        Alert.alert("Error", result.message || "Failed to upload the image.", [{ text: "OK" }]);
-      } 
+        Alert.alert("Error", result.message || "Failed to upload the image.", [
+          { text: "OK" },
+        ]);
+      }
     } catch (error) {
       console.error("Error uploading image:", error);
       Alert.alert("Error", "An unexpected error occurred.", [{ text: "OK" }]);
@@ -341,7 +348,7 @@ const UserProfileEdit = ({ navigation }) => {
     } catch (error) {
       console.error("Error clearing token:", error);
     }
-  }
+  };
 
   const FullName = (input) => {
     const words = input.split(/\s+/).filter(Boolean);
@@ -361,7 +368,6 @@ const UserProfileEdit = ({ navigation }) => {
       setTextDetail(input);
     }
   };
-  
 
   return (
     <SafeAreaView style={styles.container}>
@@ -379,7 +385,7 @@ const UserProfileEdit = ({ navigation }) => {
           {/* แสดง dropdown */}
           {isDropdownVisible && (
             <View style={styles.dropdown1}>
-              <View style={{ flexDirection: 'row' }}>
+              <View style={{ flexDirection: "row" }}>
                 <Image
                   source={{
                     uri: user.Img_profile,
@@ -399,7 +405,7 @@ const UserProfileEdit = ({ navigation }) => {
                   </Text>
                 </View>
               </View>
-              <View style={{ alignItems: 'center', marginTop: 15 }}>
+              <View style={{ alignItems: "center", marginTop: 15 }}>
                 <TouchableOpacity style={styles.button} onPress={handleLogout}>
                   <Text style={styles.buttonText}>Logout</Text>
                 </TouchableOpacity>
@@ -413,7 +419,7 @@ const UserProfileEdit = ({ navigation }) => {
       <View style={styles.exit}>
         <TouchableOpacity
           style={styles.exitIcon}
-          onPress={() => navigation.navigate("PhotoProfile")}
+          onPress={() => navigation.navigate("UserProfile")}
         >
           <FontAwesomeIcon icon={faArrowLeft} size={18} color="#000" />
         </TouchableOpacity>
@@ -425,15 +431,20 @@ const UserProfileEdit = ({ navigation }) => {
           <View style={stylesIn.logoContainer}>
             <Image
               source={{
-                uri: !profileImage ? user.Img_profile:profileImage,
+                uri: !profileImage ? user.Img_profile : profileImage,
               }}
               style={stylesIn.logo}
             />
-            <TouchableOpacity onPress={handleImagePicker} style={stylesIn.uploadImage}>
+            <TouchableOpacity
+              onPress={handleImagePicker}
+              style={stylesIn.uploadImage}
+            >
               <FontAwesomeIcon icon={faCamera} size={20} color="#fff" />
             </TouchableOpacity>
             <Text style={stylesIn.name}>
-              {`${user.Fullname || "No Fullname Available"} ${user.Lastname || ""}`.trim()}
+              {`${user.Fullname || "No Fullname Available"} ${
+                user.Lastname || ""
+              }`.trim()}
             </Text>
           </View>
           <View style={stylesIn.inputView}>
@@ -469,7 +480,13 @@ const UserProfileEdit = ({ navigation }) => {
               textAlignVertical="top"
             />
           </View>
-          <TouchableOpacity style={stylesIn.bottom} onPress={() => { save(); saveDetail(); }}>
+          <TouchableOpacity
+            style={stylesIn.bottom}
+            onPress={() => {
+              save();
+              saveDetail();
+            }}
+          >
             <Text style={stylesIn.buttonText}>บันทึก</Text>
           </TouchableOpacity>
         </View>
@@ -491,20 +508,20 @@ const UserProfileEdit = ({ navigation }) => {
         </TouchableOpacity>
       </View>
     </SafeAreaView>
-  )
-}
+  );
+};
 
 const stylesIn = StyleSheet.create({
   content: {
     width: "auto",
     marginBottom: 150,
-    alignItems: 'center',
+    alignItems: "center",
   },
 
   logoContainer: {
     position: "relative", // ทำให้ปุ่มสามารถวางซ้อนบนโลโก้ได้
     padding: 10,
-    alignItems: 'center',
+    alignItems: "center",
   },
   logo: {
     width: 150, // ขนาดโลโก้
@@ -538,7 +555,7 @@ const stylesIn = StyleSheet.create({
     marginTop: 20,
   },
   input: {
-    width: '95%',
+    width: "95%",
     height: 40,
     backgroundColor: "white",
     paddingHorizontal: 20,
@@ -559,16 +576,16 @@ const stylesIn = StyleSheet.create({
   },
 
   Boxinput: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginTop: 15,
   },
   contactname: {
-    width: '90%',
+    width: "90%",
     marginLeft: 10,
   },
 
   bottom: {
-    width: '70%',
+    width: "70%",
     height: 43,
     backgroundColor: "#007BFF",
     paddingVertical: 10,
@@ -584,4 +601,4 @@ const stylesIn = StyleSheet.create({
   },
 });
 
-export default UserProfileEdit
+export default UserProfileEdit;

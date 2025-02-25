@@ -37,10 +37,15 @@ import {
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import { faFacebook, faInstagram } from "@fortawesome/free-brands-svg-icons";
+import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
+import { useScrollToTop } from "@react-navigation/native";
 
 const UserProfile = ({ navigation }) => {
   const [user, setUser] = useState({});
+  const [userAll, setUserAll] = useState([]);
   const [post, setPost] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [profileImage, setProfileImage] = useState(null);
   const [selectedDropdown, setSelectedDropdown] = useState(null);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const HostInfo = [
@@ -57,7 +62,6 @@ const UserProfile = ({ navigation }) => {
   const [contactInfo, setContactInfo] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingContactItem, setIsEditingContactItem] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [EditContactId, setEditContactId] = useState(null);
 
   const [rate, setRate] = useState(false);
@@ -67,7 +71,78 @@ const UserProfile = ({ navigation }) => {
   const [isEditingRate, setIsEditingRate] = useState(false);
   const [isEditingRateItem, setIsEditingRateItem] = useState(false);
   const [EditRateId, setEditRateId] = useState(null);
+  const [expanded, setExpanded] = useState(false);
+  const handleDropdownToggle = (index) => {
+    setSelectedDropdown(selectedDropdown === index ? null : index);
+  };
   const [usersLiked, setUsersLiked] = useState([]);
+
+  const fetchAllUser = async () => {
+    try {
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        alert("Token not found. Please log in again.");
+        return;
+      }
+
+      const response = await fetch(
+        "http://" + app_var.api_host + "/users/get_all_user",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+      if (data.status === "ok") {
+        setUserAll(data.userId);
+      } else {
+        alert("Failed to fetch user data");
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      alert("Error fetching user data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchAllPost = async () => {
+    try {
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        alert("Token not found. Please log in again.");
+        return;
+      }
+
+      const response = await fetch(
+        "http://" + app_var.api_host + "/users/get_post_info",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+      if (data.status === "OK") {
+        setPost(data.post);
+        // console.log(post);
+      } else {
+        alert("Failed to fetch user data");
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      alert("Error fetching user data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const [refreshing, setRefreshing] = useState(false); // Declare refreshing state
   const fetchUser = async () => {
@@ -129,11 +204,9 @@ const UserProfile = ({ navigation }) => {
       }
 
       const data = await response.json();
-      // console.log("API Response:", data);
       setUsersLiked(data);
     } catch (error) {
       console.error("Error fetching users like:", error);
-      // alert("Error fetching like data");
     }
   };
 
@@ -283,6 +356,146 @@ const UserProfile = ({ navigation }) => {
     console.log(contactId);
   };
 
+  const CreateRate = async (ratetype, rateprice) => {
+    try {
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        alert("Token not found. Please log in again.");
+        return;
+      }
+      if (!ratetype || !rateprice) {
+        alert("กรุณากรอกชื่อและลิงก์ให้ครบ");
+        return;
+      }
+
+      let formData = new FormData();
+      formData.append("Type", ratetype);
+      formData.append("Price", rateprice);
+
+      const response = await fetch(
+        `http://${app_var.api_host}/users/create_rate`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("บันทึกแล้ว:", data);
+        fetchRate();
+        alert("เพิ่มข้อมูลเรียบร้อย!");
+        setRateType("");
+        setRatePrice("");
+
+        return data;
+      } else {
+        alert(`เกิดข้อผิดพลาด: ${data.error}`);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+    }
+  };
+
+  const EditRate = async (RateID, ratetype, rateprice) => {
+    console.log("asdasd", RateID);
+    try {
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        alert("Token not found. Please log in again.");
+        return;
+      }
+
+      if (!ratetype || !rateprice) {
+        alert("กรุณากรอกชื่อและลิงก์ให้ครบ");
+        return;
+      }
+
+      let formData = new FormData();
+      formData.append("Type", ratetype);
+      formData.append("Price", rateprice);
+
+      const response = await fetch(
+        "http://" +
+          app_var.api_host +
+          "/users/edit_rate?RateID=" +
+          encodeURIComponent(RateID),
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("แก้ไขข้อมูลแล้ว:", data);
+        fetchRate();
+        alert("แก้ไขข้อมูลเรียบร้อย!");
+        setRateType("");
+        setRatePrice("");
+        return data;
+      } else {
+        alert(`เกิดข้อผิดพลาด: ${data.error}`);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+    }
+  };
+
+  const DeleteRate = async (ID) => {
+    Alert.alert("ระบบ", "ต้องการลบโพสต์หรือไม่", [
+      {
+        text: "ยกเลิก",
+        onPress: () => {
+          return;
+        },
+      },
+      {
+        text: "ตกลง",
+        onPress: async () => {
+          try {
+            const token = await AsyncStorage.getItem("@token");
+            if (!token) {
+              alert("Token not found. Please log in again.");
+              return;
+            }
+            const response = await fetch(
+              "http://" +
+                app_var.api_host +
+                "/users/delete_rate?RateID=" +
+                encodeURIComponent(ID),
+              {
+                method: "DELETE",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+
+            const data = await response.json();
+
+            console.log(data.status);
+            fetchRate();
+          } catch (error) {
+            console.error("Error:", error);
+            alert("An error occurred while searching.");
+          }
+        },
+      },
+    ]);
+    console.log(contactId);
+  };
+
   const fetchContact = async () => {
     try {
       const token = await AsyncStorage.getItem("@token");
@@ -315,14 +528,103 @@ const UserProfile = ({ navigation }) => {
     }
   };
 
+  const fetchRate = async () => {
+    try {
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        alert("Token not found. Please log in again.");
+        return;
+      }
+
+      const response = await fetch(
+        `http://${app_var.api_host}/users/get_rate`,
+        {
+          method: "GET",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const data = await response.json();
+      console.log("API Response:", data);
+
+      if (response.ok) {
+        if (Array.isArray(data.userRate)) {
+          setRateInfo(data.userRate);
+          console.log("Rate", data.userRate);
+        } else {
+          console.error("userRate is not an array:", data.userRate);
+          setRateInfo([]);
+        }
+      } else {
+        alert("Failed to fetch user data");
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      alert("Error fetching user data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   var contactData = [];
 
   useEffect(() => {
     fetchUser();
+    fetchAllUser();
+    fetchAllPost();
     fetchContact();
+    fetchRate();
   }, []);
 
   const [selectedMenu, setSelectedMenu] = useState("หน้าหลัก"); // เก็บสถานะของเมนูที่เลือก
+
+  const PostUser = [];
+
+  const DeletePost = async (post_id) => {
+    Alert.alert("ระบบ", "ต้องการลบโพสต์หรือไม่", [
+      {
+        text: "ยกเลิก",
+        onPress: () => {
+          return;
+        },
+      },
+      {
+        text: "ตกลง",
+        onPress: async () => {
+          try {
+            const token = await AsyncStorage.getItem("@token");
+            if (!token) {
+              alert("Token not found. Please log in again.");
+              return;
+            }
+            const response = await fetch(
+              "http://" +
+                app_var.api_host +
+                "/users/delete_post?postId=" +
+                encodeURIComponent(post_id),
+              {
+                method: "DELETE",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+
+            const data = await response.json();
+            console.log(data.status);
+            navigation.reset({
+              index: 0,
+              routes: [{ name: "PhotoProfile" }],
+            });
+          } catch (error) {
+            console.error("Error:", error);
+            alert("An error occurred while searching.");
+          }
+        },
+      },
+    ]);
+    console.log(post_id);
+  };
 
   const openlink = (url) => {
     console.log(url);
@@ -376,7 +678,7 @@ const UserProfile = ({ navigation }) => {
 
             <View style={styles.detials}>
               <Text style={styles.caption}>
-              {user.Detail || "ข้อมูล ประวัตื caption"}{" "}
+                {user.Detail || "ข้อมูล ประวัตื caption"}{" "}
               </Text>
               <View style={styles.container_info}>
                 {/* ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- */}
@@ -511,6 +813,8 @@ const UserProfile = ({ navigation }) => {
                     </View>
                   ))}
                 </View>
+
+                {/* ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- */}
               </View>
             </View>
           </View>
@@ -527,7 +831,6 @@ const UserProfile = ({ navigation }) => {
               />
               <View style={styles.textContainer}>
                 <Text style={styles.name}>{item.fullname}</Text>
-                {/* <Text style={styles.id}>ID: {item.id}</Text> */}
               </View>
             </View>
           ))}
@@ -640,7 +943,7 @@ const UserProfile = ({ navigation }) => {
             onPress: () => {
               navigation.reset({
                 index: 0,
-                routes: [{ name: "PhotoProfile" }],
+                routes: [{ name: "UserProfile" }],
               });
             },
           },

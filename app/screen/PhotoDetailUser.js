@@ -7,6 +7,9 @@ import {
   SafeAreaView,
   ImageBackground,
   Image,
+  Modal,
+  TextInput,
+  Button,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -28,6 +31,7 @@ import {
   faPhone,
   faEnvelope,
 } from "@fortawesome/free-solid-svg-icons";
+import { Linking } from "react-native";
 import { faFacebook, faInstagram } from "@fortawesome/free-brands-svg-icons";
 
 const PhotoDetailUser = ({ navigation }) => {
@@ -51,6 +55,10 @@ const PhotoDetailUser = ({ navigation }) => {
   const { userLoginId } = route.params;
   const [liked, setLiked] = useState([]);
   const [interests, setInterests] = useState([]);
+  const [modalVisible, setModalVisibles] = useState(false);
+  const [nameContact, setNameContact] = useState("");
+  const [messageContact, setMessageContact] = useState("");
+  const [isSubmitted, setIsSubmitted] = useState(false); // เช็คว่าส่งข้อมูลไปแล้วหรือยัง
 
   const [likedPosts, setLikedPosts] = useState([]);
 
@@ -61,6 +69,19 @@ const PhotoDetailUser = ({ navigation }) => {
       setLikedPosts([...likedPosts, postId]);
     }
   };
+
+  const openlink = (url) => {
+      console.log(url);
+      Linking.canOpenURL(url)
+        .then((supported) => {
+          if (supported) {
+            Linking.openURL(url);
+          } else {
+            console.log("ไม่สามารถเปิดลิงก์นี้ได้");
+          }
+        })
+        .catch((err) => console.error("เกิดข้อผิดพลาดในการเปิดลิงก์:", err));
+    };
 
   const fetchUser = async () => {
     try {
@@ -133,8 +154,6 @@ const PhotoDetailUser = ({ navigation }) => {
     }
   };
 
-  
-
   const fetchUserLike = async () => {
     try {
       const myId = userLoginId;
@@ -174,44 +193,44 @@ const PhotoDetailUser = ({ navigation }) => {
     }
   };
 
-  const fetchInterests = async () => {
-    try {
-      const myId = userLoginId;
-      const visitorId = userId;
+  // const fetchInterests = async () => {
+  //   try {
+  //     const myId = userLoginId;
+  //     const visitorId = userId;
 
-      const token = await AsyncStorage.getItem("@token");
-      if (!token) {
-        alert("Token not found. Please log in again.");
-        return;
-      }
+  //     const token = await AsyncStorage.getItem("@token");
+  //     if (!token) {
+  //       alert("Token not found. Please log in again.");
+  //       return;
+  //     }
 
-      // Correct way to pass query parameters in a GET request
-      const url = `http://${
-        app_var.api_host
-      }/users/check_interests?userId=${encodeURIComponent(
-        myId
-      )}&interestedUserId=${encodeURIComponent(visitorId)}`;
+  //     // Correct way to pass query parameters in a GET request
+  //     const url = `http://${
+  //       app_var.api_host
+  //     }/users/check_interests?userId=${encodeURIComponent(
+  //       myId
+  //     )}&interestedUserId=${encodeURIComponent(visitorId)}`;
 
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+  //     const response = await fetch(url, {
+  //       method: "GET",
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
+  //     if (!response.ok) {
+  //       throw new Error(`HTTP error! Status: ${response.status}`);
+  //     }
 
-      const data = await response.json();
-      setInterests(data.interests);
-    } catch (error) {
-      console.error("Error fetching Interests data:", error);
-      alert("Error fetching Interests data");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  //     const data = await response.json();
+  //     setInterests(data.interests);
+  //   } catch (error) {
+  //     console.error("Error fetching Interests data:", error);
+  //     alert("Error fetching Interests data");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   var contactData = [];
 
@@ -223,7 +242,6 @@ const PhotoDetailUser = ({ navigation }) => {
     fetchUserVisitors();
     fetchUser();
     fetchUserLike();
-    fetchInterests();
   }, []);
 
   const PhotoIdex = () => {
@@ -281,35 +299,50 @@ const PhotoDetailUser = ({ navigation }) => {
       console.error("Like failed:", response.statusText);
     }
   };
+
   const userInterests = async () => {
-    const myId = user.ID;
-    const visitorId = userVisitors.user_id;
-    // console.log("My ID : ", myId);
-    // console.log("Visitor ID : ", visitorId);
+    try {
+      const myId = user.ID;
+      const visitorId = userVisitors.user_id;
 
-    const token = await AsyncStorage.getItem("@token");
-    if (!token) {
-      alert("Token not found. Please log in again.");
-      return;
-    }
+      if (!myId || !visitorId || !nameContact || !messageContact) {
+        alert("Missing required fields. Please check and try again.");
+        return;
+      }
 
-    const formData = new FormData();
-    formData.append("userId", myId);
-    formData.append("interestedUserId", visitorId);
+      const token = await AsyncStorage.getItem("@token");
+      if (!token) {
+        alert("Token not found. Please log in again.");
+        return;
+      }
 
-    const response = await fetch("http://" + app_var.api_host + "/users/interests", {
-      method: "POST",
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    });
+      const formData = new FormData();
+      formData.append("userId", myId);
+      formData.append("interestedUserId", visitorId);
+      formData.append("name", nameContact);
+      formData.append("message", messageContact);
 
-    if (response.ok) {
-      fetchUserLike();
-    } else {
-      console.error("Interests failed:", response.statusText);
+      const response = await fetch(
+        `http://${app_var.api_host}/users/interests`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Something went wrong");
+      }
+
+      alert("ได้ส่งการแจ้งเตือนไปให้ช่างเรียบร้อยแล้ว");
+    } catch (error) {
+      console.error("Error sending interest:", error);
+      alert(error.message || "An error occurred. Please try again.");
     }
   };
 
@@ -318,7 +351,7 @@ const PhotoDetailUser = ({ navigation }) => {
       await AsyncStorage.removeItem("@token");
       const token = await AsyncStorage.getItem("@token");
       if (!token) {
-        console.log("Token removed successfully");
+        // console.log("Token removed successfully");
       }
       navigation.reset({
         index: 0,
@@ -434,7 +467,7 @@ const PhotoDetailUser = ({ navigation }) => {
       <View key={i} style={stylesIn.contactContainer}>
         <TouchableOpacity
           style={stylesIn.contact}
-          onPress={() => console.log("test")}
+          onPress={() => openlink(item.contact_link)}
         >
           <FontAwesomeIcon
             icon={item.contact_icon}
@@ -524,16 +557,93 @@ const PhotoDetailUser = ({ navigation }) => {
             </View>
           </View>
 
-          <View>
-            {userId != userLoginId ? (
-              <TouchableOpacity onPress={userLikePress}>
-                <Text style={[stylesIn.likeText, liked && stylesIn.likedText]}>
-                  {liked ? "ถูกใจแล้ว" : "ถูกใจ"}
-                </Text>
-              </TouchableOpacity>
-            ) : (
-              <View></View>
-            )}
+          <View></View>
+          <View style={stylesIn.mainContainer}>
+            <View style={stylesIn.actionRow}>
+              {userId != userLoginId ? (
+                <TouchableOpacity onPress={userLikePress}>
+                  <Text
+                    style={[stylesIn.likeText, liked && stylesIn.likedText]}
+                  >
+                    {liked ? "ถูกใจแล้ว" : "ถูกใจ"}
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <View />
+              )}
+              {userId != userLoginId ? (
+                <TouchableOpacity
+                  onPress={() => setModalVisibles(true)}
+                  style={[
+                    stylesIn.button,
+                    isSubmitted && stylesIn.buttonSubmitted,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      stylesIn.buttonText,
+                      isSubmitted && stylesIn.textSubmitted,
+                    ]}
+                  >
+                    {isSubmitted ? "แจ้งข้อมูลเรียบร้อย" : "สนใจ"}
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <View />
+              )}
+            </View>
+
+            <Modal
+              visible={modalVisible}
+              animationType="slide"
+              transparent={true}
+            >
+              <View style={stylesIn.modalBackground}>
+                <View style={stylesIn.modalBox}>
+                  <Text style={stylesIn.modalTitle}>กรอกข้อมูลติดต่อ</Text>
+                  <TextInput
+                    style={stylesIn.inputField}
+                    placeholder="ชื่อของคุณ"
+                    value={nameContact}
+                    onChangeText={setNameContact}
+                    placeholderTextColor="#aaa"
+                  />
+                  <TextInput
+                    style={stylesIn.inputField}
+                    placeholder="กรอกช่องทางการติดต่อ"
+                    value={messageContact}
+                    onChangeText={setMessageContact}
+                    placeholderTextColor="#aaa"
+                    multiline={true}
+                    numberOfLines={4}
+                    returnKeyType="default"
+                  />
+
+                  <TouchableOpacity
+                    style={stylesIn.submitButton}
+                    onPress={() => {
+                      setModalVisibles(false);
+                      setMessageContact("");
+                      setNameContact("");
+                      setIsSubmitted(true); // เปลี่ยนสถานะให้ปุ่มเป็น "แจ้งข้อมูลเรียบร้อย"
+                      userInterests();
+                    }}
+                  >
+                    <Text style={stylesIn.submitButtonText}>ส่ง</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={stylesIn.cancelButton}
+                    onPress={() => {
+                      setModalVisibles(false);
+                      setMessageContact("");
+                      setNameContact("");
+                    }}
+                  >
+                    <Text style={stylesIn.cancelButtonText}>ยกเลิก</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
           </View>
 
           <View style={stylesIn.content_home}>
@@ -590,6 +700,15 @@ const PhotoDetailUser = ({ navigation }) => {
 };
 
 const stylesIn = StyleSheet.create({
+  actionRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    paddingHorizontal: 100,
+    marginBottom: 10,
+  },
+
   content: {
     width: "auto",
     marginTop: 80,
@@ -636,6 +755,9 @@ const stylesIn = StyleSheet.create({
   },
   likedText: {
     color: "red",
+  },
+  textSubmitted: {
+    color: "#867B29",
   },
   name: {
     fontSize: 20,
@@ -751,6 +873,70 @@ const stylesIn = StyleSheet.create({
     height: 45,
     borderRadius: 50, // รูปทรงกลม
     marginRight: 10,
+  },
+  mainContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    // backgroundColor: "#f4f4f4",
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalBox: {
+    width: 320,
+    padding: 20,
+    backgroundColor: "white",
+    borderRadius: 15,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 15,
+    color: "#333",
+  },
+  inputField: {
+    width: "100%",
+    padding: 12,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 10,
+    marginBottom: 10,
+    backgroundColor: "#f9f9f9",
+  },
+  submitButton: {
+    backgroundColor: "#063B52",
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+    marginTop: 10,
+    width: "100%",
+    alignItems: "center",
+  },
+  submitButtonText: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  cancelButton: {
+    marginTop: 10,
+    paddingVertical: 10,
+    width: "100%",
+    alignItems: "center",
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    color: "#333",
+    fontWeight: "bold",
   },
 });
 
